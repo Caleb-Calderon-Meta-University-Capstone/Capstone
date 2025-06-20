@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
+  password       String
+  bio            String?
+  year           String?
+  skills         String[]
+  interests      String[]
+  role           String
+  points         Int      @default(0)
+  createdAt      DateTime @default(now())
+  matches1       Match[]  @relation("MatchUser1")
+  matches2       Match[]  @relation("MatchUser2")
+  createdEvents  Event[]  @relation("CreatedEvents")
+  eventsAttended Event[]  @relation("UserEvents")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  createdBy   User?    @relation("CreatedEvents", fields: [createdById], references: [id])
+  createdById Int?
+  attendees   User[]   @relation("UserEvents")
+}
+
+model Match {
+  id         Int      @id @default(autoincrement())
+  user1      User     @relation("MatchUser1", fields: [user1Id], references: [id])
+  user1Id    Int
+  user2      User     @relation("MatchUser2", fields: [user2Id], references: [id])
+  user2Id    Int
+  matchType  String
+  createdAt  DateTime @default(now())
+}
