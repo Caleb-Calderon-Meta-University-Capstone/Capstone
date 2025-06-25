@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
-import { userAuth } from "../context/AuthContext.jsx";
+import { UserAuth } from "../context/AuthContext.jsx";
 
 const Signup = () => {
 	const [email, setEmail] = React.useState("");
@@ -8,7 +8,7 @@ const Signup = () => {
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState(null);
 
-	const { session } = UserAuth();
+	const { session, signUpNewUser } = UserAuth();
 
 	return (
 		<div>
@@ -18,8 +18,8 @@ const Signup = () => {
 					Already have an account? <Link to="/Login"> Log in!</Link>
 				</p>
 				<div className="flex flex-col py-4">
-					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5" type="email" name="" id="" />
-					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5" type="password" name="" id="" />
+					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5" type="email" name="" />
+					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5" type="password" name="" />
 					<button disabled={loading} className="bg-blue-500 mt-2 border-2 border-black py-1.5">
 						{" "}
 						Sign up
