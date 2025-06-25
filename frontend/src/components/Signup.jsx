@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
+import { userAuth } from "../context/AuthContext.jsx";
 
 const Signup = () => {
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState(null);
+
+	const { session } = UserAuth();
 
 	return (
 		<div>
