@@ -15,7 +15,6 @@ const Signup = () => {
 		e.preventDefault();
 		setLoading(true);
 		setError(null);
-
 		try {
 			const result = await signUpNewUser(email, password);
 			if (!result.success) {
