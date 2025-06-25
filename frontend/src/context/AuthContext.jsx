@@ -28,6 +28,14 @@ export const AuthContextProvider = ({ children }) => {
 		});
 	}, []);
 
+  //Sign out
+  const SignOut = () => {
+    const { error } = supabase.auth.signOut();
+    if (error) {
+      console.log("Error signing out:", error);
+    }
+  }
+
 	return <AuthContext.Provider value={{ session, signUpNewUser }}>{children}</AuthContext.Provider>;
 };
 
