@@ -18,6 +18,23 @@ export const AuthContextProvider = ({ children }) => {
 		return { success: true, data };
 	};
 
+	//sign in
+	const signInUser = async ({ email, password }) => {
+		try {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email: email,
+				password: password,
+			});
+			if (error) {
+				setError("there was a problem signing in");
+				return { success: false, error };
+			}
+			return { success: true, data };
+		} catch (error) {
+			console.error("an error occurred during sign in:", error);
+		}
+	};
+
 	useEffect(() => {
 		supabase.auth.getSession().then(({ data: { session } }) => {
 			setSession(session);
@@ -28,15 +45,15 @@ export const AuthContextProvider = ({ children }) => {
 		});
 	}, []);
 
-  //Sign out
-  const SignOut = () => {
-    const { error } = supabase.auth.signOut();
-    if (error) {
-      console.log("Error signing out:", error);
-    }
-  }
+	//Sign out
+	const signOut = () => {
+		const { error } = supabase.auth.signOut();
+		if (error) {
+			console.log("Error signing out:", error);
+		}
+	};
 
-	return <AuthContext.Provider value={{ session, signUpNewUser }}>{children}</AuthContext.Provider>;
+	return <AuthContext.Provider value={{ session, signUpNewUser, signInUser, signOut }}>{children}</AuthContext.Provider>;
 };
 
 export const UserAuth = () => useContext(AuthContext); // ✅ fixed
