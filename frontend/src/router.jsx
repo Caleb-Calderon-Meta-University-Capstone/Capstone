@@ -4,11 +4,13 @@ import Signin from "./components/Login.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import App from "./App.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
+import EventsPage from "./components/EventsPage.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
+	{ path: "/events", element: <EventsPage /> },
 	{
 		path: "/dashboard",
 		element: (
