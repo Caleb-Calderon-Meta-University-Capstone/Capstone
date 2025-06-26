@@ -8,7 +8,7 @@ const Login = () => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 
-	const { signInUser } = UserAuth(); // Correct method name
+	const { signInUser } = UserAuth(); 
 	const navigate = useNavigate();
 
 	const handleLogin = async (e) => {
