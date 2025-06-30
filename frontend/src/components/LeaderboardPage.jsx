@@ -1,5 +1,4 @@
 import React from "react";
-import Events from "./Events.jsx";
 import NavigationBar from "./NavigationBar.jsx";
 import { Button } from "./ui/button";
 

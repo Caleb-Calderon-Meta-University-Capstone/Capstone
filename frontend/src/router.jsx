@@ -11,6 +11,7 @@ export const router = createBrowserRouter([
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
 	{ path: "/events", element: <EventsPage /> },
+	{ path: "/leaderboard", element: <EventsPage /> },
 	{
 		path: "/dashboard",
 		element: (

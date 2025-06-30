@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "./ui/button";
+
 
 //Todo: Delete this dummy data when integrating with backend
 const dummyEvents = Array(30).fill();
