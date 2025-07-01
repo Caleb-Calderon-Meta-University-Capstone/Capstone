@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserAuth } from "../context/AuthContext.jsx";
+import { Button } from "./ui/button";
 
 const Signup = () => {
 	const [email, setEmail] = useState("");
@@ -40,9 +41,9 @@ const Signup = () => {
 					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 					{error && <p className="text-red-500 mt-2">{error}</p>}
-					<button disabled={loading} className="bg-blue-500 mt-2 border-2 border-black py-1.5">
-						{loading ? "Signing up..." : "Sign up"}
-					</button>
+					<Button disabled={loading} className="mt-2">
+						{loading ? "Signing in..." : "Sign in"}
+					</Button>
 				</div>
 			</form>
 		</div>

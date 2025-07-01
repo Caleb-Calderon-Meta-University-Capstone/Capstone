@@ -3,13 +3,14 @@ import { useState } from "react";
 import { UserAuth } from "../context/AuthContext.jsx";
 import { Button } from "./ui/button";
 
+
 const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 
-	const { signInUser } = UserAuth(); 
+	const { signInUser } = UserAuth();
 	const navigate = useNavigate();
 
 	const handleLogin = async (e) => {
@@ -42,9 +43,9 @@ const Login = () => {
 					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 					{error && <p className="text-red-500 mt-2">{error}</p>}
-					<button disabled={loading} className="bg-blue-500 mt-2 border-2 border-black py-1.5">
-						{loading ? "Signing in..." : "Sign in"}
-					</button>
+					<Button disabled={loading} className="mt-2">
+						{loading ? "Logging in..." : "Log in"}
+					</Button>
 				</div>
 			</form>
 		</div>

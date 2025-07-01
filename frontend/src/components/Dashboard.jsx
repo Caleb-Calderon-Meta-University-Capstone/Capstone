@@ -24,9 +24,7 @@ const Dashboard = () => {
 			<h1> Dashbord</h1>
 			<h2> Welcome, {session?.user?.email} </h2>
 			<div>
-				<Button variant="outline" className="ml-4">
-					Login
-				</Button>
+				<Button className="ml-4">Login</Button>
 			</div>
 		</div>
 	);
