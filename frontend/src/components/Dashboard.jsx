@@ -22,7 +22,7 @@ const Dashboard = () => {
 		<div>
 			<NavigationBar />
 			<h1> Dashbord</h1>
-			<h2> Welcome, {session?.user?.email} </h2>
+			<h2> Welcome, {session?.user?.email || "Guest"} </h2>
 			<div>
 				<Button className="ml-4">Login</Button>
 			</div>
