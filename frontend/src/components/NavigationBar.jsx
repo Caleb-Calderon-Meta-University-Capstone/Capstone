@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "./ui/Navigation-menu-base";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
@@ -15,6 +15,18 @@ export default function NavigationBar() {
 	const navigate = useNavigate();
 	const email = "fakemailfornow@meta.com";
 	const [isHovered, setIsHovered] = useState(false);
+	const timeoutRef = useRef(null);
+
+	const handleMouseEnter = () => {
+		clearTimeout(timeoutRef.current);
+		setIsHovered(true);
+	};
+
+	const handleMouseLeave = () => {
+		timeoutRef.current = setTimeout(() => {
+			setIsHovered(false);
+		}, 100); 
+	};
 
 	return (
 		<NavigationMenu className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm w-full h-full">
@@ -29,9 +41,9 @@ export default function NavigationBar() {
 					</NavigationMenuItem>
 				))}
 
-				{/* Profile Avatar & Dropdown */}
-				<NavigationMenuItem className="relative" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-					<div className="p-0 border-none bg-transparent hover:bg-transparent focus:ring-0 cursor-pointer">
+				{/* Avatar + Dropdown Container */}
+				<NavigationMenuItem className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+					<div className="p-0 border-none bg-transparent cursor-pointer">
 						<Avatar className="w-8 h-8">
 							<AvatarImage src="https://picsum.photos/200/300" alt="Profile" />
 							<AvatarFallback>N/A</AvatarFallback>
