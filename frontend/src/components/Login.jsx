@@ -3,7 +3,6 @@ import { useState } from "react";
 import { UserAuth } from "../context/AuthContext.jsx";
 import { Button } from "./ui/button";
 
-
 const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -35,9 +34,12 @@ const Login = () => {
 	return (
 		<div>
 			<form onSubmit={handleLogin} className="max-w-md m-auto pt-24">
-				<h2 className="text-2xl font-bold mb-6">Sign In</h2>
+				<h2 className="text-2xl font-bold mb-6">Log In</h2>
 				<p>
-					Don't have an account? <Link to="/signup">Sign up!</Link>
+					Don't have an account?{" "}
+					<Link className="text-blue-600 hover:underline" to="/signup">
+						Sign up!
+					</Link>
 				</p>
 				<div className="flex flex-col py-4">
 					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

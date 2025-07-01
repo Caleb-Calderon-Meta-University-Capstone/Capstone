@@ -3,5 +3,6 @@
 @tailwind utilities;
 
 :root {
-	background-color: rgb(175, 225, 255);
+	--tw-bg-opacity: 1;
+	background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
