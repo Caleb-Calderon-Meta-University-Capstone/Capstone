@@ -4,6 +4,7 @@ import { UserAuth } from "../context/AuthContext";
 import NavigationBar from "./NavigationBar";
 import { Button } from "./ui/button";
 
+
 const Dashboard = () => {
 	const { session } = UserAuth();
 	const [name, setName] = useState("");
@@ -25,7 +26,6 @@ const Dashboard = () => {
 
 		fetchName();
 	}, [session]);
-
 	return (
 		<div>
 			<NavigationBar />
