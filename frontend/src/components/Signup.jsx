@@ -25,7 +25,19 @@ const Signup = () => {
 			} else {
 				const user = result.data.user;
 
-				await supabase.from("users").insert([{ id: user.id, email, name }]);
+				const { error: insertError } = await supabase.from("users").insert([
+					{
+						id: user.id,
+						email,
+						name,
+					},
+				]);
+
+				if (insertError) {
+					console.error("Supabase Insert Error:", insertError.message);
+					setError("Could not save user info.");
+					return;
+				}
 
 				navigate("/dashboard");
 			}
@@ -52,7 +64,7 @@ const Signup = () => {
 					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 					{error && <p className="text-red-500 mt-2">{error}</p>}
 					<Button disabled={loading} className="mt-2">
-						{loading ? "Signing in..." : "Sign in"}
+						{loading ? "Signing in..." : "Sign up"}
 					</Button>
 				</div>
 			</form>
