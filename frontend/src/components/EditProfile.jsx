@@ -65,7 +65,6 @@ export default function EditPage() {
 		const userId = session.user.id;
 		const updates = { name, year, bio, skills, interests };
 		const { data, error } = await supabase.from("users").update(updates).eq("id", userId).select();
-		console.log("Updated bio:", data?.[0]?.bio);
 		if (error) setError(error.message);
 		else navigate("/profile");
 		setSaving(false);
