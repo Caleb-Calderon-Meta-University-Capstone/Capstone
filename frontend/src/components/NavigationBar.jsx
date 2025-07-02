@@ -55,7 +55,7 @@ export default function NavigationBar() {
 							<p className="text-xs text-gray-500 mb-2 px-1">{email}</p>
 							<div className="flex flex-col space-y-1">
 								<Link to="/profile" className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
-									Edit Profile
+									Profile
 								</Link>
 								<button onClick={() => navigate("/login")} className="text-sm px-2 py-1 text-left rounded-md hover:bg-gray-100 transition-colors">
 									Log Out
