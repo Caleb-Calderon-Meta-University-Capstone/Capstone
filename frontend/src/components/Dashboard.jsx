@@ -20,7 +20,6 @@ const Dashboard = () => {
 				return;
 			}
 
-			console.log("Fetched name:", data);
 			setName(data.name);
 		};
 
