@@ -8,6 +8,8 @@ const navLinks = [
 	{ title: "Members", to: "/members" },
 	{ title: "Events", to: "/events" },
 	{ title: "Leaderboard", to: "/leaderboard" },
+	{ title: "Profile", to: "/profile" },
+	{ title: "Log Out", to: "/login" },
 ];
 
 export default function NavigationBar() {
@@ -25,13 +27,13 @@ export default function NavigationBar() {
 	const handleMouseLeave = () => {
 		timeoutRef.current = setTimeout(() => {
 			setIsHovered(false);
-		}, 100); 
+		}, 100);
 	};
 
 	return (
 		<NavigationMenu className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm w-full h-full">
 			<NavigationMenuList className="flex justify-center space-x-8 items-center">
-				{navLinks.map(({ title, to }) => (
+				{navLinks.slice(0, 4).map(({ title, to }) => (
 					<NavigationMenuItem key={to}>
 						<NavigationMenuLink asChild>
 							<Link to={to} className={`text-sm font-medium transition-colors ${location.pathname === to ? "text-blue-600 underline underline-offset-4" : "text-gray-700 hover:text-blue-500"}`}>
@@ -41,7 +43,6 @@ export default function NavigationBar() {
 					</NavigationMenuItem>
 				))}
 
-				{/* Avatar + Dropdown Container */}
 				<NavigationMenuItem className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 					<div className="p-0 border-none bg-transparent cursor-pointer">
 						<Avatar className="w-8 h-8">
@@ -54,11 +55,11 @@ export default function NavigationBar() {
 						<div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-3 min-w-[180px] z-50">
 							<p className="text-xs text-gray-500 mb-2 px-1">{email}</p>
 							<div className="flex flex-col space-y-1">
-								<Link to="/profile" className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
-									Profile
+								<Link to={navLinks[4].to} className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
+									{navLinks[4].title}
 								</Link>
-								<button onClick={() => navigate("/login")} className="text-sm px-2 py-1 text-left rounded-md hover:bg-gray-100 transition-colors">
-									Log Out
+								<button onClick={() => navigate(navLinks[5].to)} className="text-sm px-2 py-1 text-left rounded-md hover:bg-gray-100 transition-colors">
+									{navLinks[5].title}
 								</button>
 							</div>
 						</div>
