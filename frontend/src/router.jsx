@@ -13,15 +13,44 @@ export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
-	{ path: "/events", element: <EventsPage /> },
-	{ path: "/leaderboard", element: <LeaderboardPage /> },
-	{ path: "/members", element: <MemberPage /> },
-	{ path: "/profile", element: <ProfilePage /> },
+
 	{
 		path: "/dashboard",
 		element: (
 			<PrivateRoute>
-				<Dashboard />{" "}
+				<Dashboard />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/members",
+		element: (
+			<PrivateRoute>
+				<MemberPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/profile",
+		element: (
+			<PrivateRoute>
+				<ProfilePage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/events",
+		element: (
+			<PrivateRoute>
+				<EventsPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/leaderboard",
+		element: (
+			<PrivateRoute>
+				<LeaderboardPage />
 			</PrivateRoute>
 		),
 	},
