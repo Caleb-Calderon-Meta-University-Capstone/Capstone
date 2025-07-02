@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import NavigationBar from "./NavigationBar";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
 	const { session } = UserAuth();
 	const [userData, setUserData] = useState(null);
+	const navigate = useNavigate();
+
+	const handleEditProfile = async () => {
+		navigate("/edit-profile");
+	};
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -13,7 +19,6 @@ export default function ProfilePage() {
 			if (!userId) return;
 
 			const { data, error } = await supabase.from("users").select("*").eq("id", userId).single();
-			console.log("Fetched user data:", data);
 			if (error) {
 				console.error("Error fetching user data:", error.message);
 				return;
@@ -49,7 +54,7 @@ export default function ProfilePage() {
 					<div className="md:col-span-2 flex flex-col gap-4">
 						<div className="bg-white p-6 rounded-xl shadow">
 							<h3 className="text-xl font-bold mb-2">About Me</h3>
-							<p className="text-gray-700">{userData.about || "No bio yet."}</p>
+							<p className="text-gray-700">{userData.bio || "No bio yet."}</p>
 						</div>
 
 						<div className="bg-white p-6 rounded-xl shadow">
@@ -86,7 +91,9 @@ export default function ProfilePage() {
 						</div>
 
 						<div className="flex justify-center mt-6">
-							<button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold">Edit Profile</button>
+							<button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold" onClick={handleEditProfile}>
+								Edit Profile
+							</button>
 						</div>
 					</div>
 				</div>

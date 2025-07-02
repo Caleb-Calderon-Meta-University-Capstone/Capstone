@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "./ui/Navigation-menu-base";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { UserAuth } from "../context/AuthContext.jsx"; 
+import { UserAuth } from "../context/AuthContext.jsx";
 
 const navLinks = [
 	{ title: "Home", to: "/dashboard" },
@@ -15,8 +15,8 @@ const navLinks = [
 export default function NavigationBar() {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { signOut } = UserAuth(); 
-	const email = "fakemailfornow@meta.com"; 
+	const { signOut } = UserAuth();
+	const email = "fakemailfornow@meta.com";
 	const [isHovered, setIsHovered] = useState(false);
 	const timeoutRef = useRef(null);
 
@@ -32,8 +32,8 @@ export default function NavigationBar() {
 	};
 
 	const handleLogout = async () => {
-		await signOut(); 
-		navigate("/login"); 
+		await signOut();
+		navigate("/login");
 	};
 
 	return (

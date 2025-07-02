@@ -8,11 +8,21 @@ import EventsPage from "./components/EventsPage.jsx";
 import LeaderboardPage from "./components/LeaderboardPage.jsx";
 import MemberPage from "./components/Members.jsx";
 import ProfilePage from "./components/Profile.jsx";
+import EditPage from "./components/EditProfile.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
+
+	{
+		path: "/edit-profile",
+		element: (
+			<PrivateRoute>
+				<EditPage />
+			</PrivateRoute>
+		),
+	},
 
 	{
 		path: "/dashboard",
