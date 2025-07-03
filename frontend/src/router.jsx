@@ -8,20 +8,59 @@ import EventsPage from "./components/EventsPage.jsx";
 import LeaderboardPage from "./components/LeaderboardPage.jsx";
 import MemberPage from "./components/Members.jsx";
 import ProfilePage from "./components/Profile.jsx";
+import EditPage from "./components/EditProfile.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
-	{ path: "/events", element: <EventsPage /> },
-	{ path: "/leaderboard", element: <LeaderboardPage /> },
-	{ path: "/members", element: <MemberPage /> },
-	{ path: "/profile", element: <ProfilePage /> },
+
+	{
+		path: "/edit-profile",
+		element: (
+			<PrivateRoute>
+				<EditPage />
+			</PrivateRoute>
+		),
+	},
+
 	{
 		path: "/dashboard",
 		element: (
 			<PrivateRoute>
-				<Dashboard />{" "}
+				<Dashboard />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/members",
+		element: (
+			<PrivateRoute>
+				<MemberPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/profile",
+		element: (
+			<PrivateRoute>
+				<ProfilePage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/events",
+		element: (
+			<PrivateRoute>
+				<EventsPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/leaderboard",
+		element: (
+			<PrivateRoute>
+				<LeaderboardPage />
 			</PrivateRoute>
 		),
 	},
