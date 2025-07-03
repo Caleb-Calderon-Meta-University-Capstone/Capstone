@@ -10,7 +10,7 @@ export default function EventsPage() {
 
 			<div className="py-8 px-4">
 				<div className="py-2 px-6 w-fit mx-auto">
-					<h1 class="text-3xl font-bold text-center">MICS Events Schedule</h1>
+					<h1 className="text-3xl font-bold text-center">MICS Events Schedule</h1>
 				</div>
 
 				<Events />
