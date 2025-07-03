@@ -10,7 +10,6 @@ const navLinks = [
 	{ title: "Members", to: "/members" },
 	{ title: "Events", to: "/events" },
 	{ title: "Leaderboard", to: "/leaderboard" },
-	{ title: "Profile", to: "/profile" },
 ];
 
 export default function NavigationBar() {
@@ -27,7 +26,7 @@ export default function NavigationBar() {
 	useEffect(() => {
 		const fetchUserProfile = async () => {
 			if (!userId) return;
-			const { data, error } = await supabase.from("users").select("profile_picture").eq("id", userId).single();
+			const { data } = await supabase.from("users").select("profile_picture").eq("id", userId).single();
 
 			if (data?.profile_picture) setProfilePicture(data.profile_picture);
 			if (session?.user?.email) setEmail(session.user.email);
@@ -66,15 +65,15 @@ export default function NavigationBar() {
 				))}
 
 				<NavigationMenuItem className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-					<div className="p-0 border-none bg-transparent cursor-pointer">
-						<Avatar className="w-8 h-8">
+					<div className="p-0 border border-blue-200 rounded-full bg-transparent cursor-pointer hover:ring-2 hover:ring-blue-300 transition-transform duration-200">
+						<Avatar className="w-[3em] h-[3em] transition-transform duration-300 hover:scale-105">
 							<AvatarImage src={profilePicture} alt="Profile" />
 							<AvatarFallback>N/A</AvatarFallback>
 						</Avatar>
 					</div>
 
 					{isHovered && (
-						<div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-3 min-w-[180px] z-50">
+						<div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-3 min-w-[160px] z-50 opacity-100 scale-100 transition-all duration-200 ease-out">
 							<p className="text-xs text-gray-500 mb-2 px-1">{email}</p>
 							<div className="flex flex-col space-y-1">
 								<Link to="/profile" className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
