@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "./ui/Navigation-menu-base";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { UserAuth } from "../context/AuthContext.jsx";
+import { supabase } from "../supabaseClient";
 
 const navLinks = [
 	{ title: "Home", to: "/dashboard" },
@@ -15,10 +16,25 @@ const navLinks = [
 export default function NavigationBar() {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { signOut } = UserAuth();
-	const email = "fakemailfornow@meta.com";
+	const { session, signOut } = UserAuth();
+	const userId = session?.user?.id;
+
+	const [profilePicture, setProfilePicture] = useState("https://picsum.photos/200/300");
+	const [email, setEmail] = useState("noemail@noemail.com");
 	const [isHovered, setIsHovered] = useState(false);
 	const timeoutRef = useRef(null);
+
+	useEffect(() => {
+		const fetchUserProfile = async () => {
+			if (!userId) return;
+			const { data, error } = await supabase.from("users").select("profile_picture").eq("id", userId).single();
+
+			if (data?.profile_picture) setProfilePicture(data.profile_picture);
+			if (session?.user?.email) setEmail(session.user.email);
+		};
+
+		fetchUserProfile();
+	}, [session, userId]);
 
 	const handleMouseEnter = () => {
 		clearTimeout(timeoutRef.current);
@@ -52,8 +68,7 @@ export default function NavigationBar() {
 				<NavigationMenuItem className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 					<div className="p-0 border-none bg-transparent cursor-pointer">
 						<Avatar className="w-8 h-8">
-							<AvatarImage src="https://picsum.photos/200/300" alt="Profile" />
-							{/* Plan to change fall back image to initials but will put as n/a for now */}
+							<AvatarImage src={profilePicture} alt="Profile" />
 							<AvatarFallback>N/A</AvatarFallback>
 						</Avatar>
 					</div>

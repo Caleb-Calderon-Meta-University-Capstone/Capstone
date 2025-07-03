@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import NavigationBar from "./NavigationBar";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
 	const { session } = UserAuth();
 	const [userData, setUserData] = useState(null);
 	const navigate = useNavigate();
 
-	const handleEditProfile = async () => {
+	const handleEditProfile = () => {
 		navigate("/edit-profile");
 	};
 
@@ -37,6 +37,8 @@ export default function ProfilePage() {
 		);
 	}
 
+	const profilePicture = userData.profile_picture || "https://picsum.photos/200/300";
+
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
 			<NavigationBar />
@@ -45,7 +47,9 @@ export default function ProfilePage() {
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					<div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
-						<div className="w-24 h-24 rounded-full bg-gray-300 mb-4"></div>
+						<div className="w-24 h-24 rounded-full overflow-hidden mb-4">
+							<img src={profilePicture} alt="Profile" className="object-cover w-full h-full" />
+						</div>
 						<h2 className="text-2xl font-semibold">{userData.name}</h2>
 						<p className="text-gray-600">{userData.year || "Student"}</p>
 						<span className="mt-2 px-3 py-1 text-sm font-medium border border-blue-500 text-blue-500 rounded-full">{userData.points ?? 0} points</span>

@@ -20,6 +20,8 @@ export default function EditPage() {
 	const [interests, setInterests] = useState([]);
 	const [skillInput, setSkillInput] = useState("");
 	const [interestInput, setInterestInput] = useState("");
+	const [profilePic, setProfilePic] = useState(null);
+	const [profilePreview, setProfilePreview] = useState("");
 
 	const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];
 
@@ -39,9 +41,11 @@ export default function EditPage() {
 				setBio(data.bio || "");
 				setSkills(data.skills || []);
 				setInterests(data.interests || []);
+				setProfilePreview(data.profile_picture || "");
 			}
 			setLoading(false);
 		};
+
 		fetchUser();
 	}, [session]);
 
@@ -62,12 +66,49 @@ export default function EditPage() {
 	const handleSave = async () => {
 		setSaving(true);
 		setError("");
-		const userId = session.user.id;
-		const updates = { name, year, bio, skills, interests };
-		const { data, error } = await supabase.from("users").update(updates).eq("id", userId).select();
+
+		const userId = session?.user?.id;
+		let profile_picture_url = userData?.profile_picture;
+
+		if (profilePic) {
+			const fileExt = profilePic.name.split(".").pop();
+			const filePath = `avatar/${userId}.${fileExt}`;
+			const { error: uploadError } = await supabase.storage.from("avatar").upload(filePath, profilePic, { upsert: true });
+
+			if (uploadError) {
+				setError("Error uploading image: " + uploadError.message);
+				setSaving(false);
+				return;
+			}
+
+			const { data: publicUrlData } = supabase.storage.from("avatar").getPublicUrl(filePath);
+			profile_picture_url = publicUrlData.publicUrl;
+			setProfilePreview(profile_picture_url);
+		}
+
+		const updates = {
+			name,
+			year,
+			bio,
+			skills,
+			interests,
+			profile_picture: profile_picture_url,
+		};
+
+		const { error } = await supabase.from("users").update(updates).eq("id", userId);
+
 		if (error) setError(error.message);
 		else navigate("/profile");
+
 		setSaving(false);
+	};
+
+	const handleProfilePicChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setProfilePic(file);
+			setProfilePreview(URL.createObjectURL(file));
+		}
 	};
 
 	const handleCancel = () => navigate("/profile");
@@ -90,7 +131,10 @@ export default function EditPage() {
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					<div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
-						<div className="w-24 h-24 rounded-full bg-gray-300 mb-4"></div>
+						<div className="w-24 h-24 rounded-full overflow-hidden mb-4">
+							<img src={profilePreview || "/default-avatar.png"} alt="Profile" className="object-cover w-full h-full" />
+						</div>
+						<input type="file" accept="image/*" onChange={handleProfilePicChange} className="mt-2" />
 						<input type="text" className="mt-2 bg-gray-100 p-2 rounded-md w-full" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" />
 						<select className="mt-4 bg-gray-100 p-2 rounded-md w-full" value={year} onChange={(e) => setYear(e.target.value)}>
 							<option value="">Select Year</option>
