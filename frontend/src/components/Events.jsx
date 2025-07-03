@@ -1,4 +1,3 @@
-// src/components/Events.jsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -43,6 +42,11 @@ export default function Events() {
 								<p className="mt-4 text-gray-700 flex-grow">{e.description}</p>
 								<div className="mt-4 text-sm text-gray-600">
 									Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
+								</div>
+
+								<div className="mt-6 flex gap-4">
+									<button className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded transition">Register</button>
+									<button className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium py-2 px-4 rounded transition">Add to Outlook Calendar</button>
 								</div>
 							</div>
 						))}

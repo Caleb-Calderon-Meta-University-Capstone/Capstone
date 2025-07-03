@@ -1,4 +1,3 @@
-// src/components/EventsPage.jsx
 import React from "react";
 import NavigationBar from "./NavigationBar";
 import Events from "./Events";
