@@ -17,7 +17,7 @@ export default function Members() {
 	return (
 		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
 			<NavigationBar />
-			<h1 className="text-3xl font-bold text-center mb-6">Member Directory</h1>
+			<h1 className="text-3xl font-bold text-center my-6">Member Directory</h1>
 			<p className="text-center mb-10 text-gray-600">Connect with {members.length} amazing MICS members</p>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
 				{members.map((member) => {

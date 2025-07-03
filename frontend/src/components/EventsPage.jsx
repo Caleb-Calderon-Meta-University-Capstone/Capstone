@@ -1,19 +1,20 @@
+// src/components/EventsPage.jsx
 import React from "react";
-import EventsList from "./Events.jsx";
-import NavigationBar from "./NavigationBar.jsx";
-import { Button } from "./ui/button";
+import NavigationBar from "./NavigationBar";
+import Events from "./Events";
 
-const EventsPage = () => {
+export default function EventsPage() {
 	return (
-		<div className="mx-auto">
-			<NavigationBar />
+		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+			<NavigationBar active="events" />
 
-			<div className="bg-blue-400 py-2 px-4 rounded-lg shadow mb-6 w-fit mx-auto border border-gray-300">
-				<h1 className="text-xl font-bold">MICS EVENTS SCHEDULE</h1>
+			<div className="py-8 px-4">
+				<div className="py-2 px-6 w-fit mx-auto">
+					<h1 class="text-3xl font-bold text-center">MICS Events Schedule</h1>
+				</div>
+
+				<Events />
 			</div>
-			<EventsList />
 		</div>
 	);
-};
-
-export default EventsPage;
+}
