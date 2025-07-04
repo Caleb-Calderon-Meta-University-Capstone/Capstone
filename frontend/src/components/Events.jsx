@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import { useGoogleLogin } from "@react-oauth/google";
+import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 
 export default function Events() {
 	const [events, setEvents] = useState([]);
@@ -7,6 +9,20 @@ export default function Events() {
 	const [userId, setUserId] = useState(null);
 	const [points, setPoints] = useState(0);
 	const [loading, setLoading] = useState(true);
+
+	const [googleToken, setGoogleToken] = useState(null);
+
+	const loginWithGoogleCalendar = useGoogleLogin({
+		scope: "https://www.googleapis.com/auth/calendar.events",
+		onSuccess: (tokenResponse) => {
+			setGoogleToken(tokenResponse.access_token);
+			alert("Google Calendar Connected!");
+		},
+		onError: (err) => {
+			console.error("Google login failed:", err);
+			alert("Failed to connect to Google Calendar");
+		},
+	});
 
 	useEffect(() => {
 		(async () => {
@@ -87,7 +103,18 @@ export default function Events() {
 										<button onClick={() => toggleRegister(e.id)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"} text-white`}>
 											{isReg ? "Registered" : "Register"}
 										</button>
-										<button className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium py-2 px-4 rounded transition">Add to Outlook Calendar</button>
+										<button
+											onClick={() => {
+												if (googleToken) {
+													addEventToGoogleCalendar(googleToken, e);
+												} else {
+													loginWithGoogleCalendar();
+												}
+											}}
+											className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
+										>
+											{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
+										</button>
 									</div>
 								</div>
 							);
