@@ -3,12 +3,13 @@ import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 
-export default function Events() {
+export default function Events({ role }) {
 	const [events, setEvents] = useState([]);
 	const [registered, setRegistered] = useState(new Set());
 	const [userId, setUserId] = useState(null);
 	const [points, setPoints] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const [showModal, setShowModal] = useState(false);
 
 	const [googleToken, setGoogleToken] = useState(null);
 
@@ -75,6 +76,28 @@ export default function Events() {
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<div className="py-8 px-4 max-w-5xl mx-auto">
+				{role === "Admin" && (
+					<div className="mb-6 text-right">
+						<button onClick={() => setShowModal(true)} className="bg-indigo-600 text-white px-4 py-2 rounded font-medium hover:bg-indigo-700 transition">
+							Add Event
+						</button>
+					</div>
+				)}
+
+				{showModal && (
+					<div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+						<div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
+							<h2 className="text-xl font-semibold mb-4">Create Event</h2>
+							<p className="text-sm text-gray-600">Event creation form coming soon...</p>
+							<div className="mt-4 text-right">
+								<button onClick={() => setShowModal(false)} className="text-gray-700 border border-gray-300 px-4 py-1 rounded hover:bg-gray-100">
+									Close
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
+
 				{loading ? (
 					<p className="text-center text-gray-600">Loading events…</p>
 				) : (
