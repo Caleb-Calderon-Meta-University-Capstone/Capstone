@@ -31,30 +31,40 @@ export default function Events({ role }) {
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
-			if (!user) return;
+			if (!user) {
+				setLoading(false);
+				return;
+			}
 			setUserId(user.id);
 
-			// get registrations
 			const { data: regData } = await supabase.from("event_registrations").select("event_id").eq("user_id", user.id);
 			setRegistered(new Set(regData?.map((r) => r.event_id)));
 
-			// get user points
 			const { data: userData } = await supabase.from("users").select("points").eq("id", user.id).single();
 			setPoints(userData?.points ?? 0);
 
-			// fetch events INCLUDING their points
-			const { data: eventData } = await supabase.from("events").select("id, title, description, location, date, points, users(name)").order("date", { ascending: true });
+			const { data: eventData } = await supabase.from("events").select("id,title,description,location,date,points,users(name)").order("date", { ascending: true });
 			setEvents(eventData ?? []);
 			setLoading(false);
 		})();
 	}, []);
+
+	const deleteEvent = async (id) => {
+		if (!window.confirm("Are you sure you want to delete this event?")) return;
+		const { error } = await supabase.from("events").delete().eq("id", id);
+		if (error) {
+			console.error("Delete error:", error);
+			alert("Failed to delete event.");
+		} else {
+			setEvents((prev) => prev.filter((e) => e.id !== id));
+		}
+	};
 
 	const toggleRegister = async (id, eventPoints) => {
 		if (!userId) return;
 		const isReg = registered.has(id);
 
 		if (isReg) {
-			// unregister: subtract that event's points
 			await supabase.from("event_registrations").delete().eq("user_id", userId).eq("event_id", id);
 			await supabase
 				.from("users")
@@ -67,7 +77,6 @@ export default function Events({ role }) {
 			});
 			setPoints((p) => p - eventPoints);
 		} else {
-			// register: add that event's points
 			await supabase.from("event_registrations").insert([{ user_id: userId, event_id: id }]);
 			await supabase
 				.from("users")
@@ -97,8 +106,6 @@ export default function Events({ role }) {
 										.single();
 									if (!error && data) {
 										setEvents((prev) => [...prev, data]);
-									} else {
-										console.error("Insert error:", error);
 									}
 								}}
 							/>
@@ -114,7 +121,14 @@ export default function Events({ role }) {
 							const isReg = registered.has(e.id);
 							return (
 								<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-									<h2 className="text-xl font-semibold">{e.title}</h2>
+									<div className="flex justify-between items-start">
+										<h2 className="text-xl font-semibold">{e.title}</h2>
+										{role === "Admin" && (
+											<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+												Delete
+											</button>
+										)}
+									</div>
 									<div className="text-sm text-gray-600 mt-1">+{e.points} pts</div>
 									<div className="text-gray-500 text-sm mt-1">
 										{new Date(e.date).toLocaleString(undefined, {
