@@ -30,6 +30,8 @@ const Signup = () => {
 						id: user.id,
 						email,
 						name,
+						points: 0,
+						role: "Member", 
 					},
 				]);
 
