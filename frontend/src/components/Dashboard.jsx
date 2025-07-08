@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function DashboardPage() {
 	const [points, setPoints] = useState(0);
@@ -9,6 +10,7 @@ export default function DashboardPage() {
 	const [rank, setRank] = useState(0);
 	const [topContributors, setTopContributors] = useState([]);
 	const [featuredMembers, setFeaturedMembers] = useState([]);
+	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -32,14 +34,17 @@ export default function DashboardPage() {
 
 			const { data: featured } = await supabase.from("users").select("id, name, year").order("created_at", { ascending: true }).limit(4);
 			setFeaturedMembers(featured || []);
+
+			setLoading(false); 
 		}
 		fetchData();
 	}, []);
 
+	if (loading) return <LoadingSpinner />;
+
 	return (
 		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
 			<NavigationBar />
-
 			<div className="text-center py-10">
 				<h1 className="text-4xl font-bold mb-2">Welcome to MICS Connect!</h1>
 				<p className="text-lg text-gray-700">Multicultural Innovators in Computer Science – Building community, fostering connections, and celebrating diversity in tech.</p>
@@ -66,7 +71,6 @@ export default function DashboardPage() {
 					</button>
 				</div>
 
-		
 				<div className="bg-white rounded-lg p-6 shadow-md">
 					<h2 className="text-xl font-semibold mb-2">Top Contributors</h2>
 					<p className="text-sm text-gray-600 mb-4">Our most active community members</p>

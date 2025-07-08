@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function Leaderboard() {
 	const [users, setUsers] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		supabase
@@ -11,12 +13,18 @@ export default function Leaderboard() {
 			.select("*")
 			.order("points", { ascending: false })
 			.then(({ data, error }) => {
-				if (error) console.error(error);
-				else setUsers(data);
+				if (error) {
+					console.error(error);
+				} else {
+					setUsers(data);
+				}
+				setLoading(false);
 			});
 	}, []);
 
 	const topThree = users.slice(0, 3);
+
+	if (loading) return <LoadingSpinner />;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
@@ -55,7 +63,7 @@ export default function Leaderboard() {
 								<p className="text-xs text-gray-600">{u.year}</p>
 							</div>
 						</div>
-						<div className="mx-4 flex-1 overflow-hidden rounded-full bg-blue-200  h-2">
+						<div className="mx-4 flex-1 overflow-hidden rounded-full bg-blue-200 h-2">
 							<div className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500" style={{ width: `${(u.points / users[0]?.points) * 100}%` }} />
 						</div>
 						<p className="w-16 text-right text-sm font-semibold">{u.points} pts</p>

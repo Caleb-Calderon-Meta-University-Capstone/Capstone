@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import NavigationBar from "./NavigationBar";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function EditPage() {
 	const { session } = UserAuth();
@@ -113,13 +114,7 @@ export default function EditPage() {
 
 	const handleCancel = () => navigate("/profile");
 
-	if (loading || !userData) {
-		return (
-			<div className="min-h-screen flex items-center justify-center bg-blue-100 text-gray-700">
-				<p>Loading...</p>
-			</div>
-		);
-	}
+	if (loading || !userData) return <LoadingSpinner />;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
