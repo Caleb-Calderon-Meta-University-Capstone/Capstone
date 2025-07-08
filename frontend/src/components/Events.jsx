@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
+import AddEventModal from "./AddEventModal";
 
-export default function Events() {
+export default function Events({ role }) {
 	const [events, setEvents] = useState([]);
 	const [registered, setRegistered] = useState(new Set());
 	const [userId, setUserId] = useState(null);
 	const [points, setPoints] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const [showModal, setShowModal] = useState(false);
 
 	const [googleToken, setGoogleToken] = useState(null);
 
@@ -29,8 +31,10 @@ export default function Events() {
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
-			if (!user) return;
-
+			if (!user) {
+				setLoading(false);
+				return;
+			}
 			setUserId(user.id);
 
 			const { data: regData } = await supabase.from("event_registrations").select("event_id").eq("user_id", user.id);
@@ -39,13 +43,24 @@ export default function Events() {
 			const { data: userData } = await supabase.from("users").select("points").eq("id", user.id).single();
 			setPoints(userData?.points ?? 0);
 
-			const { data: eventData } = await supabase.from("events").select("id,title,description,location,date,users(name)").order("date", { ascending: true });
+			const { data: eventData } = await supabase.from("events").select("id,title,description,location,date,points,users(name)").order("date", { ascending: true });
 			setEvents(eventData ?? []);
 			setLoading(false);
 		})();
 	}, []);
 
-	const toggleRegister = async (id) => {
+	const deleteEvent = async (id) => {
+		if (!window.confirm("Are you sure you want to delete this event?")) return;
+		const { error } = await supabase.from("events").delete().eq("id", id);
+		if (error) {
+			console.error("Delete error:", error);
+			alert("Failed to delete event.");
+		} else {
+			setEvents((prev) => prev.filter((e) => e.id !== id));
+		}
+	};
+
+	const toggleRegister = async (id, eventPoints) => {
 		if (!userId) return;
 		const isReg = registered.has(id);
 
@@ -53,28 +68,51 @@ export default function Events() {
 			await supabase.from("event_registrations").delete().eq("user_id", userId).eq("event_id", id);
 			await supabase
 				.from("users")
-				.update({ points: points - 5 })
+				.update({ points: points - eventPoints })
 				.eq("id", userId);
 			setRegistered((prev) => {
-				const set = new Set(prev);
-				set.delete(id);
-				return set;
+				const s = new Set(prev);
+				s.delete(id);
+				return s;
 			});
-			setPoints((p) => p - 5);
+			setPoints((p) => p - eventPoints);
 		} else {
 			await supabase.from("event_registrations").insert([{ user_id: userId, event_id: id }]);
 			await supabase
 				.from("users")
-				.update({ points: points + 5 })
+				.update({ points: points + eventPoints })
 				.eq("id", userId);
 			setRegistered((prev) => new Set(prev).add(id));
-			setPoints((p) => p + 5);
+			setPoints((p) => p + eventPoints);
 		}
 	};
 
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<div className="py-8 px-4 max-w-5xl mx-auto">
+				{role === "Admin" && (
+					<>
+						<button onClick={() => setShowModal(true)} className="mb-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition">
+							Add Event
+						</button>
+						{showModal && (
+							<AddEventModal
+								onClose={() => setShowModal(false)}
+								onSubmit={async (newEvent) => {
+									const { data, error } = await supabase
+										.from("events")
+										.insert([{ ...newEvent, created_by: userId }])
+										.select()
+										.single();
+									if (!error && data) {
+										setEvents((prev) => [...prev, data]);
+									}
+								}}
+							/>
+						)}
+					</>
+				)}
+
 				{loading ? (
 					<p className="text-center text-gray-600">Loading events…</p>
 				) : (
@@ -83,7 +121,15 @@ export default function Events() {
 							const isReg = registered.has(e.id);
 							return (
 								<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-									<h2 className="text-xl font-semibold">{e.title}</h2>
+									<div className="flex justify-between items-start">
+										<h2 className="text-xl font-semibold">{e.title}</h2>
+										{role === "Admin" && (
+											<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+												Delete
+											</button>
+										)}
+									</div>
+									<div className="text-sm text-gray-600 mt-1">+{e.points} pts</div>
 									<div className="text-gray-500 text-sm mt-1">
 										{new Date(e.date).toLocaleString(undefined, {
 											weekday: "short",
@@ -100,7 +146,7 @@ export default function Events() {
 										Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
 									</div>
 									<div className="mt-6 flex gap-4">
-										<button onClick={() => toggleRegister(e.id)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"} text-white`}>
+										<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"} text-white`}>
 											{isReg ? "Registered" : "Register"}
 										</button>
 										<button
