@@ -138,6 +138,7 @@ export default function Events({ role }) {
 										day: "numeric",
 										hour: "2-digit",
 										minute: "2-digit",
+										timeZoneName: "short", 
 									})}
 								</div>
 								<div className="text-gray-500 text-sm">{e.location}</div>
