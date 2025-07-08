@@ -64,7 +64,7 @@ export default function Leaderboard() {
 							</div>
 						</div>
 						<div className="mx-4 flex-1 overflow-hidden rounded-full bg-blue-200 h-2">
-							<div className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500" style={{ width: `${(u.points / users[0]?.points) * 100}%` }} />
+							<div className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500" style={{ width: `${(u.points / (users[0]?.points || 1)) * 100}%` }} />
 						</div>
 						<p className="w-16 text-right text-sm font-semibold">{u.points} pts</p>
 					</div>
