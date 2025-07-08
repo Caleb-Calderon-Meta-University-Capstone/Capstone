@@ -138,7 +138,7 @@ export default function Events({ role }) {
 										day: "numeric",
 										hour: "2-digit",
 										minute: "2-digit",
-										timeZoneName: "short", 
+										timeZoneName: "short",
 									})}
 								</div>
 								<div className="text-gray-500 text-sm">{e.location}</div>
@@ -147,8 +147,8 @@ export default function Events({ role }) {
 									Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
 								</div>
 								<div className="mt-6 flex gap-4">
-									<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"} text-white`}>
-										{isReg ? "Registered" : "Register"}
+									<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`} title={isReg ? "Click to cancel your registration" : "Click to register for this event"}>
+										{isReg ? "Cancel Registration" : "Register"}
 									</button>
 									<button
 										onClick={() => {
