@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function AddEventModal({ onClose, onSubmit }) {
 	const [title, setTitle] = useState("");
@@ -7,6 +8,7 @@ export default function AddEventModal({ onClose, onSubmit }) {
 	const [time, setTime] = useState("");
 	const [location, setLocation] = useState("");
 	const [points, setPoints] = useState(10);
+  const [loading, setLoading] = useState(true);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
