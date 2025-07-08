@@ -3,7 +3,7 @@ import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
 
-export default function Leaderboard() {
+export default function LeaderboardPage() {
 	const [users, setUsers] = useState([]);
 	const [loading, setLoading] = useState(true);
 
