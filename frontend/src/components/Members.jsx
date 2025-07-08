@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function Members() {
 	const [members, setMembers] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		async function fetchMembers() {
 			const { data, error } = await supabase.from("users").select("*");
-			if (error) console.error("Error fetching members:", error);
-			else setMembers(data);
+			if (error) {
+				console.error("Error fetching members:", error);
+			} else {
+				setMembers(data);
+			}
+			setLoading(false);
 		}
 		fetchMembers();
 	}, []);
+
+	if (loading) return <LoadingSpinner />;
 
 	return (
 		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">

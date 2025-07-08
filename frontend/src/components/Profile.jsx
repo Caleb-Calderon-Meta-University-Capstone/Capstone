@@ -3,6 +3,7 @@ import NavigationBar from "./NavigationBar";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function ProfilePage() {
 	const { session } = UserAuth();
@@ -29,13 +30,7 @@ export default function ProfilePage() {
 		fetchUserData();
 	}, [session]);
 
-	if (!userData) {
-		return (
-			<div className="min-h-screen flex items-center justify-center bg-blue-100 text-gray-700">
-				<p className="text-lg font-semibold">Loading profile...</p>
-			</div>
-		);
-	}
+	if (!userData) return <LoadingSpinner />;
 
 	const profilePicture = userData.profile_picture || "https://picsum.photos/200/300";
 
