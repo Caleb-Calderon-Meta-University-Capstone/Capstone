@@ -43,9 +43,9 @@ export default function Members() {
 							<div className="mt-3 w-full">
 								<div className="font-semibold text-sm mb-1">Skills:</div>
 								<div className="flex flex-wrap gap-2 justify-center">
-									{member.skills?.map((skill, i) => (
-										<span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-											{skill}
+									{Object.entries(member.skills || {}).map(([skill, level]) => (
+										<span key={skill} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+											{skill} ({level})
 										</span>
 									))}
 								</div>

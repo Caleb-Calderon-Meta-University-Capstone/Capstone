@@ -59,9 +59,9 @@ export default function ProfilePage() {
 						<div className="bg-white p-6 rounded-xl shadow">
 							<h3 className="text-xl font-bold mb-2">Skills</h3>
 							<div className="flex flex-wrap gap-2">
-								{(userData.skills || []).map((skill, index) => (
-									<span key={index} className="bg-blue-100 px-3 py-1 rounded-full text-sm text-blue-800">
-										{skill}
+								{Object.entries(userData.skills || {}).map(([skill, level]) => (
+									<span key={skill} className="bg-blue-100 px-3 py-1 rounded-full text-sm text-blue-800">
+										{skill} ({level})
 									</span>
 								))}
 							</div>

@@ -17,14 +17,18 @@ export default function EditPage() {
 	const [name, setName] = useState("");
 	const [year, setYear] = useState("");
 	const [bio, setBio] = useState("");
-	const [skills, setSkills] = useState([]);
+	const [skills, setSkills] = useState({});
 	const [interests, setInterests] = useState([]);
 	const [skillInput, setSkillInput] = useState("");
 	const [interestInput, setInterestInput] = useState("");
 	const [profilePic, setProfilePic] = useState(null);
 	const [profilePreview, setProfilePreview] = useState("");
 	const [mentorRole, setMentorRole] = useState("");
+	const [experienceYears, setExperienceYears] = useState("");
+	const [aiInterest, setAiInterest] = useState(false);
+	const [preferredMeeting, setPreferredMeeting] = useState("");
 
+	const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 	const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];
 
 	const PRESET_SKILLS = [
@@ -71,7 +75,7 @@ export default function EditPage() {
 			const userId = session?.user?.id;
 			if (!userId) return;
 
-			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role	").eq("id", userId).single();
+			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role, experience_years, ai_interest, preferred_meeting	").eq("id", userId).single();
 
 			if (error) {
 				console.error(error.message);
@@ -84,16 +88,32 @@ export default function EditPage() {
 				setInterests(data.interests || []);
 				setProfilePreview(data.profile_picture || "");
 				setMentorRole(data.mentor_role || "");
+				setExperienceYears(data.experience_years || "");
+				setAiInterest(data.ai_interest ?? false);
+				setPreferredMeeting(data.preferred_meeting ?? "");
 			}
 			setLoading(false);
 		})();
 	}, [session]);
 
-	const toggleSkill = (opt) => {
-		setSkills(skills.includes(opt) ? skills.filter((s) => s !== opt) : [...skills, opt]);
+	const toggleSkill = (skill) => {
+		if (skills[skill]) {
+			const updated = { ...skills };
+			delete updated[skill];
+			setSkills(updated);
+		} else {
+			setSkills({ ...skills, [skill]: "Beginner" });
+		}
 	};
-	const removeSkill = (val) => {
-		setSkills(skills.filter((s) => s !== val));
+
+	const setSkillLevel = (skill, level) => {
+		setSkills({ ...skills, [skill]: level });
+	};
+
+	const removeSkill = (skill) => {
+		const updated = { ...skills };
+		delete updated[skill];
+		setSkills(updated);
 	};
 
 	const addCustomSkill = () => {
@@ -152,11 +172,15 @@ export default function EditPage() {
 		const updates = {
 			name,
 			year,
+			skills,
 			bio,
 			skills,
 			interests,
 			profile_picture: profile_picture_url,
 			mentor_role: mentorRole,
+			experience_years: experienceYears,
+			ai_interest: aiInterest,
+			preferred_meeting: preferredMeeting,
 		};
 
 		const { error: saveErr } = await supabase.from("users").update(updates).eq("id", userId);
@@ -181,11 +205,11 @@ export default function EditPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
 			<NavigationBar />
-			<div className="max-w-4xl mx-auto p-6">
+			<div className="py-8 px-4 max-w-4xl mx-auto">
 				<h1 className="text-4xl font-bold mb-6">Edit Profile</h1>
 				{error && <p className="text-red-500 mb-4">{error}</p>}
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div className="space-y-6">
 					<div className="bg-white p-6 rounded-xl shadow text-center">
 						<div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4">
 							<img src={profilePreview || "/default-avatar.png"} alt="avatar" className="object-cover w-full h-full" />
@@ -203,96 +227,133 @@ export default function EditPage() {
 						<p className="mt-4 text-sm font-medium text-blue-600">{userData.points ?? 0} points</p>
 					</div>
 
-					<div className="md:col-span-2 flex flex-col gap-4">
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">About Me</h3>
-							<textarea rows={4} className="w-full bg-gray-100 p-2 rounded" placeholder="Tell us about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
-						</div>
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">About Me</h3>
+						<textarea rows={4} className="w-full bg-gray-100 p-2 rounded" placeholder="Tell us about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
+					</div>
 
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">Skills</h3>
-
-							<div className="flex flex-wrap gap-2 mb-4">
-								{skills.map((s) => (
-									<span key={s} className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full">
-										{s}
-										<button onClick={() => removeSkill(s)} className="ml-2 font-bold">
-											×
-										</button>
-									</span>
-								))}
-							</div>
-
-							<div className="flex flex-wrap gap-2 mb-4">
-								{PRESET_SKILLS.filter((opt) => !skills.includes(opt)).map((opt) => (
-									<button key={opt} onClick={() => toggleSkill(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
-										{opt}
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Skills</h3>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{Object.entries(skills).map(([skill, level]) => (
+								<div key={skill} className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1 rounded-full">
+									<span>{skill}</span>
+									<select className="bg-white text-black text-sm rounded px-2 py-0.5" value={level} onChange={(e) => setSkillLevel(skill, e.target.value)}>
+										{PROFICIENCY_LEVELS.map((lvl) => (
+											<option key={lvl} value={lvl}>
+												{lvl}
+											</option>
+										))}
+									</select>
+									<button onClick={() => removeSkill(skill)} className="ml-1 font-bold text-white">
+										×
 									</button>
-								))}
-							</div>
-
-							<div className="flex gap-2">
-								<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
-								<button onClick={addCustomSkill} className="px-4 rounded bg-blue-600 text-white">
-									+
+								</div>
+							))}
+						</div>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{PRESET_SKILLS.filter((opt) => !Object.keys(skills).includes(opt)).map((opt) => (
+								<button key={opt} onClick={() => toggleSkill(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
+									{opt}
 								</button>
-							</div>
+							))}
 						</div>
 
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">Interests</h3>
-
-							<div className="flex flex-wrap gap-2 mb-4">
-								{interests.map((i) => (
-									<span key={i} className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full">
-										{i}
-										<button onClick={() => removeInterest(i)} className="ml-2 font-bold">
-											×
-										</button>
-									</span>
-								))}
-							</div>
-
-							<div className="flex flex-wrap gap-2 mb-4">
-								{PRESET_INTERESTS.filter((opt) => !interests.includes(opt)).map((opt) => (
-									<button key={opt} onClick={() => toggleInterest(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
-										{opt}
-									</button>
-								))}
-							</div>
-
-							<div className="flex gap-2">
-								<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add an interest..." value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={handleInterestKey} />
-								<button onClick={addCustomInterest} className="px-4 rounded bg-purple-600 text-white">
-									+
-								</button>
-							</div>
-						</div>
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">Mentorship Role</h3>
-							<div className="flex gap-4">
-								<label className="flex items-center gap-2">
-									<input type="radio" name="mentorRole" value="Mentor" checked={mentorRole === "Mentor"} onChange={() => setMentorRole("Mentor")} />
-									Mentor
-								</label>
-								<label className="flex items-center gap-2">
-									<input type="radio" name="mentorRole" value="Mentee" checked={mentorRole === "Mentee"} onChange={() => setMentorRole("Mentee")} />
-									Mentee
-								</label>
-								<label className="flex items-center gap-2">
-									<input type="radio" name="mentorRole" value="" checked={mentorRole === ""} onChange={() => setMentorRole("")} />
-									None
-								</label>
-							</div>
-						</div>
-						<div className="flex justify-center gap-4 mt-4">
-							<button onClick={handleCancel} className="px-6 py-2 bg-gray-600 text-white rounded">
-								Cancel
-							</button>
-							<button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-blue-600 text-white rounded">
-								{saving ? "Saving…" : "Save Changes"}
+						<div className="flex gap-2">
+							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
+							<button onClick={addCustomSkill} className="px-4 rounded bg-blue-600 text-white">
+								+
 							</button>
 						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Interests</h3>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{interests.map((i) => (
+								<span key={i} className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full">
+									{i}
+									<button onClick={() => removeInterest(i)} className="ml-2 font-bold">
+										×
+									</button>
+								</span>
+							))}
+						</div>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{PRESET_INTERESTS.filter((opt) => !interests.includes(opt)).map((opt) => (
+								<button key={opt} onClick={() => toggleInterest(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
+									{opt}
+								</button>
+							))}
+						</div>
+						<div className="flex gap-2">
+							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add an interest..." value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={handleInterestKey} />
+							<button onClick={addCustomInterest} className="px-4 rounded bg-purple-600 text-white">
+								+
+							</button>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Mentorship Role</h3>
+						<div className="flex gap-4">
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="Mentor" checked={mentorRole === "Mentor"} onChange={() => setMentorRole("Mentor")} />
+								Mentor
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="Mentee" checked={mentorRole === "Mentee"} onChange={() => setMentorRole("Mentee")} />
+								Mentee
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="" checked={mentorRole === ""} onChange={() => setMentorRole("")} />
+								None
+							</label>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Years of Professional/Internship Experience</h3>
+						<select className="w-full bg-gray-100 p-2 rounded" value={experienceYears} onChange={(e) => setExperienceYears(e.target.value)}>
+							<option value="">Select experience</option>
+							<option value="0">0 (Just getting started)</option>
+							<option value="1">1 year</option>
+							<option value="2">2 years</option>
+							<option value="3">3 years</option>
+							<option value="4+">4+ years</option>
+						</select>
+					</div>
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Are you interested in AI?</h3>
+						<div className="flex items-center gap-4">
+							<label className="flex items-center gap-2">
+								<input type="radio" name="aiInterest" checked={aiInterest === true} onChange={() => setAiInterest(true)} />
+								Yes
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="aiInterest" checked={aiInterest === false} onChange={() => setAiInterest(false)} />
+								No
+							</label>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Preferred Meeting Type</h3>
+						<select className="w-full bg-gray-100 p-2 rounded" value={preferredMeeting} onChange={(e) => setPreferredMeeting(e.target.value)}>
+							<option value="">Select preference</option>
+							<option value="In person">In person</option>
+							<option value="Zoom">Zoom</option>
+							<option value="Either">Either</option>
+						</select>
+					</div>
+
+					<div className="flex justify-center gap-4 pt-4">
+						<button onClick={handleCancel} className="px-6 py-2 bg-gray-600 text-white rounded">
+							Cancel
+						</button>
+						<button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-blue-600 text-white rounded">
+							{saving ? "Saving…" : "Save Changes"}
+						</button>
 					</div>
 				</div>
 			</div>
