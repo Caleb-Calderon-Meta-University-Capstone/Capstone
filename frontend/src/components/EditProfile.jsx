@@ -17,21 +17,65 @@ export default function EditPage() {
 	const [name, setName] = useState("");
 	const [year, setYear] = useState("");
 	const [bio, setBio] = useState("");
-	const [skills, setSkills] = useState([]);
+	const [skills, setSkills] = useState({});
 	const [interests, setInterests] = useState([]);
 	const [skillInput, setSkillInput] = useState("");
 	const [interestInput, setInterestInput] = useState("");
 	const [profilePic, setProfilePic] = useState(null);
 	const [profilePreview, setProfilePreview] = useState("");
+	const [mentorRole, setMentorRole] = useState("");
+	const [experienceYears, setExperienceYears] = useState("");
+	const [aiInterest, setAiInterest] = useState(false);
+	const [preferredMeeting, setPreferredMeeting] = useState("");
 
+	const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 	const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];
 
+	const PRESET_SKILLS = [
+		"Python",
+		"JavaScript",
+		"Java",
+		"C++",
+		"HTML",
+		"CSS",
+		"SQL",
+		"C#",
+		"React",
+		"Tailwind CSS",
+		"Node.js",
+		"Express.js",
+		"Next.js",
+		"Flask",
+		"Django",
+		"Bootstrap",
+		"MongoDB",
+		"PostgreSQL",
+		"MySQL",
+		"Firebase",
+		"Supabase",
+		"Git / Version Control",
+		"REST APIs",
+		"Web Development",
+		"Mobile Development",
+		"UI/UX Design",
+		"Data Structures & Algorithms",
+		"Object-Oriented Programming",
+		"Resume Building",
+		"Mock Interviews",
+		"System Design",
+		"Frontend",
+		"Backend Development",
+		"Full Stack Development",
+	];
+
+	const PRESET_INTERESTS = ["Software Engineering", "Product Management", "Program Management", "Project Management", "Consulting", "Cybersecurity", "Startups & Entrepreneurship", "Data Science & Analytics", "Anime & Gaming", "Stocks & Investing", "Content Creation", "Sports & Fitness", "Music & Performing Arts", "Leadership & Public Speaking", "Diversity in Tech"];
+
 	useEffect(() => {
-		const fetchUser = async () => {
+		(async () => {
 			const userId = session?.user?.id;
 			if (!userId) return;
 
-			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points").eq("id", userId).single();
+			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role, experience_years, ai_interest, preferred_meeting	").eq("id", userId).single();
 
 			if (error) {
 				console.error(error.message);
@@ -43,26 +87,64 @@ export default function EditPage() {
 				setSkills(data.skills || []);
 				setInterests(data.interests || []);
 				setProfilePreview(data.profile_picture || "");
+				setMentorRole(data.mentor_role || "");
+				setExperienceYears(data.experience_years || "");
+				setAiInterest(data.ai_interest ?? false);
+				setPreferredMeeting(data.preferred_meeting ?? "");
 			}
 			setLoading(false);
-		};
-
-		fetchUser();
+		})();
 	}, [session]);
 
-	const addSkill = () => {
+	const toggleSkill = (skill) => {
+		if (skills[skill]) {
+			const updated = { ...skills };
+			delete updated[skill];
+			setSkills(updated);
+		} else {
+			setSkills({ ...skills, [skill]: "Beginner" });
+		}
+	};
+
+	const setSkillLevel = (skill, level) => {
+		setSkills({ ...skills, [skill]: level });
+	};
+
+	const removeSkill = (skill) => {
+		const updated = { ...skills };
+		delete updated[skill];
+		setSkills(updated);
+	};
+
+	const addCustomSkill = () => {
 		const v = skillInput.trim();
 		if (v && !skills.includes(v)) setSkills([...skills, v]);
 		setSkillInput("");
 	};
-	const removeSkill = (i) => setSkills(skills.filter((_, idx) => idx !== i));
+	const handleSkillKey = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			addCustomSkill();
+		}
+	};
 
-	const addInterest = () => {
+	const toggleInterest = (opt) => {
+		setInterests(interests.includes(opt) ? interests.filter((i) => i !== opt) : [...interests, opt]);
+	};
+	const removeInterest = (val) => {
+		setInterests(interests.filter((i) => i !== val));
+	};
+	const addCustomInterest = () => {
 		const v = interestInput.trim();
 		if (v && !interests.includes(v)) setInterests([...interests, v]);
 		setInterestInput("");
 	};
-	const removeInterest = (i) => setInterests(interests.filter((_, idx) => idx !== i));
+	const handleInterestKey = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			addCustomInterest();
+		}
+	};
 
 	const handleSave = async () => {
 		setSaving(true);
@@ -72,46 +154,50 @@ export default function EditPage() {
 		let profile_picture_url = userData?.profile_picture;
 
 		if (profilePic) {
-			const fileExt = profilePic.name.split(".").pop();
-			const filePath = `avatar/${userId}.${fileExt}`;
-			const { error: uploadError } = await supabase.storage.from("avatar").upload(filePath, profilePic, { upsert: true });
+			const ext = profilePic.name.split(".").pop();
+			const path = `avatar/${userId}.${ext}`;
+			const { error: upErr } = await supabase.storage.from("avatar").upload(path, profilePic, { upsert: true });
 
-			if (uploadError) {
-				setError("Error uploading image: " + uploadError.message);
+			if (upErr) {
+				setError("Upload error: " + upErr.message);
 				setSaving(false);
 				return;
 			}
 
-			const { data: publicUrlData } = supabase.storage.from("avatar").getPublicUrl(filePath);
-			profile_picture_url = publicUrlData.publicUrl;
+			const { data: urlData } = supabase.storage.from("avatar").getPublicUrl(path);
+			profile_picture_url = urlData.publicUrl;
 			setProfilePreview(profile_picture_url);
 		}
 
 		const updates = {
 			name,
 			year,
+			skills,
 			bio,
 			skills,
 			interests,
 			profile_picture: profile_picture_url,
+			mentor_role: mentorRole,
+			experience_years: experienceYears,
+			ai_interest: aiInterest,
+			preferred_meeting: preferredMeeting,
 		};
 
-		const { error } = await supabase.from("users").update(updates).eq("id", userId);
+		const { error: saveErr } = await supabase.from("users").update(updates).eq("id", userId);
 
-		if (error) setError(error.message);
+		if (saveErr) setError(saveErr.message);
 		else navigate("/profile");
 
 		setSaving(false);
 	};
 
 	const handleProfilePicChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			setProfilePic(file);
-			setProfilePreview(URL.createObjectURL(file));
+		const f = e.target.files[0];
+		if (f) {
+			setProfilePic(f);
+			setProfilePreview(URL.createObjectURL(f));
 		}
 	};
-
 	const handleCancel = () => navigate("/profile");
 
 	if (loading || !userData) return <LoadingSpinner />;
@@ -119,19 +205,18 @@ export default function EditPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
 			<NavigationBar />
-			<div className="max-w-6xl mx-auto p-6">
-				<h1 className="text-4xl font-bold mb-8">Edit Profile</h1>
-
+			<div className="py-8 px-4 max-w-4xl mx-auto">
+				<h1 className="text-4xl font-bold mb-6">Edit Profile</h1>
 				{error && <p className="text-red-500 mb-4">{error}</p>}
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
-						<div className="w-24 h-24 rounded-full overflow-hidden mb-4">
-							<img src={profilePreview || "/default-avatar.png"} alt="Profile" className="object-cover w-full h-full" />
+				<div className="space-y-6">
+					<div className="bg-white p-6 rounded-xl shadow text-center">
+						<div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4">
+							<img src={profilePreview || "/default-avatar.png"} alt="avatar" className="object-cover w-full h-full" />
 						</div>
-						<input type="file" accept="image/*" onChange={handleProfilePicChange} className="mt-2" />
-						<input type="text" className="mt-2 bg-gray-100 p-2 rounded-md w-full" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" />
-						<select className="mt-4 bg-gray-100 p-2 rounded-md w-full" value={year} onChange={(e) => setYear(e.target.value)}>
+						<input type="file" accept="image/*" onChange={handleProfilePicChange} className="mb-4" />
+						<input type="text" className="w-full bg-gray-100 p-2 rounded mb-4" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
+						<select className="w-full bg-gray-100 p-2 rounded" value={year} onChange={(e) => setYear(e.target.value)}>
 							<option value="">Select Year</option>
 							{yearOptions.map((opt) => (
 								<option key={opt} value={opt}>
@@ -139,63 +224,136 @@ export default function EditPage() {
 								</option>
 							))}
 						</select>
-						<span className="mt-4 px-3 py-1 text-sm font-medium border border-blue-500 text-blue-500 rounded-full">{userData.points ?? 0} points</span>
+						<p className="mt-4 text-sm font-medium text-blue-600">{userData.points ?? 0} points</p>
 					</div>
 
-					<div className="md:col-span-2 flex flex-col gap-4">
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">About Me</h3>
-							<textarea rows={4} className="w-full bg-gray-100 p-2 rounded-md" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell us about yourself" />
-						</div>
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">About Me</h3>
+						<textarea rows={4} className="w-full bg-gray-100 p-2 rounded" placeholder="Tell us about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
+					</div>
 
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">Skills</h3>
-							<div className="flex flex-wrap gap-2 mb-2">
-								{skills.map((s, i) => (
-									<span key={i} className="bg-blue-100 px-3 py-1 rounded-full flex items-center">
-										{s}
-										<button onClick={() => removeSkill(i)} className="ml-2 text-red-500">
-											×
-										</button>
-									</span>
-								))}
-							</div>
-							<div className="flex gap-2">
-								<input className="flex-1 bg-gray-100 p-2 rounded-md" placeholder="Add a skill" value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addSkill()} />
-								<button onClick={addSkill} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-									Add
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Skills</h3>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{Object.entries(skills).map(([skill, level]) => (
+								<div key={skill} className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1 rounded-full">
+									<span>{skill}</span>
+									<select className="bg-white text-black text-sm rounded px-2 py-0.5" value={level} onChange={(e) => setSkillLevel(skill, e.target.value)}>
+										{PROFICIENCY_LEVELS.map((lvl) => (
+											<option key={lvl} value={lvl}>
+												{lvl}
+											</option>
+										))}
+									</select>
+									<button onClick={() => removeSkill(skill)} className="ml-1 font-bold text-white">
+										×
+									</button>
+								</div>
+							))}
+						</div>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{PRESET_SKILLS.filter((opt) => !Object.keys(skills).includes(opt)).map((opt) => (
+								<button key={opt} onClick={() => toggleSkill(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
+									{opt}
 								</button>
-							</div>
+							))}
 						</div>
 
-						<div className="bg-white p-6 rounded-xl shadow">
-							<h3 className="text-xl font-bold mb-2">Interests</h3>
-							<div className="flex flex-wrap gap-2 mb-2">
-								{interests.map((i, k) => (
-									<span key={k} className="bg-blue-100 px-3 py-1 rounded-full flex items-center">
-										{i}
-										<button onClick={() => removeInterest(k)} className="ml-2 text-red-500">
-											×
-										</button>
-									</span>
-								))}
-							</div>
-							<div className="flex gap-2">
-								<input className="flex-1 bg-gray-100 p-2 rounded-md" placeholder="Add an interest" value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addInterest()} />
-								<button onClick={addInterest} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-									Add
-								</button>
-							</div>
-						</div>
-
-						<div className="flex justify-center mt-6 space-x-2">
-							<button onClick={handleCancel} className="bg-gray-600 text-white px-4 py-2 rounded-md">
-								Cancel
-							</button>
-							<button onClick={handleSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded-md">
-								{saving ? "Saving..." : "Save Changes"}
+						<div className="flex gap-2">
+							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
+							<button onClick={addCustomSkill} className="px-4 rounded bg-blue-600 text-white">
+								+
 							</button>
 						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Interests</h3>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{interests.map((i) => (
+								<span key={i} className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full">
+									{i}
+									<button onClick={() => removeInterest(i)} className="ml-2 font-bold">
+										×
+									</button>
+								</span>
+							))}
+						</div>
+						<div className="flex flex-wrap gap-2 mb-4">
+							{PRESET_INTERESTS.filter((opt) => !interests.includes(opt)).map((opt) => (
+								<button key={opt} onClick={() => toggleInterest(opt)} className="px-3 py-1 rounded-full border border-gray-400 text-gray-700 hover:bg-gray-200">
+									{opt}
+								</button>
+							))}
+						</div>
+						<div className="flex gap-2">
+							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add an interest..." value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={handleInterestKey} />
+							<button onClick={addCustomInterest} className="px-4 rounded bg-purple-600 text-white">
+								+
+							</button>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Mentorship Role</h3>
+						<div className="flex gap-4">
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="Mentor" checked={mentorRole === "Mentor"} onChange={() => setMentorRole("Mentor")} />
+								Mentor
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="Mentee" checked={mentorRole === "Mentee"} onChange={() => setMentorRole("Mentee")} />
+								Mentee
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="mentorRole" value="" checked={mentorRole === ""} onChange={() => setMentorRole("")} />
+								None
+							</label>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Years of Professional/Internship Experience</h3>
+						<select className="w-full bg-gray-100 p-2 rounded" value={experienceYears} onChange={(e) => setExperienceYears(e.target.value)}>
+							<option value="">Select experience</option>
+							<option value="0">0 (Just getting started)</option>
+							<option value="1">1 year</option>
+							<option value="2">2 years</option>
+							<option value="3">3 years</option>
+							<option value="4+">4+ years</option>
+						</select>
+					</div>
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Are you interested in AI?</h3>
+						<div className="flex items-center gap-4">
+							<label className="flex items-center gap-2">
+								<input type="radio" name="aiInterest" checked={aiInterest === true} onChange={() => setAiInterest(true)} />
+								Yes
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="aiInterest" checked={aiInterest === false} onChange={() => setAiInterest(false)} />
+								No
+							</label>
+						</div>
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">Preferred Meeting Type</h3>
+						<select className="w-full bg-gray-100 p-2 rounded" value={preferredMeeting} onChange={(e) => setPreferredMeeting(e.target.value)}>
+							<option value="">Select preference</option>
+							<option value="In person">In person</option>
+							<option value="Zoom">Zoom</option>
+							<option value="Either">Either</option>
+						</select>
+					</div>
+
+					<div className="flex justify-center gap-4 pt-4">
+						<button onClick={handleCancel} className="px-6 py-2 bg-gray-600 text-white rounded">
+							Cancel
+						</button>
+						<button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-blue-600 text-white rounded">
+							{saving ? "Saving…" : "Save Changes"}
+						</button>
 					</div>
 				</div>
 			</div>

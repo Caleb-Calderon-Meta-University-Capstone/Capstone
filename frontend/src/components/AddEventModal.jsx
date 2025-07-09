@@ -8,7 +8,7 @@ export default function AddEventModal({ onClose, onSubmit }) {
 	const [time, setTime] = useState("");
 	const [location, setLocation] = useState("");
 	const [points, setPoints] = useState(10);
-  const [loading, setLoading] = useState(true);
+	const [duration, setDuration] = useState(60);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -21,6 +21,7 @@ export default function AddEventModal({ onClose, onSubmit }) {
 			date: fullDate.toISOString(),
 			location,
 			points: Number(points),
+			duration: Number(duration),
 		});
 
 		onClose();
@@ -36,13 +37,20 @@ export default function AddEventModal({ onClose, onSubmit }) {
 				<p className="text-sm text-gray-500 mb-4">Create an engaging event for the MICS community. All fields marked with * are required.</p>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ex. LinkdIn Workshop" className="w-full border px-3 py-2 rounded bg-blue-50 placeholder-gray-500" />
+					<input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ex. LinkedIn Workshop" className="w-full border px-3 py-2 rounded bg-blue-50 placeholder-gray-500" />
 
 					<textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Provide a detailed description of your event..." className="w-full border px-3 py-2 rounded bg-blue-50 placeholder-gray-500 resize-none" rows={4} maxLength={500} />
 
 					<div className="flex gap-4">
 						<input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className="flex-1 border px-3 py-2 rounded bg-blue-50" />
 						<input type="time" required value={time} onChange={(e) => setTime(e.target.value)} className="flex-1 border px-3 py-2 rounded bg-blue-50" />
+					</div>
+
+					<div>
+						<label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
+							Duration (in minutes) 
+						</label>
+						<input id="duration" type="number" required min={1} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 60 for a 1-hour event" className="w-full border px-3 py-2 rounded bg-blue-50" />
 					</div>
 
 					<input type="text" required value={location} onChange={(e) => setLocation(e.target.value)} placeholder="ex. Zoom, Student Union, Room 110" className="w-full border px-3 py-2 rounded bg-blue-50" />

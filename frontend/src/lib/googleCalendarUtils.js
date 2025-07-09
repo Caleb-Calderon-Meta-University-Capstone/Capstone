@@ -1,5 +1,9 @@
 export async function addEventToGoogleCalendar(accessToken, event) {
 	try {
+		const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const startDate = new Date(event.date);
+		const endDate = new Date(startDate.getTime() + (event.duration || 60) * 60000); // fallback to 60 min if duration is missing
+
 		const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
 			method: "POST",
 			headers: {
@@ -11,12 +15,12 @@ export async function addEventToGoogleCalendar(accessToken, event) {
 				location: event.location,
 				description: event.description,
 				start: {
-					dateTime: new Date(event.date).toISOString(),
-					timeZone: "America/New_York", 
+					dateTime: startDate.toISOString(),
+					timeZone: userTimeZone,
 				},
 				end: {
-					dateTime: new Date(new Date(event.date).getTime() + 60 * 60 * 1000).toISOString(), 
-					timeZone: "America/New_York",
+					dateTime: endDate.toISOString(),
+					timeZone: userTimeZone,
 				},
 			}),
 		});
