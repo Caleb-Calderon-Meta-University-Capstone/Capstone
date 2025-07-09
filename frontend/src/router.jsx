@@ -9,6 +9,7 @@ import LeaderboardPage from "./components/LeaderboardPage.jsx";
 import MemberPage from "./components/Members.jsx";
 import ProfilePage from "./components/Profile.jsx";
 import EditPage from "./components/EditProfile.jsx";
+import MentorPage from "./components/MentorPage.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
@@ -29,6 +30,14 @@ export const router = createBrowserRouter([
 		element: (
 			<PrivateRoute>
 				<Dashboard />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/mentors",
+		element: (
+			<PrivateRoute>
+				<MentorPage />
 			</PrivateRoute>
 		),
 	},

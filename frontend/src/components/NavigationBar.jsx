@@ -10,6 +10,7 @@ const navLinks = [
 	{ title: "Members", to: "/members" },
 	{ title: "Events", to: "/events" },
 	{ title: "Leaderboard", to: "/leaderboard" },
+	{ title: "Mentors", to: "/mentors" },
 ];
 
 export default function NavigationBar() {
