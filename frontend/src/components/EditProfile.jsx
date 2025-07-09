@@ -172,7 +172,6 @@ export default function EditPage() {
 		const updates = {
 			name,
 			year,
-			skills,
 			bio,
 			skills,
 			interests,
