@@ -23,19 +23,55 @@ export default function EditPage() {
 	const [interestInput, setInterestInput] = useState("");
 	const [profilePic, setProfilePic] = useState(null);
 	const [profilePreview, setProfilePreview] = useState("");
+	const [mentorRole, setMentorRole] = useState("");
 
 	const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];
 
-	const PRESET_SKILLS = ["Project Management", "React", "Node.js", "Leadership", "UX/UI Design", "Cybersecurity", "Soft Skills"];
+	const PRESET_SKILLS = [
+		"Python",
+		"JavaScript",
+		"Java",
+		"C++",
+		"HTML",
+		"CSS",
+		"SQL",
+		"C#",
+		"React",
+		"Tailwind CSS",
+		"Node.js",
+		"Express.js",
+		"Next.js",
+		"Flask",
+		"Django",
+		"Bootstrap",
+		"MongoDB",
+		"PostgreSQL",
+		"MySQL",
+		"Firebase",
+		"Supabase",
+		"Git / Version Control",
+		"REST APIs",
+		"Web Development",
+		"Mobile Development",
+		"UI/UX Design",
+		"Data Structures & Algorithms",
+		"Object-Oriented Programming",
+		"Resume Building",
+		"Mock Interviews",
+		"System Design",
+		"Frontend",
+		"Backend Development",
+		"Full Stack Development",
+	];
 
-	const PRESET_INTERESTS = ["Community Building", "Diversity in Tech", "Event Planning", "AI / Machine Learning", "Game Dev", "Content Creation"];
+	const PRESET_INTERESTS = ["Software Engineering", "Product Management", "Program Management", "Project Management", "Consulting", "Cybersecurity", "Startups & Entrepreneurship", "Data Science & Analytics", "Anime & Gaming", "Stocks & Investing", "Content Creation", "Sports & Fitness", "Music & Performing Arts", "Leadership & Public Speaking", "Diversity in Tech"];
 
 	useEffect(() => {
 		(async () => {
 			const userId = session?.user?.id;
 			if (!userId) return;
 
-			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points").eq("id", userId).single();
+			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role	").eq("id", userId).single();
 
 			if (error) {
 				console.error(error.message);
@@ -47,6 +83,7 @@ export default function EditPage() {
 				setSkills(data.skills || []);
 				setInterests(data.interests || []);
 				setProfilePreview(data.profile_picture || "");
+				setMentorRole(data.mentor_role || "");
 			}
 			setLoading(false);
 		})();
@@ -58,6 +95,7 @@ export default function EditPage() {
 	const removeSkill = (val) => {
 		setSkills(skills.filter((s) => s !== val));
 	};
+
 	const addCustomSkill = () => {
 		const v = skillInput.trim();
 		if (v && !skills.includes(v)) setSkills([...skills, v]);
@@ -118,6 +156,7 @@ export default function EditPage() {
 			skills,
 			interests,
 			profile_picture: profile_picture_url,
+			mentor_role: mentorRole,
 		};
 
 		const { error: saveErr } = await supabase.from("users").update(updates).eq("id", userId);
@@ -229,7 +268,23 @@ export default function EditPage() {
 								</button>
 							</div>
 						</div>
-
+						<div className="bg-white p-6 rounded-xl shadow">
+							<h3 className="text-xl font-bold mb-2">Mentorship Role</h3>
+							<div className="flex gap-4">
+								<label className="flex items-center gap-2">
+									<input type="radio" name="mentorRole" value="Mentor" checked={mentorRole === "Mentor"} onChange={() => setMentorRole("Mentor")} />
+									Mentor
+								</label>
+								<label className="flex items-center gap-2">
+									<input type="radio" name="mentorRole" value="Mentee" checked={mentorRole === "Mentee"} onChange={() => setMentorRole("Mentee")} />
+									Mentee
+								</label>
+								<label className="flex items-center gap-2">
+									<input type="radio" name="mentorRole" value="" checked={mentorRole === ""} onChange={() => setMentorRole("")} />
+									None
+								</label>
+							</div>
+						</div>
 						<div className="flex justify-center gap-4 mt-4">
 							<button onClick={handleCancel} className="px-6 py-2 bg-gray-600 text-white rounded">
 								Cancel
