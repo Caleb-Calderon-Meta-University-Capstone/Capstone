@@ -55,6 +55,7 @@ function vectorizeUser(user, globalSkills, globalInterests) {
   const interestVec = encodeInterests(user, globalInterests).map(v => v * FEATURE_WEIGHTS.interests);
   const aiVec = encodeAI(user).map(v => v * FEATURE_WEIGHTS.ai_interest);
   const expVec = encodeExperience(user, globalSkills.length).map(v => v * FEATURE_WEIGHTS.experience_years);
+  const meetVec = encodeMeeting(user).map(v => v * FEATURE_WEIGHTS.preferred_meeting);
 }
 
 
