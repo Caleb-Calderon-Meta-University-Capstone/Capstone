@@ -2,7 +2,7 @@ export async function addEventToGoogleCalendar(accessToken, event) {
 	try {
 		const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		const startDate = new Date(event.date);
-		const endDate = new Date(startDate.getTime() + (event.duration || 60) * 60000); // fallback to 60 min if duration is missing
+		const endDate = new Date(startDate.getTime() + (event.duration || 60) * 60000); 
 
 		const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
 			method: "POST",
