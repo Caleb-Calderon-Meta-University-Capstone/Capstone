@@ -7,6 +7,9 @@ const FEATURE_WEIGHTS = {
 	preferred_meeting: 0.1,
 };
 
+//Create a constant for the maximum years of experience to normalize against
+const MAX_YEARS = 5;
+
 // Create variable for meeting types to support
 const MEETING_OPTIONS = ["Zoom", "In Person", "Hybrid"];
 
@@ -54,9 +57,10 @@ function vectorizeUser(user, globalSkills, globalInterests) {
 	const skillVec = encodeSkills(user, globalSkills).map((v) => v * FEATURE_WEIGHTS.skills);
 	const interestVec = encodeInterests(user, globalInterests).map((v) => v * FEATURE_WEIGHTS.interests);
 	const aiVec = encodeAI(user).map((v) => v * FEATURE_WEIGHTS.ai_interest);
-	const expVec = encodeExperience(user, globalSkills.length).map((v) => v * FEATURE_WEIGHTS.experience_years);
+	const expVec = encodeExperience(user, MAX_YEARS).map((v) => v * FEATURE_WEIGHTS.experience_years);
 	const meetVec = encodeMeeting(user).map((v) => v * FEATURE_WEIGHTS.preferred_meeting);
 	const fullVec = [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
+
 	return fullVec;
 }
 

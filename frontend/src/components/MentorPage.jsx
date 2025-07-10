@@ -2,53 +2,15 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
-import { getTopMentorMatches } from "../utils/mentorMatch";
+import { getTopMentorMatches } from "../utils/mentorMatchUtils";
 import { UserAuth } from "../context/AuthContext";
+import { PRESET_SKILLS, PRESET_INTERESTS } from "./constants/presets";
 
 export default function MentorPage() {
 	const { session } = UserAuth();
 	const [userProfile, setUserProfile] = useState(null);
 	const [topMentors, setTopMentors] = useState([]);
 	const [loading, setLoading] = useState(true);
-
-	const PRESET_SKILLS = [
-		"Python",
-		"JavaScript",
-		"Java",
-		"C++",
-		"HTML",
-		"CSS",
-		"SQL",
-		"C#",
-		"React",
-		"Tailwind CSS",
-		"Node.js",
-		"Express.js",
-		"Next.js",
-		"Flask",
-		"Django",
-		"Bootstrap",
-		"MongoDB",
-		"PostgreSQL",
-		"MySQL",
-		"Firebase",
-		"Supabase",
-		"Git / Version Control",
-		"REST APIs",
-		"Web Development",
-		"Mobile Development",
-		"UI/UX Design",
-		"Data Structures & Algorithms",
-		"Object-Oriented Programming",
-		"Resume Building",
-		"Mock Interviews",
-		"System Design",
-		"Frontend",
-		"Backend Development",
-		"Full Stack Development",
-	];
-
-	const PRESET_INTERESTS = ["Software Engineering", "Product  Management", "Program Management", "Project Management", "Consulting", "Cybersecurity", "Startups & Entrepreneurship", "Data Science & Analytics", "Anime & Gaming", "Stocks & Investing", "Content Creation", "Sports & Fitness", "Music & Performing Arts", "Leadership & Public Speaking", "Diversity in Tech"];
 
 	useEffect(() => {
 		if (!session?.user?.id) return;
@@ -71,7 +33,7 @@ export default function MentorPage() {
 			if (error) {
 				console.error("Error fetching mentors:", error);
 			} else {
-				const matches = getTopMentorMatches(userProfile, data, PRESET_SKILLS, PRESET_INTERESTS, 6);
+				const matches = getTopMentorMatches(userProfile, data, PRESET_SKILLS, PRESET_INTERESTS, data.length < 6 ? data.length : 6);
 				setTopMentors(matches);
 			}
 			setLoading(false);

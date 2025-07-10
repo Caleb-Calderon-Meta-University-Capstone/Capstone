@@ -9,6 +9,7 @@ export default function ProfilePage() {
 	const { session } = UserAuth();
 	const [userData, setUserData] = useState(null);
 	const navigate = useNavigate();
+	const [loading, setLoading] = useState(true);
 
 	const handleEditProfile = () => {
 		navigate("/edit-profile");
@@ -22,9 +23,10 @@ export default function ProfilePage() {
 			const { data, error } = await supabase.from("users").select("*").eq("id", userId).single();
 			if (error) {
 				console.error("Error fetching user data:", error.message);
-				return;
+			} else {
+				setUserData(data);
 			}
-			setUserData(data);
+			setLoading(false); 
 		};
 
 		fetchUserData();

@@ -18,22 +18,21 @@ const Signup = () => {
 		e.preventDefault();
 		setLoading(true);
 		setError(null);
-	
+
 		if (!email || !password || !name || password.length < 6) {
 			setError("Please fill all fields. Password must be at least 6 characters.");
 			setLoading(false);
 			return;
 		}
-	
+
 		try {
 			const result = await signUpNewUser(email, password);
-			console.log("SIGNUP RESULT:", result);
-	
+
 			if (!result.success || !result.data?.user) {
 				setError("An error occurred during sign up.");
 			} else {
 				const user = result.data.user;
-	
+
 				const { error: insertError } = await supabase.from("users").insert([
 					{
 						id: user.id,
@@ -43,13 +42,13 @@ const Signup = () => {
 						role: "Member",
 					},
 				]);
-	
+
 				if (insertError) {
 					console.error("Supabase Insert Error:", insertError.message);
 					setError("Could not save user info.");
 					return;
 				}
-	
+
 				navigate("/dashboard");
 			}
 		} catch (err) {
@@ -59,7 +58,6 @@ const Signup = () => {
 			setLoading(false);
 		}
 	};
-	
 
 	return (
 		<div>
