@@ -68,3 +68,21 @@ function cosineSimilarity(vecA, vecB) {
   if (!magnitudeA || !magnitudeB) return 0;
   return dotProduct / (magnitudeA * magnitudeB);
 }
+
+// Finds and returns the top mentor matches based on similarity to the current user
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, topN = 5) {
+  const currentUserVector = vectorizeUser(currentUser, globalSkills, globalInterests);
+
+  const scoredMentors = mentors.map(mentor => {
+    const mentorVector = vectorizeUser(mentor, globalSkills, globalInterests);
+    const similarityScore = cosineSimilarity(currentUserVector, mentorVector);
+    return { mentor, score: similarityScore };
+  });
+
+  // Sort by descending score and return top 
+  const sorted = scoredMentors.sort((a, b) => b.score - a.score);
+  return sorted.slice(0, topN);
+}
+
+
+
