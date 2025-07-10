@@ -16,3 +16,13 @@ const SKILL_LEVEL_MAP = {
   Intermediate: 0.66,
   Advanced:     1.0,
 };
+
+// These functions turn parts of a user's profile into numbers; This helps us compare users and find the best mentor matches later.
+
+function encodeSkills(user, globalSkills) {
+  return globalSkills.map(skill => {
+    const level = user.skills?.[skill];
+    return SKILL_LEVEL_MAP[level] || 0;
+  });
+}
+
