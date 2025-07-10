@@ -75,7 +75,7 @@ export default function MentorPage() {
   return (
     <div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
       <NavigationBar />
-      <h1 className="text-3xl font-bold text-center my-6">AI Mentor Matching</h1>
+      <h1 className="text-3xl font-bold text-center my-6">Mentor Matching</h1>
       <p className="text-center mb-10 text-gray-600">
         Browse featured mentors matched by interest & skills
       </p>
