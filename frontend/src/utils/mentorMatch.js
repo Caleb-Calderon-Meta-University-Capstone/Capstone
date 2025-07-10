@@ -9,3 +9,10 @@ const FEATURE_WEIGHTS = {
 
 // Create variable for meeting types to support
 const MEETING_OPTIONS = ["Zoom", "In Person", "Hybrid"];
+
+// Mapping of skill levels to numeric values based on proficiency
+const SKILL_LEVEL_MAP = {
+  Beginner:     0.33,
+  Intermediate: 0.66,
+  Advanced:     1.0,
+};
