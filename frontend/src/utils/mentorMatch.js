@@ -49,4 +49,15 @@ function encodeMeeting(user) {
   return MEETING_OPTIONS.map(option => (user.preferred_meeting === option ? 1 : 0));
 }
 
+// Turns all parts of a user profile into one weighted number array for similarity comparison
+function vectorizeUser(user, globalSkills, globalInterests) {
+  const skillVec = encodeSkills(user, globalSkills).map(v => v * FEATURE_WEIGHTS.skills);
+  const interestVec = encodeInterests(user, globalInterests).map(v => v * FEATURE_WEIGHTS.interests);
+  const aiVec = encodeAI(user).map(v => v * FEATURE_WEIGHTS.ai_interest);
+  const expVec = encodeExperience(user, globalSkills.length).map(v => v * FEATURE_WEIGHTS.experience_years);
+  const meetVec = encodeMeeting(user).map(v => v * FEATURE_WEIGHTS.preferred_meeting);
+  const fullVec = [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
+  return fullVec;
+}
+
 
