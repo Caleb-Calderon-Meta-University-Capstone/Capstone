@@ -81,6 +81,7 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
 
   // Sort by descending score and return top 
   const sorted = scoredMentors.sort((a, b) => b.score - a.score);
+  return sorted.slice(0, topN);
 }
 
 
