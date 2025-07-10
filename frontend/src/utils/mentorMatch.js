@@ -30,3 +30,7 @@ function encodeInterests(user, globalInterests) {
   return globalInterests.map(interest => (user.interests?.includes(interest) ? 1 : 0));
 }
 
+function encodeAI(user) {
+  return [user.ai_interest ? 1 : 0];
+}
+
