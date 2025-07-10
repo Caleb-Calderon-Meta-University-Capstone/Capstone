@@ -16,3 +16,37 @@ const SKILL_LEVEL_MAP = {
   Intermediate: 0.66,
   Advanced:     1.0,
 };
+
+// These functions turn parts of a user's profile into numbers; This helps us compare users and find the best mentor matches later.
+function encodeSkills(user, globalSkills) {
+  return globalSkills.map(skill => {
+    const level = user.skills?.[skill];
+    return SKILL_LEVEL_MAP[level] || 0;
+  });
+}
+
+function encodeInterests(user, globalInterests) {
+  return globalInterests.map(interest => (user.interests?.includes(interest) ? 1 : 0));
+}
+
+function encodeAI(user) {
+  return [user.ai_interest ? 1 : 0];
+}
+
+function encodeExperience(user, maxYears = 5) {
+  let years = 0;
+  const raw = user.experience_years;
+  if (raw != null) {
+    const parsed = parseFloat(raw.toString());
+    if (!isNaN(parsed)) {
+      years = parsed;
+    }
+  }
+  return [Math.min(years / maxYears, 1)];
+}
+
+function encodeMeeting(user) {
+  return MEETING_OPTIONS.map(option => (user.preferred_meeting === option ? 1 : 0));
+}
+
+
