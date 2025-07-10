@@ -73,6 +73,11 @@ function cosineSimilarity(vecA, vecB) {
 export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, topN = 5) {
   const currentUserVector = vectorizeUser(currentUser, globalSkills, globalInterests);
 
+  const scoredMentors = mentors.map(mentor => {
+    const mentorVector = vectorizeUser(mentor, globalSkills, globalInterests);
+    const similarityScore = cosineSimilarity(currentUserVector, mentorVector);
+    return { mentor, score: similarityScore };
+  });
 }
 
 
