@@ -63,4 +63,5 @@ function vectorizeUser(user, globalSkills, globalInterests) {
 // Calculates how similar two vectors are using cosine similarity
 function cosineSimilarity(vecA, vecB) {
   const dotProduct = vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
+  const magnitudeA = Math.sqrt(vecA.reduce((sum, val) => sum + val ** 2, 0));
 }
