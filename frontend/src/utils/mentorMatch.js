@@ -26,3 +26,7 @@ function encodeSkills(user, globalSkills) {
   });
 }
 
+function encodeInterests(user, globalInterests) {
+  return globalInterests.map(interest => (user.interests?.includes(interest) ? 1 : 0));
+}
+
