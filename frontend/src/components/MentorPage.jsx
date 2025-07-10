@@ -151,7 +151,7 @@ export default function MentorPage() {
 
             <div className="text-sm text-gray-600 mb-2">{mentor.points ?? 0} total points</div>
 
-            <button className="mt-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm">
+            <button className="mt-  2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm">
               Connect
             </button>
           </div>
