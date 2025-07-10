@@ -78,6 +78,9 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
     const similarityScore = cosineSimilarity(currentUserVector, mentorVector);
     return { mentor, score: similarityScore };
   });
+
+  // Sort by descending score and return top 
+  const sorted = scoredMentors.sort((a, b) => b.score - a.score);
 }
 
 
