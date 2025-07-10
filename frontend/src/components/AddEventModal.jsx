@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
-export default function AddEventModal({ onClose, onSubmit }) {
+export default function AddEventModal({ onClose, onSubmit, submitting }) {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [date, setDate] = useState("");
@@ -48,7 +48,7 @@ export default function AddEventModal({ onClose, onSubmit }) {
 
 					<div>
 						<label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
-							Duration (in minutes) 
+							Duration (in minutes)
 						</label>
 						<input id="duration" type="number" required min={1} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 60 for a 1-hour event" className="w-full border px-3 py-2 rounded bg-blue-50" />
 					</div>
@@ -69,8 +69,8 @@ export default function AddEventModal({ onClose, onSubmit }) {
 					</select>
 
 					<div className="text-right">
-						<button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded font-semibold">
-							Create Event
+						<button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+							{submitting ? "Submitting..." : "Create Event"}
 						</button>
 					</div>
 				</form>

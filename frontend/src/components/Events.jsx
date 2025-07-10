@@ -12,6 +12,7 @@ export default function Events({ role }) {
 	const [points, setPoints] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [showModal, setShowModal] = useState(false);
+	const [submitting, setsSubmitting] = useState(false);
 
 	const [googleToken, setGoogleToken] = useState(null);
 
@@ -102,15 +103,22 @@ export default function Events({ role }) {
 							<AddEventModal
 								onClose={() => setShowModal(false)}
 								onSubmit={async (newEvent) => {
+									setsSubmitting(true);
 									const { data, error } = await supabase
 										.from("events")
 										.insert([{ ...newEvent, created_by: userId }])
 										.select()
 										.single();
+									setsSubmitting(false);
 									if (!error && data) {
 										setEvents((prev) => [...prev, data]);
+										setShowModal(false);
+									} else {
+										console.error("Event creation error:", error);
+										alert("Failed to create event.");
 									}
 								}}
+								submitting={submitting}
 							/>
 						)}
 					</>

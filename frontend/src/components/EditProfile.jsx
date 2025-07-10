@@ -199,7 +199,7 @@ export default function EditPage() {
 	};
 	const handleCancel = () => navigate("/profile");
 
-	if (loading || !userData) return <LoadingSpinner />;
+	if (loading) return <LoadingSpinner />;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
