@@ -60,6 +60,7 @@ function vectorizeUser(user, globalSkills, globalInterests) {
 	const expVec = encodeExperience(user, MAX_YEARS).map((v) => v * FEATURE_WEIGHTS.experience_years);
 	const meetVec = encodeMeeting(user).map((v) => v * FEATURE_WEIGHTS.preferred_meeting);
 	const fullVec = [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
+
 	return fullVec;
 }
 

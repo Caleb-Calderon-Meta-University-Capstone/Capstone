@@ -6,9 +6,6 @@ import { getTopMentorMatches } from "../utils/mentorMatchUtils";
 import { UserAuth } from "../context/AuthContext";
 import { PRESET_SKILLS, PRESET_INTERESTS } from "./constants/presets";
 
-console.log("Preset Skills:", PRESET_SKILLS);
-console.log("Preset Interests:", PRESET_INTERESTS);
-
 export default function MentorPage() {
 	const { session } = UserAuth();
 	const [userProfile, setUserProfile] = useState(null);
