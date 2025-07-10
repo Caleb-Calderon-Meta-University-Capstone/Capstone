@@ -30,7 +30,7 @@ export default function ProfilePage() {
 		fetchUserData();
 	}, [session]);
 
-	if (!userData) return <LoadingSpinner />;
+	if (loading) return <LoadingSpinner />;
 
 	const profilePicture = userData.profile_picture || "https://picsum.photos/200/300";
 

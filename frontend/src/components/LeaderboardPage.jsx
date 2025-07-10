@@ -26,6 +26,17 @@ export default function LeaderboardPage() {
 
 	if (loading) return <LoadingSpinner />;
 
+	if (users.length < 3) {
+		return (
+			<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+				<NavigationBar />
+				<h1 className="text-4xl font-bold text-center pt-10">MICS Leaderboard</h1>
+				<p className="text-center text-gray-700 mt-2 mb-8">Celebrating our most active community members</p>
+				<div className="text-center mt-20 text-lg text-gray-700">Come back soon! The leaderboard will be available once more users have signed up.</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
 			<NavigationBar />
@@ -37,9 +48,9 @@ export default function LeaderboardPage() {
 					<div
 						key={u.id}
 						className="relative bg-white rounded-lg shadow-md p-6 w-60 text-center
-                    before:absolute before:-inset-1.5 before:rounded-lg
-                    before:bg-gradient-radial before:from-red-400 before:to-transparent
-                    before:filter before:blur-md before:-z-10"
+							before:absolute before:-inset-1.5 before:rounded-lg
+							before:bg-gradient-radial before:from-red-400 before:to-transparent
+							before:filter before:blur-md before:-z-10"
 					>
 						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-200">
 							<img src={u.profile_picture || "https://via.placeholder.com/80"} alt={u.name} className="h-full w-full object-cover" />
@@ -64,7 +75,12 @@ export default function LeaderboardPage() {
 							</div>
 						</div>
 						<div className="mx-4 flex-1 overflow-hidden rounded-full bg-blue-200 h-2">
-							<div className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500" style={{ width: `${(u.points / (users[0]?.points || 1)) * 100}%` }} />
+							<div
+								className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500"
+								style={{
+									width: `${(u.points / (users[0]?.points || 1)) * 100}%`,
+								}}
+							/>
 						</div>
 						<p className="w-16 text-right text-sm font-semibold">{u.points} pts</p>
 					</div>
