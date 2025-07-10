@@ -34,3 +34,15 @@ function encodeAI(user) {
   return [user.ai_interest ? 1 : 0];
 }
 
+function encodeExperience(user, maxYears = 5) {
+  let years = 0;
+  const raw = user.experience_years;
+  if (raw != null) {
+    const parsed = parseFloat(raw.toString());
+    if (!isNaN(parsed)) {
+      years = parsed;
+    }
+  }
+  return [Math.min(years / maxYears, 1)];
+}
+
