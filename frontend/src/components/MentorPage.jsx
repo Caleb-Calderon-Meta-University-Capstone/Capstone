@@ -36,7 +36,7 @@ export default function MentorPage() {
 			if (error) {
 				console.error("Error fetching mentors:", error);
 			} else {
-				const matches = getTopMentorMatches(userProfile, data, PRESET_SKILLS, PRESET_INTERESTS, 6);
+				const matches = getTopMentorMatches(userProfile, data, PRESET_SKILLS, PRESET_INTERESTS, data.length < 6 ? data.length : 6);
 				setTopMentors(matches);
 			}
 			setLoading(false);
