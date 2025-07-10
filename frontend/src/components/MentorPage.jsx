@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
-import { getTopMentorMatches } from "../utils/mentorMatch";
+import { getTopMentorMatches } from "../utils/mentorMatchUtils";
 import { UserAuth } from "../context/AuthContext";
 import { PRESET_SKILLS, PRESET_INTERESTS } from "./constants/presets";
 
