@@ -312,7 +312,7 @@ export default function EditPage() {
 					</div>
 
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Years of Professional/Internship Experience</h3>
+						<h3 className="text-xl font-bold mb-2">Years of Experience</h3>
 						<select className="w-full bg-gray-100 p-2 rounded" value={experienceYears} onChange={(e) => setExperienceYears(e.target.value)}>
 							<option value="">Select experience</option>
 							<option value="0">0 (Just getting started)</option>
