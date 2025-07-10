@@ -68,3 +68,12 @@ function cosineSimilarity(vecA, vecB) {
   if (!magnitudeA || !magnitudeB) return 0;
   return dotProduct / (magnitudeA * magnitudeB);
 }
+
+// Finds and returns the top mentor matches based on similarity to the current user
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, topN = 5) {
+  const currentUserVector = vectorizeUser(currentUser, globalSkills, globalInterests);
+
+}
+
+
+
