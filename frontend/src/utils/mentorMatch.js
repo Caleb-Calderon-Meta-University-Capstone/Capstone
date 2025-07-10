@@ -18,7 +18,6 @@ const SKILL_LEVEL_MAP = {
 };
 
 // These functions turn parts of a user's profile into numbers; This helps us compare users and find the best mentor matches later.
-
 function encodeSkills(user, globalSkills) {
   return globalSkills.map(skill => {
     const level = user.skills?.[skill];
