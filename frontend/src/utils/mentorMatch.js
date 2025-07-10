@@ -46,3 +46,8 @@ function encodeExperience(user, maxYears = 5) {
   return [Math.min(years / maxYears, 1)];
 }
 
+function encodeMeeting(user) {
+  return MEETING_OPTIONS.map(option => (user.preferred_meeting === option ? 1 : 0));
+}
+
+
