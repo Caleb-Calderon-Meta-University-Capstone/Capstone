@@ -60,4 +60,7 @@ function vectorizeUser(user, globalSkills, globalInterests) {
   return fullVec;
 }
 
-
+// Calculates how similar two vectors are using cosine similarity
+function cosineSimilarity(vecA, vecB) {
+  const dotProduct = vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
+}
