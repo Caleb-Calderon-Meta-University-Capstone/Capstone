@@ -65,4 +65,6 @@ function cosineSimilarity(vecA, vecB) {
   const dotProduct = vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
   const magnitudeA = Math.sqrt(vecA.reduce((sum, val) => sum + val ** 2, 0));
   const magnitudeB = Math.sqrt(vecB.reduce((sum, val) => sum + val ** 2, 0));
+  if (!magnitudeA || !magnitudeB) return 0;
+  return dotProduct / (magnitudeA * magnitudeB);
 }
