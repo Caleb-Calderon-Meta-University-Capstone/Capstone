@@ -141,3 +141,10 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 	}
 	return r;
 }
+
+// Finds the best mentors for a user by scoring them using PageRank on custom graph
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 5) {
+	// 1. Vectorize currentUser + mentors
+	const users = [currentUser, ...mentors];
+	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests));
+}
