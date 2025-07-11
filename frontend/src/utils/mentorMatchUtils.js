@@ -147,4 +147,8 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
 	// 1. Vectorize currentUser + mentors
 	const users = [currentUser, ...mentors];
 	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests));
+
+	// 2. Build graph & run PageRank
+	const adj = buildAdjacencyList(vectors, mentors, likesMap);
+	const ranks = personalizedPageRank(adj, 0);
 }
