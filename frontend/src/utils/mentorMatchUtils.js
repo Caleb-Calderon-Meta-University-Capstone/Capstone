@@ -157,4 +157,7 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
 		mentor,
 		score: ranks[idx + 1],
 	}));
+
+	// 4. Sort by descending score and return top N
+	return scored.sort((a, b) => b.score - a.score).slice(0, topN);
 }
