@@ -131,5 +131,13 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 		for (let i = 0; i < N; i++) {
 			rNext[i] += (1 - damping) * t[i];
 		}
+		// convergence check
+		let diff = 0;
+		for (let i = 0; i < N; i++) {
+			diff += Math.abs(rNext[i] - r[i]);
+			r[i] = rNext[i];
+		}
+		if (diff < tol) break;
 	}
+	return r;
 }
