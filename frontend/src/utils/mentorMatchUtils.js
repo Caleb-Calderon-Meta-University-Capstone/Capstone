@@ -78,35 +78,44 @@ const MAX_LIKES = 5;
 
 // Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
 function buildAdjacencyList(vectors, mentors, likesMap) {
-  const N = vectors.length;
-  const adj = Array.from({ length: N }, () => []);
+	const N = vectors.length;
+	const adj = Array.from({ length: N }, () => []);
 
-  for (let i = 0; i < N; i++) {
-    let total = 0;
-    for (let j = 0; j < N; j++) {
-      if (i === j) continue;
+	for (let i = 0; i < N; i++) {
+		let total = 0;
+		for (let j = 0; j < N; j++) {
+			if (i === j) continue;
 
-      const wSim = cosineSimilarity(vectors[i], vectors[j]);
-      let wLike = 0;
-      // only consider likes when walking out of the current user node
-      if (i === 0 && j > 0) {
-        wLike = likesMap[mentors[j - 1].id] || 0;
-        wLike = Math.min(wLike / MAX_LIKES, 1);
-      }
+			const wSim = cosineSimilarity(vectors[i], vectors[j]);
+			let wLike = 0;
+			// only consider likes when walking out of the current user node
+			if (i === 0 && j > 0) {
+				wLike = likesMap[mentors[j - 1].id] || 0;
+				wLike = Math.min(wLike / MAX_LIKES, 1);
+			}
 
-      const weight = ALPHA_SIM * wSim + BETA_LIKES * wLike;
-      if (weight > 0) {
-        adj[i].push({ to: j, weight });
-        total += weight;
-      }
-    }
-    // normalize outgoing weights so they sum to 1
-    if (total > 0) {
-      adj[i] = adj[i].map(({ to, weight }) => ({
-        to,
-        weight: weight / total,
-      }));
-    }
-  }
-  return adj;
+			const weight = ALPHA_SIM * wSim + BETA_LIKES * wLike;
+			if (weight > 0) {
+				adj[i].push({ to: j, weight });
+				total += weight;
+			}
+		}
+		// normalize outgoing weights so they sum to 1
+		if (total > 0) {
+			adj[i] = adj[i].map(({ to, weight }) => ({
+				to,
+				weight: weight / total,
+			}));
+		}
+	}
+	return adj;
+}
+
+// Finds top connections starting from one user by spreading scores through the graph
+function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
+	const N = adj.length;
+	const r = Array(N).fill(1 / N);
+	const t = Array(N).fill(0);
+	t[startIndex] = 1;
+	const rNext = Array(N).fill(0);
 }
