@@ -121,5 +121,11 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 
 	for (let iter = 0; iter < maxIter; iter++) {
 		rNext.fill(0);
+		// distribute rank
+		for (let i = 0; i < N; i++) {
+			for (const { to, weight } of adj[i]) {
+				rNext[to] += damping * r[i] * weight;
+			}
+		}
 	}
 }
