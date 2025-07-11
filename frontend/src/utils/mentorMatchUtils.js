@@ -127,5 +127,9 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 				rNext[to] += damping * r[i] * weight;
 			}
 		}
+		// teleport step
+		for (let i = 0; i < N; i++) {
+			rNext[i] += (1 - damping) * t[i];
+		}
 	}
 }
