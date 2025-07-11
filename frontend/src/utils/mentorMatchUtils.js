@@ -36,7 +36,7 @@ function encodeAI(user) {
 	return [user.ai_interest ? 1 : 0];
 }
 
-function encodeExperience(user, maxYears = 5) {
+function encodeExperience(user, maxYears = MAX_YEARS) {
 	let years = 0;
 	const raw = user.experience_years;
 	if (raw != null) {
@@ -59,9 +59,7 @@ function vectorizeUser(user, globalSkills, globalInterests) {
 	const aiVec = encodeAI(user).map((v) => v * FEATURE_WEIGHTS.ai_interest);
 	const expVec = encodeExperience(user, MAX_YEARS).map((v) => v * FEATURE_WEIGHTS.experience_years);
 	const meetVec = encodeMeeting(user).map((v) => v * FEATURE_WEIGHTS.preferred_meeting);
-	const fullVec = [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
-
-	return fullVec;
+	return [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
 }
 
 // Calculates how similar two vectors are using cosine similarity
@@ -73,17 +71,7 @@ function cosineSimilarity(vecA, vecB) {
 	return dotProduct / (magnitudeA * magnitudeB);
 }
 
-// Finds and returns the top mentor matches based on similarity to the current user
-export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, topN = 5) {
-	const currentUserVector = vectorizeUser(currentUser, globalSkills, globalInterests);
-
-	const scoredMentors = mentors.map((mentor) => {
-		const mentorVector = vectorizeUser(mentor, globalSkills, globalInterests);
-		const similarityScore = cosineSimilarity(currentUserVector, mentorVector);
-		return { mentor, score: similarityScore };
-	});
-
-	// Sort by descending score and return top
-	const sorted = scoredMentors.sort((a, b) => b.score - a.score);
-	return sorted.slice(0, topN);
-}
+// weights for blending simil. vs likes
+const ALPHA_SIM = 0.6;
+const BETA_LIKES = 0.4;
+const MAX_LIKES = 5;
