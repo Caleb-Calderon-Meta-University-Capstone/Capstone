@@ -151,4 +151,10 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
 	// 2. Build graph & run PageRank
 	const adj = buildAdjacencyList(vectors, mentors, likesMap);
 	const ranks = personalizedPageRank(adj, 0);
+
+	// 3. Pair mentors with their scores
+	const scored = mentors.map((mentor, idx) => ({
+		mentor,
+		score: ranks[idx + 1],
+	}));
 }
