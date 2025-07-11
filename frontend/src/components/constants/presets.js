@@ -1,5 +1,3 @@
-// src/constants/presets.js
-
 export const PRESET_SKILLS = [
 	"Bootstrap",
 	"C#",
