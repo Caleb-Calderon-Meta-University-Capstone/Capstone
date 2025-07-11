@@ -118,4 +118,8 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 	const t = Array(N).fill(0);
 	t[startIndex] = 1;
 	const rNext = Array(N).fill(0);
+
+	for (let iter = 0; iter < maxIter; iter++) {
+		rNext.fill(0);
+	}
 }
