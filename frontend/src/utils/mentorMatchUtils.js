@@ -75,3 +75,38 @@ function cosineSimilarity(vecA, vecB) {
 const ALPHA_SIM = 0.6;
 const BETA_LIKES = 0.4;
 const MAX_LIKES = 5;
+
+// Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
+function buildAdjacencyList(vectors, mentors, likesMap) {
+  const N = vectors.length;
+  const adj = Array.from({ length: N }, () => []);
+
+  for (let i = 0; i < N; i++) {
+    let total = 0;
+    for (let j = 0; j < N; j++) {
+      if (i === j) continue;
+
+      const wSim = cosineSimilarity(vectors[i], vectors[j]);
+      let wLike = 0;
+      // only consider likes when walking out of the current user node
+      if (i === 0 && j > 0) {
+        wLike = likesMap[mentors[j - 1].id] || 0;
+        wLike = Math.min(wLike / MAX_LIKES, 1);
+      }
+
+      const weight = ALPHA_SIM * wSim + BETA_LIKES * wLike;
+      if (weight > 0) {
+        adj[i].push({ to: j, weight });
+        total += weight;
+      }
+    }
+    // normalize outgoing weights so they sum to 1
+    if (total > 0) {
+      adj[i] = adj[i].map(({ to, weight }) => ({
+        to,
+        weight: weight / total,
+      }));
+    }
+  }
+  return adj;
+}
