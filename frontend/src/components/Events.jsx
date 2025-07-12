@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
+import FeedbackModal from "./FeedbackModal";
 
 export default function Events({ role }) {
 	const [events, setEvents] = useState([]);
@@ -11,8 +13,11 @@ export default function Events({ role }) {
 	const [userId, setUserId] = useState(null);
 	const [points, setPoints] = useState(0);
 	const [loading, setLoading] = useState(true);
-	const [showModal, setShowModal] = useState(false);
+	const [showAddModal, setShowAddModal] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [modalEvent, setModalEvent] = useState({});
+	const [feedbackType, setFeedbackType] = useState("like");
 
 	const [googleToken, setGoogleToken] = useState(null);
 
@@ -96,12 +101,12 @@ export default function Events({ role }) {
 			<div className="py-8 px-4 max-w-5xl mx-auto">
 				{role === "Admin" && (
 					<>
-						<button onClick={() => setShowModal(true)} className="mb-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition">
+						<button onClick={() => setShowAddModal(true)} className="mb-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition">
 							Add Event
 						</button>
-						{showModal && (
+						{showAddModal && (
 							<AddEventModal
-								onClose={() => setShowModal(false)}
+								onClose={() => setShowAddModal(false)}
 								onSubmit={async (newEvent) => {
 									setSubmitting(true);
 									const { data, error } = await supabase
@@ -112,7 +117,7 @@ export default function Events({ role }) {
 									setSubmitting(false);
 									if (!error && data) {
 										setEvents((prev) => [...prev, data]);
-										setShowModal(false);
+										setShowAddModal(false);
 									} else {
 										console.error("Event creation error:", error);
 										alert("Failed to create event.");
@@ -154,22 +159,50 @@ export default function Events({ role }) {
 								<div className="mt-4 text-sm text-gray-600">
 									Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
 								</div>
-								<div className="mt-6 flex gap-4">
-									<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`} title={isReg ? "Click to cancel your registration" : "Click to register for this event"}>
+								<div className="mt-6 flex items-center gap-4">
+									<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`} title={isReg ? "Cancel Registration" : "Register"}>
 										{isReg ? "Cancel Registration" : "Register"}
 									</button>
 									<button
 										onClick={() => {
-											if (googleToken) {
-												addEventToGoogleCalendar(googleToken, e);
-											} else {
-												loginWithGoogleCalendar();
-											}
+											if (googleToken) addEventToGoogleCalendar(googleToken, e);
+											else loginWithGoogleCalendar();
 										}}
 										className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
 									>
 										{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
 									</button>
+									<button
+										onClick={() => {
+											setModalEvent(e);
+											setFeedbackType("like");
+											setModalVisible(true);
+										}}
+										className="p-2 rounded hover:bg-gray-100"
+										aria-label="Like"
+									>
+										<ThumbsUp size={20} />
+									</button>
+									<button
+										onClick={() => {
+											setModalEvent(e);
+											setFeedbackType("dislike");
+											setModalVisible(true);
+										}}
+										className="p-2 rounded hover:bg-gray-100"
+										aria-label="Dislike"
+									>
+										<ThumbsDown size={20} />
+									</button>
+									<FeedbackModal
+										visible={modalVisible}
+										feedbackType={feedbackType}
+										eventTitle={modalEvent.title}
+										onSubmit={(reasons) => {
+											setModalVisible(false);
+										}}
+										onClose={() => setModalVisible(false)}
+									/>
 								</div>
 							</div>
 						);
