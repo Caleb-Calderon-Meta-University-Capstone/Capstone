@@ -1,12 +1,3 @@
-// Weight settings for different features in the matching algorithm
-const FEATURE_WEIGHTS = {
-	skills: 0.4,
-	interests: 0.3,
-	ai_interest: 0.1,
-	experience_years: 0.1,
-	preferred_meeting: 0.1,
-};
-
 //Create a constant for the maximum years of experience to normalize against
 const MAX_YEARS = 5;
 
@@ -53,12 +44,12 @@ function encodeMeeting(user) {
 }
 
 // Turns all parts of a user profile into one weighted number array for similarity comparison
-function vectorizeUser(user, globalSkills, globalInterests) {
-	const skillVec = encodeSkills(user, globalSkills).map((v) => v * FEATURE_WEIGHTS.skills);
-	const interestVec = encodeInterests(user, globalInterests).map((v) => v * FEATURE_WEIGHTS.interests);
-	const aiVec = encodeAI(user).map((v) => v * FEATURE_WEIGHTS.ai_interest);
-	const expVec = encodeExperience(user, MAX_YEARS).map((v) => v * FEATURE_WEIGHTS.experience_years);
-	const meetVec = encodeMeeting(user).map((v) => v * FEATURE_WEIGHTS.preferred_meeting);
+function vectorizeUser(user, globalSkills, globalInterests, weights) {
+	const skillVec = encodeSkills(user, globalSkills).map((v) => v * weights.skills);
+	const interestVec = encodeInterests(user, globalInterests).map((v) => v * weights.interests);
+	const aiVec = encodeAI(user).map((v) => v * weights.ai_interest);
+	const expVec = encodeExperience(user, MAX_YEARS).map((v) => v * weights.experience_years);
+	const meetVec = encodeMeeting(user).map((v) => v * weights.preferred_meeting);
 	return [...skillVec, ...interestVec, ...aiVec, ...expVec, ...meetVec];
 }
 
@@ -75,6 +66,9 @@ function cosineSimilarity(vecA, vecB) {
 const ALPHA_SIM = 0.6;
 const BETA_LIKES = 0.4;
 const MAX_LIKES = 5;
+
+// weight for blending PPR vs cosine similarity (hybrid)
+const ALPHA_BLEND = 0.6;
 
 // Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
 function buildAdjacencyList(vectors, mentors, likesMap) {
@@ -102,10 +96,7 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 		}
 		// normalize outgoing weights so they sum to 1
 		if (total > 0) {
-			adj[i] = adj[i].map(({ to, weight }) => ({
-				to,
-				weight: weight / total,
-			}));
+			adj[i] = adj[i].map(({ to, weight }) => ({ to, weight: weight / total }));
 		}
 	}
 	return adj;
@@ -142,22 +133,31 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 	return r;
 }
 
-// Finds the best mentors for a user by scoring them using PageRank on custom graph
-export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 5) {
-	// 1. Vectorize currentUser + mentors
+// Finds the best mentors for a user by scoring them using a hybrid of Personalized PageRank and cosine similarity
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 5, weights = { skills: 0.4, interests: 0.3, ai_interest: 0.1, experience_years: 0.1, preferred_meeting: 0.1 }) {
+	// 1. Vectorize currentUser + mentors for PPR graph
 	const users = [currentUser, ...mentors];
-	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests));
+	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests, weights));
 
 	// 2. Build graph & run PageRank
 	const adj = buildAdjacencyList(vectors, mentors, likesMap);
 	const ranks = personalizedPageRank(adj, 0);
 
-	// 3. Pair mentors with their scores
-	const scored = mentors.map((mentor, idx) => ({
+	// 3. Normalize PPR scores over mentors only
+	const mentorRanks = ranks.slice(1);
+	const maxRank = Math.max(...mentorRanks);
+	const pprScores = mentorRanks.map((r) => (maxRank > 0 ? r / maxRank : 0));
+
+	// 4. Compute raw cosine similarity scores
+	const vUser = vectorizeUser(currentUser, globalSkills, globalInterests, weights);
+	const cosScores = mentors.map((m) => cosineSimilarity(vUser, vectorizeUser(m, globalSkills, globalInterests, weights)));
+
+	// 5. Blend PPR + cosine for final score
+	const final = mentors.map((mentor, i) => ({
 		mentor,
-		score: ranks[idx + 1],
+		score: ALPHA_BLEND * pprScores[i] + (1 - ALPHA_BLEND) * cosScores[i],
 	}));
 
-	// 4. Sort by descending score and return top N
-	return scored.sort((a, b) => b.score - a.score).slice(0, topN);
+	// 6. Sort, slice to topN, and return
+	return final.sort((a, b) => b.score - a.score).slice(0, topN);
 }
