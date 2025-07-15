@@ -26,7 +26,7 @@ export async function getUserFeedbackMap() {
 			const uid = user_id;
 			const eid = String(event_id);
 			if (!map[uid]) map[uid] = {};
-      // store liked status and convert reasons array to a set for fast lookup
+			// store liked status and convert reasons array to a set for fast lookup
 			map[uid][eid] = { liked, reasons: new Set(reasons) };
 		});
 		return map;
@@ -34,4 +34,9 @@ export async function getUserFeedbackMap() {
 		console.error("unexpected error in getUserFeedbackMap:", err);
 		return {};
 	}
+}
+
+export function getEventFeedbackVectors(feedbackMap, eventIds) {
+	const vectorMap = {};
+	return vectorMap;
 }
