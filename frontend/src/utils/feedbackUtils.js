@@ -14,6 +14,11 @@ export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 
 export async function getUserFeedbackMap() {
 	try {
+		const { data, error } = await supabase.from(FEEDBACK_TABLE).select("*");
+		if (error) {
+			console.error("error fetching feedback:", error.message);
+			return {};
+		}
 	} catch (err) {
 		console.error("unexpected error in getUserFeedbackMap:", err);
 		return {};
