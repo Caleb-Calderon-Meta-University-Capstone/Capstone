@@ -150,6 +150,14 @@ export default function Events({ role }) {
 						)}
 					</>
 				)}
+				<div className="mb-6 flex space-x-4">
+					<button onClick={() => setActiveTab("all")} className={`py-2 px-4 rounded ${activeTab === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+						All Events
+					</button>
+					<button onClick={() => setActiveTab("recommended")} className={`py-2 px-4 rounded ${activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+						Recommended
+					</button>
+				</div>
 
 				<div className="space-y-6">
 					{events.map((e) => {
