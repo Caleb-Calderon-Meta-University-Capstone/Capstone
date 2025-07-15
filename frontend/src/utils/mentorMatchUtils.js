@@ -105,11 +105,11 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 
 // Finds top connections starting from one user by spreading scores through the graph
 function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
-	const N = adj.length;
-	const r = Array(N).fill(1 / N);
-	const t = Array(N).fill(0);
+	const n = adj.length;
+	const r = Array(n).fill(1 / n);
+	const t = Array(n).fill(0);
 	t[startIndex] = 1;
-	const rNext = Array(N).fill(0);
+	const rNext = Array(n).fill(0);
 
 	for (let iter = 0; iter < maxIter; iter++) {
 		rNext.fill(0);
@@ -120,12 +120,12 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 			}
 		}
 		// teleport step
-		for (let i = 0; i < N; i++) {
+		for (let i = 0; i < n; i++) {
 			rNext[i] += (1 - damping) * t[i];
 		}
 		// convergence check
 		let diff = 0;
-		for (let i = 0; i < N; i++) {
+		for (let i = 0; i < n; i++) {
 			diff += Math.abs(rNext[i] - r[i]);
 			r[i] = rNext[i];
 		}
