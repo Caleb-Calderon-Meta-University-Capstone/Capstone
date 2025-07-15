@@ -6,6 +6,7 @@ import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
+import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
 
 export default function Events({ role }) {
 	const [events, setEvents] = useState([]);
@@ -19,7 +20,7 @@ export default function Events({ role }) {
 	const [modalEvent, setModalEvent] = useState({});
 	const [feedbackType, setFeedbackType] = useState("like");
 	const [activeTab, setActiveTab] = useState("all");
-	const [recommendedEvents, setRecommendedEvents] = useState([]); 
+	const [recommendedEvents, setRecommendedEvents] = useState([]);
 	const [googleToken, setGoogleToken] = useState(null);
 
 	const loginWithGoogleCalendar = useGoogleLogin({
