@@ -79,7 +79,7 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 		let total = 0;
 		for (let j = 0; j < N; j++) {
 			if (i === j) continue;
-
+			// doc product of vectors divided by the product of their magnitudes
 			const wSim = cosineSimilarity(vectors[i], vectors[j]);
 			let wLike = 0;
 			// only consider likes when walking out of the current user node
@@ -134,7 +134,7 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 }
 
 // Finds the best mentors for a user by scoring them using a hybrid of Personalized PageRank and cosine similarity
-export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 5, weights = { skills: 0.4, interests: 0.3, ai_interest: 0.1, experience_years: 0.1, preferred_meeting: 0.1 }) {
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 10, weights = { skills: 0.4, interests: 0.3, ai_interest: 0.1, experience_years: 0.1, preferred_meeting: 0.1 }) {
 	// 1. Vectorize currentUser + mentors for PPR graph
 	const users = [currentUser, ...mentors];
 	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests, weights));
