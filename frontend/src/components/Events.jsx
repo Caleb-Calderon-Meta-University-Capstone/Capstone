@@ -63,6 +63,11 @@ export default function Events({ role }) {
 
 	const refreshRecommendations = async (uid, allEvents) => {
 		const feedbackMap = await getUserFeedbackMap();
+		if (!feedbackMap[uid] || Object.keys(feedbackMap[uid]).length === 0) {
+			setRecommendedEvents([]);
+			return;
+		}
+
 		const eventIds = allEvents.map((e) => e.id);
 		const vectors = getEventFeedbackVectors(feedbackMap, eventIds);
 		const clusters = clusterEventsKMeans(vectors, 5);
@@ -73,14 +78,12 @@ export default function Events({ role }) {
 
 	const deleteEvent = async (id) => {
 		if (!window.confirm("Are you sure you want to delete this event?")) return;
-
 		const { error } = await supabase.from("events").delete().eq("id", id);
 		if (error) {
 			console.error("Delete error:", error);
 			alert("Failed to delete event.");
 			return;
 		}
-
 		const newEvents = events.filter((e) => e.id !== id);
 		setEvents(newEvents);
 		await refreshRecommendations(userId, newEvents);
@@ -89,7 +92,6 @@ export default function Events({ role }) {
 	const toggleRegister = async (id, eventPoints) => {
 		if (!userId) return;
 		const isReg = registered.has(id);
-
 		if (isReg) {
 			await supabase.from("event_registrations").delete().eq("user_id", userId).eq("event_id", id);
 			await supabase
@@ -112,6 +114,8 @@ export default function Events({ role }) {
 			setPoints((p) => p + eventPoints);
 		}
 	};
+
+	if (loading) return <LoadingSpinner />;
 
 	const renderList = (list) =>
 		list.map((e) => {
@@ -183,8 +187,6 @@ export default function Events({ role }) {
 			);
 		});
 
-	if (loading) return <LoadingSpinner />;
-
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<div className="py-8 px-4 max-w-5xl mx-auto">
@@ -239,6 +241,9 @@ export default function Events({ role }) {
 				feedbackType={feedbackType}
 				eventTitle={modalEvent.title}
 				onSubmit={async (reasons) => {
+					if (feedbackType === "like" && reasons.length === 0) {
+						reasons.push("liked");
+					}
 					if (userId && modalEvent.id) {
 						await saveUserFeedback(userId, modalEvent.id, feedbackType === "like", reasons);
 						await refreshRecommendations(userId, events);
