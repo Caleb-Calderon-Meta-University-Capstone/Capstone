@@ -1,6 +1,7 @@
 import { supabase } from "../supabaseClient";
 export const FEEDBACK_TABLE = "event_feedback";
 
+//save or update user feedback for an event
 export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 	try {
 		const { error } = await supabase.from(FEEDBACK_TABLE).upsert({ user_id: userId, event_id: eventId, liked, reasons: reasonsArray }, { onConflict: ["user_id", "event_id"] });
@@ -12,6 +13,7 @@ export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 	}
 }
 
+//retrieve all feedback and structure it by user and event
 export async function getUserFeedbackMap() {
 	try {
 		const { data, error } = await supabase.from(FEEDBACK_TABLE).select("*");
@@ -24,6 +26,7 @@ export async function getUserFeedbackMap() {
 			const uid = user_id;
 			const eid = String(event_id);
 			if (!map[uid]) map[uid] = {};
+      // store liked status and convert reasons array to a set for fast lookup
 			map[uid][eid] = { liked, reasons: new Set(reasons) };
 		});
 		return map;
