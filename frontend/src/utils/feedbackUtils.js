@@ -19,6 +19,14 @@ export async function getUserFeedbackMap() {
 			console.error("error fetching feedback:", error.message);
 			return {};
 		}
+		const map = {};
+		data.forEach(({ user_id, event_id, liked, reasons }) => {
+			const uid = user_id;
+			const eid = String(event_id);
+			if (!map[uid]) map[uid] = {};
+			map[uid][eid] = { liked, reasons: new Set(reasons) };
+		});
+		return map;
 	} catch (err) {
 		console.error("unexpected error in getUserFeedbackMap:", err);
 		return {};
