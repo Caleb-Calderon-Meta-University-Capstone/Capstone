@@ -11,3 +11,11 @@ export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 		console.error("unexpected error in saveUserFeedback:", err);
 	}
 }
+
+export async function getUserFeedbackMap() {
+	try {
+	} catch (err) {
+		console.error("unexpected error in getUserFeedbackMap:", err);
+		return {};
+	}
+}
