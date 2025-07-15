@@ -18,7 +18,8 @@ export default function Events({ role }) {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [modalEvent, setModalEvent] = useState({});
 	const [feedbackType, setFeedbackType] = useState("like");
-
+	const [activeTab, setActiveTab] = useState("all");
+	const [recommendedEvents, setRecommendedEvents] = useState([]); 
 	const [googleToken, setGoogleToken] = useState(null);
 
 	const loginWithGoogleCalendar = useGoogleLogin({
