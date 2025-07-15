@@ -84,7 +84,7 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 		let total = 0;
 		for (let j = 0; j < N; j++) {
 			if (i === j) continue;
-			// doc product of vectors divided by the product of their magnitudes
+			// dot product of vectors divided by the product of their magnitudes
 			const wSim = cosineSimilarity(vectors[i], vectors[j]);
 			let wLike = 0;
 			// only consider likes when walking out of the current user node
