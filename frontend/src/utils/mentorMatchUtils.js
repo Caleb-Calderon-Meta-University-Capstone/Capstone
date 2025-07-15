@@ -70,7 +70,9 @@ const MAX_LIKES = 5;
 // weight for blending PPR vs cosine similarity (hybrid)
 const ALPHA_BLEND = 0.6;
 
-// Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
+// Builds an adjacency list where each node represents a user/mentor,
+// and edge weights are based on a blend of cosine similarity and like strength.
+// Likes are only considered from the current user (index 0) to mentors.
 function buildAdjacencyList(vectors, mentors, likesMap) {
 	if (!vectors.length || !mentors.length) return [];
 
