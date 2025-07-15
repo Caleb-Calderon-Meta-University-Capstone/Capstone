@@ -38,5 +38,11 @@ export async function getUserFeedbackMap() {
 
 export function getEventFeedbackVectors(feedbackMap, eventIds) {
 	const vectorMap = {};
+	eventIds.forEach((id) => {
+		const eid = String(id);
+		const freq = {};
+		//Todo: add userfeedback loop
+		vectorMap[eid] = freq;
+	});
 	return vectorMap;
 }
