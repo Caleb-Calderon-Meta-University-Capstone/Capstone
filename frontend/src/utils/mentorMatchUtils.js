@@ -70,16 +70,21 @@ const MAX_LIKES = 5;
 // weight for blending PPR vs cosine similarity (hybrid)
 const ALPHA_BLEND = 0.6;
 
-// Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
+// Builds an adjacency list where each node represents a user/mentor,
+// and edge weights are based on a blend of cosine similarity and like strength.
+// Likes are only considered from the current user (index 0) to mentors.
 function buildAdjacencyList(vectors, mentors, likesMap) {
+	if (!vectors.length || !mentors.length) return [];
+
 	const N = vectors.length;
 	const adj = Array.from({ length: N }, () => []);
 
+	// i stands for current user, j for mentors
 	for (let i = 0; i < N; i++) {
 		let total = 0;
 		for (let j = 0; j < N; j++) {
 			if (i === j) continue;
-
+			// doc product of vectors divided by the product of their magnitudes
 			const wSim = cosineSimilarity(vectors[i], vectors[j]);
 			let wLike = 0;
 			// only consider likes when walking out of the current user node
@@ -102,29 +107,37 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 	return adj;
 }
 
-// Finds top connections starting from one user by spreading scores through the graph
+// Runs Personalized PageRank to score nodes based on proximity to a starting user.
+// - adj: adjacency list representing the graph
+// - startIndex: index of the starting node (usually current user)
+// - damping: probability of continuing the walk (default 0.85)
+// - maxIter: max number of iterations (default 100)
+// - tol: convergence threshold (default 1e-6)
 function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
-	const N = adj.length;
-	const r = Array(N).fill(1 / N);
-	const t = Array(N).fill(0);
+	const n = adj.length;
+	const r = Array(n).fill(1 / n); // current scores
+	const t = Array(n).fill(0); // teleport vector
 	t[startIndex] = 1;
-	const rNext = Array(N).fill(0);
+	const rNext = Array(n).fill(0); // next scores
 
 	for (let iter = 0; iter < maxIter; iter++) {
 		rNext.fill(0);
-		// distribute rank
-		for (let i = 0; i < N; i++) {
+
+		// distribute rank through edges
+		for (let i = 0; i < n; i++) {
 			for (const { to, weight } of adj[i]) {
 				rNext[to] += damping * r[i] * weight;
 			}
 		}
-		// teleport step
-		for (let i = 0; i < N; i++) {
+
+		// apply teleportation to starting node
+		for (let i = 0; i < n; i++) {
 			rNext[i] += (1 - damping) * t[i];
 		}
-		// convergence check
+
+		// check convergence
 		let diff = 0;
-		for (let i = 0; i < N; i++) {
+		for (let i = 0; i < n; i++) {
 			diff += Math.abs(rNext[i] - r[i]);
 			r[i] = rNext[i];
 		}
@@ -134,7 +147,7 @@ function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, 
 }
 
 // Finds the best mentors for a user by scoring them using a hybrid of Personalized PageRank and cosine similarity
-export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 5, weights = { skills: 0.4, interests: 0.3, ai_interest: 0.1, experience_years: 0.1, preferred_meeting: 0.1 }) {
+export function getTopMentorMatches(currentUser, mentors, globalSkills, globalInterests, likesMap = {}, topN = 10, weights = { skills: 0.4, interests: 0.3, ai_interest: 0.1, experience_years: 0.1, preferred_meeting: 0.1 }) {
 	// 1. Vectorize currentUser + mentors for PPR graph
 	const users = [currentUser, ...mentors];
 	const vectors = users.map((u) => vectorizeUser(u, globalSkills, globalInterests, weights));
