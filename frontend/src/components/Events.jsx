@@ -58,6 +58,16 @@ export default function Events({ role }) {
 		})();
 	}, []);
 
+	const refreshRecommendations = async (uid, allEvents) => {
+		const feedbackMap = await getUserFeedbackMap();
+		const eventIds = allEvents.map((e) => e.id);
+		const vectors = getEventFeedbackVectors(feedbackMap, eventIds);
+		const clusters = clusterEventsKMeans(vectors, 5);
+		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
+		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
+		setRecommendedEvents(allEvents.filter((e) => recIds.includes(e.id)));
+	};
+
 	const deleteEvent = async (id) => {
 		if (!window.confirm("Are you sure you want to delete this event?")) return;
 		const { error } = await supabase.from("events").delete().eq("id", id);
