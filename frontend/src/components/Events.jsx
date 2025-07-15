@@ -53,8 +53,12 @@ export default function Events({ role }) {
 			setPoints(userData?.points ?? 0);
 
 			const { data: eventData } = await supabase.from("events").select("id,title,description,location,date,points,users(name)").order("date", { ascending: true });
-			setEvents(eventData ?? []);
+
+			const initialEvents = eventData ?? [];
+			setEvents(initialEvents);
 			setLoading(false);
+
+			await refreshRecommendations(user.id, initialEvents);
 		})();
 	}, []);
 
@@ -70,13 +74,17 @@ export default function Events({ role }) {
 
 	const deleteEvent = async (id) => {
 		if (!window.confirm("Are you sure you want to delete this event?")) return;
+
 		const { error } = await supabase.from("events").delete().eq("id", id);
 		if (error) {
 			console.error("Delete error:", error);
 			alert("Failed to delete event.");
-		} else {
-			setEvents((prev) => prev.filter((e) => e.id !== id));
+			return;
 		}
+
+		const newEvents = events.filter((e) => e.id !== id);
+		setEvents(newEvents);
+		await refreshRecommendations(userId, newEvents);
 	};
 
 	const toggleRegister = async (id, eventPoints) => {
@@ -128,8 +136,10 @@ export default function Events({ role }) {
 										.single();
 									setSubmitting(false);
 									if (!error && data) {
-										setEvents((prev) => [...prev, data]);
+										const newEvents = [...events, data];
+										setEvents(newEvents);
 										setShowAddModal(false);
+										await refreshRecommendations(userId, newEvents);
 									} else {
 										console.error("Event creation error:", error);
 										alert("Failed to create event.");
