@@ -72,6 +72,8 @@ const ALPHA_BLEND = 0.6;
 
 // Build adjacency list for Personalized PageRank with boost for liked mentors, creates the graph structure
 function buildAdjacencyList(vectors, mentors, likesMap) {
+	if (!vectors.length || !mentors.length) return [];
+
 	const N = vectors.length;
 	const adj = Array.from({ length: N }, () => []);
 
