@@ -75,6 +75,7 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 	const N = vectors.length;
 	const adj = Array.from({ length: N }, () => []);
 
+	// i stands for current user, j for mentors
 	for (let i = 0; i < N; i++) {
 		let total = 0;
 		for (let j = 0; j < N; j++) {
