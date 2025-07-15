@@ -6,6 +6,7 @@ import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
+import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
 
 export default function Events({ role }) {
 	const [events, setEvents] = useState([]);
@@ -18,7 +19,8 @@ export default function Events({ role }) {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [modalEvent, setModalEvent] = useState({});
 	const [feedbackType, setFeedbackType] = useState("like");
-
+	const [activeTab, setActiveTab] = useState("all");
+	const [recommendedEvents, setRecommendedEvents] = useState([]);
 	const [googleToken, setGoogleToken] = useState(null);
 
 	const loginWithGoogleCalendar = useGoogleLogin({
@@ -45,26 +47,43 @@ export default function Events({ role }) {
 			setUserId(user.id);
 
 			const { data: regData } = await supabase.from("event_registrations").select("event_id").eq("user_id", user.id);
-			setRegistered(new Set(regData?.map((r) => r.event_id)));
+			setRegistered(new Set((regData || []).map((r) => r.event_id)));
 
 			const { data: userData } = await supabase.from("users").select("points").eq("id", user.id).single();
 			setPoints(userData?.points ?? 0);
 
 			const { data: eventData } = await supabase.from("events").select("id,title,description,location,date,points,users(name)").order("date", { ascending: true });
-			setEvents(eventData ?? []);
+			const initialEvents = eventData || [];
+			setEvents(initialEvents);
 			setLoading(false);
+
+			await refreshRecommendations(user.id, initialEvents);
 		})();
 	}, []);
 
+	const refreshRecommendations = async (uid, allEvents) => {
+		const feedbackMap = await getUserFeedbackMap();
+		const eventIds = allEvents.map((e) => e.id);
+		const vectors = getEventFeedbackVectors(feedbackMap, eventIds);
+		const clusters = clusterEventsKMeans(vectors, 5);
+		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
+		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
+		setRecommendedEvents(allEvents.filter((e) => recIds.includes(e.id)));
+	};
+
 	const deleteEvent = async (id) => {
 		if (!window.confirm("Are you sure you want to delete this event?")) return;
+
 		const { error } = await supabase.from("events").delete().eq("id", id);
 		if (error) {
 			console.error("Delete error:", error);
 			alert("Failed to delete event.");
-		} else {
-			setEvents((prev) => prev.filter((e) => e.id !== id));
+			return;
 		}
+
+		const newEvents = events.filter((e) => e.id !== id);
+		setEvents(newEvents);
+		await refreshRecommendations(userId, newEvents);
 	};
 
 	const toggleRegister = async (id, eventPoints) => {
@@ -94,6 +113,76 @@ export default function Events({ role }) {
 		}
 	};
 
+	const renderList = (list) =>
+		list.map((e) => {
+			const isReg = registered.has(e.id);
+			return (
+				<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
+					<div className="flex justify-between items-start">
+						<h2 className="text-xl font-semibold">{e.title}</h2>
+						{role === "Admin" && (
+							<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+								Delete
+							</button>
+						)}
+					</div>
+					<div className="text-sm text-gray-600 mt-1">+{e.points} pts</div>
+					<div className="text-gray-500 text-sm mt-1">
+						{new Date(e.date).toLocaleString(undefined, {
+							weekday: "short",
+							year: "numeric",
+							month: "short",
+							day: "numeric",
+							hour: "2-digit",
+							minute: "2-digit",
+							timeZoneName: "short",
+						})}
+					</div>
+					<div className="text-gray-500 text-sm">{e.location}</div>
+					<p className="mt-4 text-gray-700">{e.description}</p>
+					<div className="mt-4 text-sm text-gray-600">
+						Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
+					</div>
+					<div className="mt-6 flex items-center gap-4">
+						<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`}>
+							{isReg ? "Cancel Registration" : "Register"}
+						</button>
+						<button
+							onClick={() => {
+								if (googleToken) addEventToGoogleCalendar(googleToken, e);
+								else loginWithGoogleCalendar();
+							}}
+							className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
+						>
+							{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
+						</button>
+						<button
+							onClick={() => {
+								setModalEvent(e);
+								setFeedbackType("like");
+								setModalVisible(true);
+							}}
+							className="p-2 rounded hover:bg-gray-100"
+							aria-label="Like"
+						>
+							<ThumbsUp size={20} />
+						</button>
+						<button
+							onClick={() => {
+								setModalEvent(e);
+								setFeedbackType("dislike");
+								setModalVisible(true);
+							}}
+							className="p-2 rounded hover:bg-gray-100"
+							aria-label="Dislike"
+						>
+							<ThumbsDown size={20} />
+						</button>
+					</div>
+				</div>
+			);
+		});
+
 	if (loading) return <LoadingSpinner />;
 
 	return (
@@ -116,8 +205,10 @@ export default function Events({ role }) {
 										.single();
 									setSubmitting(false);
 									if (!error && data) {
-										setEvents((prev) => [...prev, data]);
+										const newEvents = [...events, data];
+										setEvents(newEvents);
 										setShowAddModal(false);
+										await refreshRecommendations(userId, newEvents);
 									} else {
 										console.error("Event creation error:", error);
 										alert("Failed to create event.");
@@ -129,87 +220,33 @@ export default function Events({ role }) {
 					</>
 				)}
 
-				<div className="space-y-6">
-					{events.map((e) => {
-						const isReg = registered.has(e.id);
-						return (
-							<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-								<div className="flex justify-between items-start">
-									<h2 className="text-xl font-semibold">{e.title}</h2>
-									{role === "Admin" && (
-										<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
-											Delete
-										</button>
-									)}
-								</div>
-								<div className="text-sm text-gray-600 mt-1">+{e.points} pts</div>
-								<div className="text-gray-500 text-sm mt-1">
-									{new Date(e.date).toLocaleString(undefined, {
-										weekday: "short",
-										year: "numeric",
-										month: "short",
-										day: "numeric",
-										hour: "2-digit",
-										minute: "2-digit",
-										timeZoneName: "short",
-									})}
-								</div>
-								<div className="text-gray-500 text-sm">{e.location}</div>
-								<p className="mt-4 text-gray-700">{e.description}</p>
-								<div className="mt-4 text-sm text-gray-600">
-									Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
-								</div>
-								<div className="mt-6 flex items-center gap-4">
-									<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`} title={isReg ? "Cancel Registration" : "Register"}>
-										{isReg ? "Cancel Registration" : "Register"}
-									</button>
-									<button
-										onClick={() => {
-											if (googleToken) addEventToGoogleCalendar(googleToken, e);
-											else loginWithGoogleCalendar();
-										}}
-										className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
-									>
-										{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
-									</button>
-									<button
-										onClick={() => {
-											setModalEvent(e);
-											setFeedbackType("like");
-											setModalVisible(true);
-										}}
-										className="p-2 rounded hover:bg-gray-100"
-										aria-label="Like"
-									>
-										<ThumbsUp size={20} />
-									</button>
-									<button
-										onClick={() => {
-											setModalEvent(e);
-											setFeedbackType("dislike");
-											setModalVisible(true);
-										}}
-										className="p-2 rounded hover:bg-gray-100"
-										aria-label="Dislike"
-									>
-										<ThumbsDown size={20} />
-									</button>
-									<FeedbackModal
-										visible={modalVisible}
-										feedbackType={feedbackType}
-										eventTitle={modalEvent.title}
-										onSubmit={(reasons) => {
-											setModalVisible(false);
-										}}
-										onClose={() => setModalVisible(false)}
-									/>
-								</div>
-							</div>
-						);
-					})}
-					<div className="text-right mt-6 text-sm text-gray-600 font-semibold">Total Points: {points}</div>
+				<div className="mb-6 flex space-x-4">
+					<button onClick={() => setActiveTab("all")} className={`py-2 px-4 rounded ${activeTab === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+						All Events
+					</button>
+					<button onClick={() => setActiveTab("recommended")} className={`py-2 px-4 rounded ${activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+						Recommended
+					</button>
 				</div>
+
+				<div className="space-y-6">{activeTab === "all" ? renderList(events) : recommendedEvents.length > 0 ? renderList(recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet—give some feedback!</div>}</div>
+
+				<div className="text-right mt-6 text-sm text-gray-600 font-semibold">Total Points: {points}</div>
 			</div>
+
+			<FeedbackModal
+				visible={modalVisible}
+				feedbackType={feedbackType}
+				eventTitle={modalEvent.title}
+				onSubmit={async (reasons) => {
+					if (userId && modalEvent.id) {
+						await saveUserFeedback(userId, modalEvent.id, feedbackType === "like", reasons);
+						await refreshRecommendations(userId, events);
+					}
+					setModalVisible(false);
+				}}
+				onClose={() => setModalVisible(false)}
+			/>
 		</div>
 	);
 }
