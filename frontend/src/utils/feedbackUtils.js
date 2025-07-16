@@ -55,3 +55,60 @@ export function getEventFeedbackVectors(feedbackMap, eventIds) {
 	});
 	return vectorMap;
 }
+
+// calculate Euclidean distance between two vectors
+function euclidean(a, b) {
+	return Math.sqrt(a.reduce((sum, v, i) => sum + (v - b[i]) ** 2, 0));
+}
+
+
+// cluster events into k groups using K-Means
+export function clusterEventsKMeans(eventVectors, k = 5) {
+	const eids = Object.keys(eventVectors);
+
+  // get all unique feedback types across events (ex. features)
+	const features = Array.from(new Set(eids.flatMap((eid) => Object.keys(eventVectors[eid]))));
+
+  // convert each event vector to a full vector using the global feature list
+	const vectors = eids.map((eid) => ({
+		id: eid,
+		vec: features.map((f) => eventVectors[eid][f] || 0),
+	}));
+
+	const kEff = Math.min(k, vectors.length);
+	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
+	let changed = true;
+	let clusters = {};
+
+	while (changed) {
+		clusters = {};
+		changed = false;
+
+    // assign each vector to the closest centroid
+		vectors.forEach(({ id, vec }) => {
+			let bestIdx = 0;
+			let bestDist = Infinity;
+			centroids.forEach((c, i) => {
+				const d = euclidean(vec, c);
+				if (d < bestDist) {
+					bestDist = d;
+					bestIdx = i;
+				}
+			});
+			clusters[bestIdx] = clusters[bestIdx] || [];
+			clusters[bestIdx].push(id);
+		});
+    // recalculate centroids by averaging the vectors in each cluster
+		const newCentroids = centroids.map((_, i) => {
+			const members = (clusters[i] || []).map((id) => vectors.find((v) => v.id === id).vec);
+			if (!members.length) return centroids[i];
+			return features.map((_, j) => members.reduce((s, v) => s + v[j], 0) / members.length);
+		});
+
+    // check if centroids changed significantly
+		changed = centroids.some((c, i) => euclidean(c, newCentroids[i]) > 1e-3);
+		centroids = newCentroids;
+	}
+
+	return clusters;
+}
