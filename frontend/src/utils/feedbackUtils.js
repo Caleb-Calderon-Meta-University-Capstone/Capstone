@@ -124,4 +124,12 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 			});
 		}
 	});
+
+	const total = Object.values(freq).reduce((a, b) => a + b, 0) || 1;
+	const normalized = {};
+	Object.keys(freq).forEach((r) => {
+		normalized[r] = freq[r] / total;
+	});
+
+	return normalized;
 }
