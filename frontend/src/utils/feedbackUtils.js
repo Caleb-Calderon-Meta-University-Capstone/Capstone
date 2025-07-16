@@ -55,3 +55,9 @@ export function getEventFeedbackVectors(feedbackMap, eventIds) {
 	});
 	return vectorMap;
 }
+
+// calculate Euclidean distance between two vectors
+function euclidean(a, b) {
+	return Math.sqrt(a.reduce((sum, v, i) => sum + (v - b[i]) ** 2, 0));
+}
+
