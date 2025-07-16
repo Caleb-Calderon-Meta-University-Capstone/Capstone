@@ -23,7 +23,22 @@ export default function Members() {
 	if (loading) return <LoadingSpinner />;
 
 	return (
-		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen relative">
+			<style>
+				{`
+					@keyframes pulse-glow {
+						0%, 100% {
+							box-shadow: 0 0 0px rgba(99, 102, 241, 0.3);
+						}
+						50% {
+							box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+						}
+					}
+					.hover-pulse:hover {
+						animation: pulse-glow 1.8s ease-in-out infinite;
+					}
+				`}
+			</style>
 			<NavigationBar />
 			<h1 className="text-3xl font-bold text-center my-6">Member Directory</h1>
 			<p className="text-center mb-10 text-gray-600">Connect with {members.length} amazing MICS members</p>
@@ -31,7 +46,7 @@ export default function Members() {
 				{members.map((member) => {
 					const profilePicture = member.profile_picture || "https://picsum.photos/200/300";
 					return (
-						<div key={member.id} className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center">
+						<div key={member.id} className="hover-pulse bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center transform transition duration-300 hover:scale-105 hover:ring-4 hover:ring-indigo-400 hover:ring-opacity-50 hover:ring-offset-4">
 							<div className="w-20 h-20 rounded-full overflow-hidden mb-4">
 								<img src={profilePicture} alt={member.name} className="object-cover w-full h-full" />
 							</div>
