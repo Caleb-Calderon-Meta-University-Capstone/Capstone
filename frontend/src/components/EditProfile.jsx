@@ -27,6 +27,7 @@ export default function EditPage() {
 	const [experienceYears, setExperienceYears] = useState("");
 	const [aiInterest, setAiInterest] = useState(false);
 	const [preferredMeeting, setPreferredMeeting] = useState("");
+	const [linkedInUrl, setLinkedInUrl] = useState("");
 
 	const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 	const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];
@@ -75,7 +76,7 @@ export default function EditPage() {
 			const userId = session?.user?.id;
 			if (!userId) return;
 
-			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role, experience_years, ai_interest, preferred_meeting	").eq("id", userId).single();
+			const { data, error } = await supabase.from("users").select("profile_picture, name, year, bio, skills, interests, points, mentor_role, experience_years, ai_interest, preferred_meeting, linked_in_url").eq("id", userId).single();
 
 			if (error) {
 				console.error(error.message);
@@ -84,13 +85,14 @@ export default function EditPage() {
 				setName(data.name || "");
 				setYear(data.year || "");
 				setBio(data.bio || "");
-				setSkills(data.skills || []);
+				setSkills(data.skills || {});
 				setInterests(data.interests || []);
 				setProfilePreview(data.profile_picture || "");
 				setMentorRole(data.mentor_role || "");
 				setExperienceYears(data.experience_years || "");
 				setAiInterest(data.ai_interest ?? false);
 				setPreferredMeeting(data.preferred_meeting ?? "");
+				setLinkedInUrl(data.linked_in_url || "");
 			}
 			setLoading(false);
 		})();
@@ -118,9 +120,10 @@ export default function EditPage() {
 
 	const addCustomSkill = () => {
 		const v = skillInput.trim();
-		if (v && !skills.includes(v)) setSkills([...skills, v]);
+		if (v && !Object.keys(skills).includes(v)) setSkills({ ...skills, [v]: "Beginner" });
 		setSkillInput("");
 	};
+
 	const handleSkillKey = (e) => {
 		if (e.key === "Enter") {
 			e.preventDefault();
@@ -131,14 +134,17 @@ export default function EditPage() {
 	const toggleInterest = (opt) => {
 		setInterests(interests.includes(opt) ? interests.filter((i) => i !== opt) : [...interests, opt]);
 	};
+
 	const removeInterest = (val) => {
 		setInterests(interests.filter((i) => i !== val));
 	};
+
 	const addCustomInterest = () => {
 		const v = interestInput.trim();
 		if (v && !interests.includes(v)) setInterests([...interests, v]);
 		setInterestInput("");
 	};
+
 	const handleInterestKey = (e) => {
 		if (e.key === "Enter") {
 			e.preventDefault();
@@ -180,6 +186,7 @@ export default function EditPage() {
 			experience_years: experienceYears,
 			ai_interest: aiInterest,
 			preferred_meeting: preferredMeeting,
+			linked_in_url: linkedInUrl,
 		};
 
 		const { error: saveErr } = await supabase.from("users").update(updates).eq("id", userId);
@@ -197,6 +204,7 @@ export default function EditPage() {
 			setProfilePreview(URL.createObjectURL(f));
 		}
 	};
+
 	const handleCancel = () => navigate("/profile");
 
 	if (loading) return <LoadingSpinner />;
@@ -223,12 +231,17 @@ export default function EditPage() {
 								</option>
 							))}
 						</select>
-						<p className="mt-4 text-sm font-medium text-blue-600">{userData.points ?? 0} points</p>
+						<p className="mt-4 text-sm font-medium text-blue-600">{userData?.points ?? 0} points</p>
 					</div>
 
 					<div className="bg-white p-6 rounded-xl shadow">
 						<h3 className="text-xl font-bold mb-2">About Me</h3>
 						<textarea rows={4} className="w-full bg-gray-100 p-2 rounded" placeholder="Tell us about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
+					</div>
+
+					<div className="bg-white p-6 rounded-xl shadow">
+						<h3 className="text-xl font-bold mb-2">LinkedIn URL</h3>
+						<input type="url" className="w-full bg-gray-100 p-2 rounded" placeholder="https://www.linkedin.com/in/your-profile" value={linkedInUrl} onChange={(e) => setLinkedInUrl(e.target.value)} />
 					</div>
 
 					<div className="bg-white p-6 rounded-xl shadow">
@@ -257,7 +270,6 @@ export default function EditPage() {
 								</button>
 							))}
 						</div>
-
 						<div className="flex gap-2">
 							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
 							<button onClick={addCustomSkill} className="px-4 rounded bg-blue-600 text-white">
