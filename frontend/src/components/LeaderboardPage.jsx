@@ -26,63 +26,70 @@ export default function LeaderboardPage() {
 
 	if (loading) return <LoadingSpinner />;
 
-	if (users.length < 3) {
-		return (
-			<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
-				<NavigationBar />
-				<h1 className="text-4xl font-bold text-center pt-10">MICS Leaderboard</h1>
-				<p className="text-center text-gray-700 mt-2 mb-8">Celebrating our most active community members</p>
-				<div className="text-center mt-20 text-lg text-gray-700">Come back soon! The leaderboard will be available once more users have signed up.</div>
-			</div>
-		);
-	}
-
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 font-sans text-black relative overflow-hidden">
 			<NavigationBar />
-			<h1 className="text-4xl font-bold text-center pt-10">MICS Leaderboard</h1>
-			<p className="text-center text-gray-700 mt-2 mb-8">Celebrating our most active community members</p>
 
-			<div className="flex flex-wrap justify-center gap-6 px-4">
+			<style>{`
+				@keyframes lavaFlow {
+					0% { background-position: 0% 50%; }
+					50% { background-position: 100% 50%; }
+					100% { background-position: 0% 50%; }
+				}
+				@keyframes moltenGlow {
+					0%, 100% { opacity: 0.2; }
+					50% { opacity: 0.4; }
+				}
+				.lava-bar {
+					background-image: linear-gradient(90deg, #ff3c00, #ff6b00, #ffa500, #ff3c00);
+					background-size: 300% 100%;
+					animation: lavaFlow 3s ease-in-out infinite;
+					border-radius: 9999px;
+				}
+				.glow-fire {
+					box-shadow: 0 0 40px 15px rgba(255, 68, 0, 0.85);
+					background-color: rgba(255, 247, 240, 0.95);
+				}
+				.glow-fire-sm {
+					box-shadow: 0 0 25px 10px rgba(255, 100, 0, 0.75);
+					background-color: rgba(255, 247, 240, 0.9);
+				}
+				.glow-fire-xs {
+					box-shadow: 0 0 15px 6px rgba(255, 120, 0, 0.65);
+					background-color: rgba(255, 247, 240, 0.85);
+				}
+			`}</style>
+
+			<h1 className="text-4xl font-extrabold text-center pt-10 text-black relative z-10"> MICS Leaderboard </h1>
+			<p className="text-center text-black/70 mt-2 mb-8 font-medium relative z-10">Celebrating our most active community members</p>
+
+			<div className="flex flex-wrap justify-center gap-6 px-4 relative z-10">
 				{topThree.map((u, i) => (
-					<div
-						key={u.id}
-						className="relative bg-white rounded-lg shadow-md p-6 w-60 text-center
-							before:absolute before:-inset-1.5 before:rounded-lg
-							before:bg-gradient-radial before:from-red-400 before:to-transparent
-							before:filter before:blur-md before:-z-10"
-					>
-						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-200">
+					<div key={u.id} className={`relative rounded-lg p-6 w-64 text-center border border-orange-500 ${i === 0 ? "glow-fire" : i === 1 ? "glow-fire-sm" : "glow-fire-xs"}`}>
+						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-300 border-2 border-orange-300">
 							<img src={u.profile_picture || "https://via.placeholder.com/80"} alt={u.name} className="h-full w-full object-cover" />
 						</div>
-						<h2 className="text-lg font-bold animate-flame-glow">{u.name}</h2>
-						<p className="mt-1 text-sm text-gray-600">{u.year}</p>
-						<p className="mt-2 text-xl font-semibold">{u.points} points</p>
-						<p className="mt-1 text-xs text-gray-500">#{i + 1}</p>
+						<h2 className="text-lg font-extrabold text-black">{u.name}</h2>
+						<p className="mt-1 text-sm text-gray-700 font-medium">{u.year}</p>
+						<p className="mt-2 text-xl font-extrabold text-orange-600">{u.points} pts</p>
+						<p className="mt-1 text-xs text-gray-600 font-semibold">#{i + 1}</p>
 					</div>
 				))}
 			</div>
 
-			<div className="mx-auto mt-10 max-w-3xl rounded-lg bg-white p-6 shadow-md">
-				<h3 className="mb-4 text-center text-2xl font-semibold">Full Rankings</h3>
+			<div className="mx-auto mt-12 max-w-3xl rounded-lg bg-white/90 p-6 shadow-md border border-orange-300 relative z-10">
+				<h3 className="mb-6 text-center text-2xl font-extrabold text-black"> Full Rankings </h3>
 				{users.map((u, i) => (
-					<div key={u.id} className="mb-4 flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							<div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white font-bold">{i + 1}</div>
-							<div>
-								<p className="font-semibold animate-flame-glow">{u.name}</p>
-								<p className="text-xs text-gray-600">{u.year}</p>
-							</div>
+					<div key={u.id} className="mb-5 flex items-center gap-4">
+						<div className="h-8 w-8 flex items-center justify-center rounded-full bg-orange-500 font-bold text-white">{i + 1}</div>
+						<div className="min-w-[80px]">
+							<p className="font-bold text-black">{u.name}</p>
+							<p className="text-xs text-gray-700">{u.year}</p>
 						</div>
-						<div className="mx-4 flex-1 overflow-hidden rounded-full bg-blue-200 h-2">
-							<div
-								className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-500"
-								style={{
-									width: `${(u.points / (users[0]?.points || 1)) * 100}%`,
-								}}
-							/>
+						<div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden relative">
+							<div className="h-full lava-bar" style={{ width: `${(u.points / (users[0]?.points || 1)) * 100}%` }} />
 						</div>
-						<p className="w-16 text-right text-sm font-semibold">{u.points} pts</p>
+						<p className="w-20 text-right font-semibold text-orange-600">{u.points} pts</p>
 					</div>
 				))}
 			</div>
