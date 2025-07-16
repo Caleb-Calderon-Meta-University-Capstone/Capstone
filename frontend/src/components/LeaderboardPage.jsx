@@ -60,8 +60,8 @@ export default function LeaderboardPage() {
 				}
 			`}</style>
 
-			<h1 className="text-4xl font-extrabold text-center pt-10 text-black relative z-10"> MICS Leaderboard </h1>
-			<p className="text-center text-black/70 mt-2 mb-8 font-medium relative z-10">Celebrating our most active community members</p>
+			<h1 className="text-5xl font-black text-center pt-12 text-gray-900 tracking-tight relative z-10">MICS Leaderboard</h1>
+			<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Celebrating the most engaged and impactful members of our community</p>
 
 			<div className="flex flex-wrap justify-center gap-6 px-4 relative z-10">
 				{topThree.map((u, i) => (

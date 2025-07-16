@@ -34,8 +34,8 @@ export default function Members() {
         .hover-pulse:hover{animation:pulse-glow 1.8s ease-in-out infinite;}
       `}</style>
 			<NavigationBar />
-			<h1 className="text-3xl font-bold text-center my-6">Member Directory</h1>
-			<p className="text-center text-gray-600">Connect with {members.length} amazing MICS members</p>
+			<h1 className="text-5xl font-black text-center pt-12 text-gray-900 tracking-tight relative z-10">Member Directory</h1>
+			<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Connect with {members.length} amazing MICS members</p>
 
 			<div className="flex justify-center mt-4">
 				<input type="text" placeholder="Search by name, skill, or interest..." className="w-80 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={query} onChange={(e) => setQuery(e.target.value)} />

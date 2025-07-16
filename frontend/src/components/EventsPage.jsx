@@ -22,13 +22,15 @@ export default function EventsPage() {
 	return (
 		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
 			<NavigationBar active="events" />
-
-			<div className="py-8 px-4">
-				<div className="py-2 px-6 w-fit mx-auto">
-					<h1 className="text-3xl font-bold text-center">MICS Events Schedule</h1>
+			<div className="py-12 px-4">
+				<div className="w-fit mx-auto text-center">
+					<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">MICS Events Schedule</h1>
+					<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Stay connected with upcoming events, workshops, and networking opportunities</p>
 				</div>
 
-				<Events role={role} />
+				<div>
+					<Events role={role} />
+				</div>
 			</div>
 		</div>
 	);
