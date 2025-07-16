@@ -61,6 +61,11 @@ export default function Members() {
 								</div>
 							</div>
 							<div className="mt-4 text-sm text-gray-600">{member.points ?? 0} points</div>
+							<div className="mt-4 flex justify-center w-full">
+								<a href={member.linked_in_url || "#"} target="_blank" rel="noopener noreferrer" className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm ${member.linked_in_url ? "" : "opacity-50 pointer-events-none"}`}>
+									Connect
+								</a>
+							</div>
 						</div>
 					);
 				})}
