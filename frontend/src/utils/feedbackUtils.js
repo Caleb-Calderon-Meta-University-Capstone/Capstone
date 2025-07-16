@@ -158,4 +158,9 @@ export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVec
 			}
 		});
 	});
+	// return top N events sorted by relevance score
+	return scored
+		.sort((a, b) => b.score - a.score)
+		.slice(0, topN)
+		.map((o) => o.eid);
 }
