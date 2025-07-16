@@ -73,8 +73,8 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
 	let changed = true;
 	let clusters = {};
-  
-  while (changed) {
+
+	while (changed) {
 		clusters = {};
 		changed = false;
 
@@ -91,4 +91,15 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 			clusters[bestIdx] = clusters[bestIdx] || [];
 			clusters[bestIdx].push(id);
 		});
-  }
+		const newCentroids = centroids.map((_, i) => {
+			const members = (clusters[i] || []).map((id) => vectors.find((v) => v.id === id).vec);
+			if (!members.length) return centroids[i];
+			return features.map((_, j) => members.reduce((s, v) => s + v[j], 0) / members.length);
+		});
+
+		changed = centroids.some((c, i) => euclidean(c, newCentroids[i]) > 1e-3);
+		centroids = newCentroids;
+	}
+
+	return clusters;
+}
