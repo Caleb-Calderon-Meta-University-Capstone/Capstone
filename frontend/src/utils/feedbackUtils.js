@@ -61,3 +61,16 @@ function euclidean(a, b) {
 	return Math.sqrt(a.reduce((sum, v, i) => sum + (v - b[i]) ** 2, 0));
 }
 
+export function clusterEventsKMeans(eventVectors, k = 5) {
+	const eids = Object.keys(eventVectors);
+	const features = Array.from(new Set(eids.flatMap((eid) => Object.keys(eventVectors[eid]))));
+	const vectors = eids.map((eid) => ({
+		id: eid,
+		vec: features.map((f) => eventVectors[eid][f] || 0),
+	}));
+
+	const kEff = Math.min(k, vectors.length);
+	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
+	let changed = true;
+	let clusters = {};
+}
