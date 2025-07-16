@@ -8,6 +8,7 @@ const Signup = () => {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 
@@ -19,8 +20,20 @@ const Signup = () => {
 		setLoading(true);
 		setError(null);
 
-		if (!email || !password || !name || password.length < 6) {
-			setError("Please fill all fields. Password must be at least 6 characters.");
+		if (!email || !password || !confirmPassword || !name) {
+			setError("Please fill all fields.");
+			setLoading(false);
+			return;
+		}
+
+		if (password.length < 6) {
+			setError("Password must be at least 6 characters.");
+			setLoading(false);
+			return;
+		}
+
+		if (password !== confirmPassword) {
+			setError("Passwords do not match.");
 			setLoading(false);
 			return;
 		}
@@ -44,15 +57,13 @@ const Signup = () => {
 				]);
 
 				if (insertError) {
-					console.error("Supabase Insert Error:", insertError.message);
 					setError("Could not save user info.");
 					return;
 				}
 
 				navigate("/dashboard");
 			}
-		} catch (err) {
-			console.error(err);
+		} catch {
 			setError("Something went wrong. Please try again.");
 		} finally {
 			setLoading(false);
@@ -73,6 +84,7 @@ const Signup = () => {
 					<input placeholder="Name" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
 					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+					<input placeholder="Confirm Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
 					{error && <p className="text-red-500 mt-2">{error}</p>}
 					<Button disabled={loading} className="mt-2">
 						{loading ? "Signing in..." : "Sign up"}
