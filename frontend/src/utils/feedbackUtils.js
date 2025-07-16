@@ -36,12 +36,21 @@ export async function getUserFeedbackMap() {
 	}
 }
 
+// build feedback count vectors for each event
 export function getEventFeedbackVectors(feedbackMap, eventIds) {
 	const vectorMap = {};
 	eventIds.forEach((id) => {
 		const eid = String(id);
 		const freq = {};
-		//Todo: add userfeedback loop
+		for (const uid in feedbackMap) {
+			const entry = feedbackMap[uid][eid];
+			if (entry) {
+				// count how many times each reason was given for this event
+				entry.reasons.forEach((r) => {
+					freq[r] = (freq[r] || 0) + 1;
+				});
+			}
+		}
 		vectorMap[eid] = freq;
 	});
 	return vectorMap;
