@@ -73,4 +73,22 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
 	let changed = true;
 	let clusters = {};
-}
+  
+  while (changed) {
+		clusters = {};
+		changed = false;
+
+		vectors.forEach(({ id, vec }) => {
+			let bestIdx = 0;
+			let bestDist = Infinity;
+			centroids.forEach((c, i) => {
+				const d = euclidean(vec, c);
+				if (d < bestDist) {
+					bestDist = d;
+					bestIdx = i;
+				}
+			});
+			clusters[bestIdx] = clusters[bestIdx] || [];
+			clusters[bestIdx].push(id);
+		});
+  }
