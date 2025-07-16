@@ -178,7 +178,9 @@ export default function MentorPage() {
 						</div>
 						<div className="text-sm text-gray-600 mb-2">{mentor.points ?? 0} total points</div>
 						<div className="flex gap-2">
-							<button className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm">Connect</button>
+							<a href={mentor.linked_in_url || "#"} target="_blank" rel="noopener noreferrer" className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm ${mentor.linked_in_url ? "" : "opacity-50 pointer-events-none"}`}>
+								Connect
+							</a>
 							<button onClick={() => toggleLike(mentor.id)} className={`px-4 py-2 rounded-full text-sm shadow-sm ${likedMentors.has(mentor.id) ? "bg-red-400 hover:bg-red-500 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-white"}`}>
 								{likedMentors.has(mentor.id) ? "Unlike" : "Like"}
 							</button>
