@@ -137,8 +137,25 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 	return normalized;
 }
 
+// recommend up to topN events based on user preferences
 export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVectors, topN = 5) {
 	const prefs = getUserPreferenceVector(userId, feedbackMap);
 	const seen = new Set(Object.keys(feedbackMap[userId] || {}));
 	const scored = [];
+	// iterate through each cluster's events
+	Object.values(clusterMap).forEach((members) => {
+		members.forEach((eid) => {
+			if (!seen.has(eid)) {
+				const vec = eventVectors[eid] || {};
+				let score = 0;
+
+				// compute dot product between user prefs and event vector
+				Object.keys(prefs).forEach((r) => {
+					score += prefs[r] * (vec[r] || 0);
+				});
+
+				if (score > 0) scored.push({ eid, score });
+			}
+		});
+	});
 }
