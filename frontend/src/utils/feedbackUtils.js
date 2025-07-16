@@ -26,7 +26,7 @@ export async function getUserFeedbackMap() {
 			const uid = user_id;
 			const eid = String(event_id);
 			if (!map[uid]) map[uid] = {};
-      // store liked status and convert reasons array to a set for fast lookup
+			// store liked status and convert reasons array to a set for fast lookup
 			map[uid][eid] = { liked, reasons: new Set(reasons) };
 		});
 		return map;
@@ -34,4 +34,24 @@ export async function getUserFeedbackMap() {
 		console.error("unexpected error in getUserFeedbackMap:", err);
 		return {};
 	}
+}
+
+// build feedback count vectors for each event
+export function getEventFeedbackVectors(feedbackMap, eventIds) {
+	const vectorMap = {};
+	eventIds.forEach((id) => {
+		const eid = String(id);
+		const freq = {};
+		for (const uid in feedbackMap) {
+			const entry = feedbackMap[uid][eid];
+			if (entry) {
+				// count how many times each reason was given for this event
+				entry.reasons.forEach((r) => {
+					freq[r] = (freq[r] || 0) + 1;
+				});
+			}
+		}
+		vectorMap[eid] = freq;
+	});
+	return vectorMap;
 }
