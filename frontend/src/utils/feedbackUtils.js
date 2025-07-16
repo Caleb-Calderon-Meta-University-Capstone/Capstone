@@ -136,3 +136,9 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 
 	return normalized;
 }
+
+export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVectors, topN = 5) {
+	const prefs = getUserPreferenceVector(userId, feedbackMap);
+	const seen = new Set(Object.keys(feedbackMap[userId] || {}));
+	const scored = [];
+}
