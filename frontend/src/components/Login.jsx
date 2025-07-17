@@ -44,7 +44,7 @@ export default function Login() {
 				</p>
 
 				<form onSubmit={handleLogin} className="space-y-5">
-					<input type="email" placeholder="Penn State Email" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
+					<input type="email" placeholder="Email" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
 					<input type="password" placeholder="Password" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={password} onChange={(e) => setPassword(e.target.value)} required />
 					{error && <p className="text-red-500 text-sm">{error}</p>}
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Users, Trophy, Heart, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
@@ -9,7 +11,7 @@ export default function DashboardPage() {
 	const [totalMembers, setTotalMembers] = useState(0);
 	const [rank, setRank] = useState(0);
 	const [topContributors, setTopContributors] = useState([]);
-	const [featuredMembers, setFeaturedMembers] = useState([]);
+	const [featuredEvents, setFeaturedEvents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
@@ -29,11 +31,11 @@ export default function DashboardPage() {
 			const { count: higherCount } = await supabase.from("users").select("id", { count: "exact", head: true }).gt("points", pts);
 			setRank((higherCount || 0) + 1);
 
-			const { data: topData } = await supabase.from("users").select("id, name, year, points").order("points", { ascending: false }).limit(3);
+			const { data: topData } = await supabase.from("users").select("id, name, year, points, profile_picture").order("points", { ascending: false }).limit(3);
 			setTopContributors(topData || []);
 
-			const { data: featured } = await supabase.from("users").select("id, name, year").order("created_at", { ascending: true }).limit(4);
-			setFeaturedMembers(featured || []);
+			const { data: events } = await supabase.from("events").select("id, title, date, location").order("date", { ascending: true }).limit(4);
+			setFeaturedEvents(events || []);
 
 			setLoading(false);
 		}
@@ -43,70 +45,91 @@ export default function DashboardPage() {
 	if (loading) return <LoadingSpinner />;
 
 	return (
-		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+		<div className="relative bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 min-h-screen overflow-hidden">
+			<motion.div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-300 rounded-full filter blur-3xl opacity-30" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 6, repeat: Infinity }} />
+			<motion.div className="absolute -bottom-28 -right-28 w-72 h-72 bg-green-200 rounded-full filter blur-2xl opacity-25" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }} />
+
 			<NavigationBar />
-			<div className="text-center pt-12 pb-10">
-				<h1 className="text-5xl font-black text-gray-900 tracking-tight mb-3">Welcome to MICS Connect!</h1>
-				<p className="text-lg font-semibold text-gray-600 max-w-2xl mx-auto">Multicultural Innovators in Computer Science — building community, fostering connections, and celebrating diversity in tech.</p>
+
+			<div className="relative z-10 max-w-7xl mx-auto px-6 py-20 space-y-20">
+				<motion.header initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
+					<h1 className="text-5xl sm:text-6xl font-extrabold text-gray-800 mb-4">
+						Welcome to <span className="text-blue-600">MICS Connect</span>
+					</h1>
+					<p className="text-xl text-gray-700 max-w-3xl mx-auto">A vibrant hub for multicultural innovators in CS. Discover, connect, and grow with a community that celebrates you.</p>
+				</motion.header>
+
+				<section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<StatCard icon={<Users className="w-8 h-8 text-blue-600" />} label="Members" value={totalMembers} delay={0.2} />
+					<StatCard icon={<Heart className="w-8 h-8 text-red-500" />} label="Your Points" value={points} delay={0.4} />
+					<StatCard icon={<Trophy className="w-8 h-8 text-yellow-500" />} label="Your Rank" value={`#${rank}`} delay={0.6} />
+				</section>
+
+				<section className="space-y-6">
+					<div className="flex flex-col md:flex-row items-center justify-center md:justify-between space-y-4 md:space-y-0">
+						<h2 className="text-3xl font-semibold text-gray-800 flex items-center">
+							<Calendar className="w-6 h-6 text-blue-600 mr-2" />
+							Featured Events
+						</h2>
+						<button onClick={() => navigate("/events")} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+							View All Events
+						</button>
+					</div>
+					<div className="flex justify-center space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar">
+						{featuredEvents.map((event, idx) => (
+							<motion.div key={event.id} className="snap-start bg-white rounded-2xl shadow-xl p-6 w-64 flex flex-col justify-between" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.2, type: "spring" }} whileHover={{ scale: 1.05 }}>
+								<div>
+									<h3 className="text-lg font-bold text-gray-800 mb-2">{event.title}</h3>
+									<p className="text-sm text-gray-500 mb-2">{new Date(event.date).toLocaleDateString()}</p>
+									<p className="text-sm text-gray-600">{event.location}</p>
+								</div>
+								<button onClick={() => navigate("/events")} className="mt-4 px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition">
+									More Details
+								</button>
+							</motion.div>
+						))}
+					</div>
+				</section>
+
+				<section className="space-y-6">
+					<h2 className="text-3xl font-semibold text-gray-800">Top Contributors</h2>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+						{topContributors.map((user, idx) => (
+							<motion.div key={user.id} className="bg-white rounded-2xl shadow-2xl p-6 flex items-center justify-between" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.2 }}>
+								<div className="flex items-center space-x-4">
+									<span className="text-xl font-bold text-blue-600">{idx + 1}</span>
+									<img src={user.profile_picture} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
+									<div>
+										<h3 className="font-semibold text-gray-800">{user.name}</h3>
+										<p className="text-sm text-gray-500">Year: {user.year}</p>
+									</div>
+								</div>
+								<div className="text-xl font-bold text-blue-700">{user.points} pts</div>
+							</motion.div>
+						))}
+					</div>
+				</section>
+
+				<motion.section className="relative p-8 bg-white bg-opacity-90 rounded-2xl shadow-inner overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+					<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-20 mix-blend-multiply" />
+					<div className="relative z-10">
+						<h3 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h3>
+						<p className="text-gray-800 leading-relaxed">At MICS, we empower underrepresented CS students through mentorship, community-driven events, and meaningful connections. Together, we celebrate diversity, spark innovation, and build tomorrow’s tech leaders.</p>
+					</div>
+				</motion.section>
 			</div>
-
-			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-6 mb-10">
-				<StatCard label="Your Points" value={points} />
-				<StatCard label="Total Members" value={totalMembers} />
-				<StatCard label="Your Rank" value={`#${rank}`} />
-			</div>
-
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto px-6">
-				<div className="bg-white rounded-lg p-6 shadow-md">
-					<h2 className="text-xl font-semibold mb-2">Featured Members</h2>
-					<p className="text-sm text-gray-600 mb-4">Meet a few awesome people from our community</p>
-					{featuredMembers.map((member) => (
-						<div key={member.id} className="bg-blue-100 rounded-lg p-4 mb-3">
-							<div className="font-semibold text-gray-800">{member.name}</div>
-							<div className="text-sm text-gray-600">Year: {member.year}</div>
-						</div>
-					))}
-					<button onClick={() => navigate("/members")} className="w-full mt-4 bg-blue-500 text-white font-semibold py-2 rounded">
-						View All Members
-					</button>
-				</div>
-
-				<div className="bg-white rounded-lg p-6 shadow-md">
-					<h2 className="text-xl font-semibold mb-2">Top Contributors</h2>
-					<p className="text-sm text-gray-600 mb-4">Our most active community members</p>
-					{topContributors.map((user, i) => (
-						<div key={user.id} className="flex justify-between py-2 px-3 mb-1 bg-blue-100 rounded text-sm">
-							<div>
-								<span className="font-bold mr-2">{i + 1}</span>
-								<span className="font-semibold text-gray-800">{user.name}</span>
-								<span className="text-gray-600"> • {user.year}</span>
-							</div>
-							<div className="font-semibold text-blue-700">{user.points} pts</div>
-						</div>
-					))}
-					<button onClick={() => navigate("/leaderboard")} className="w-full mt-4 bg-purple-500 text-white font-semibold py-2 rounded">
-						View Leaderboard
-					</button>
-				</div>
-			</div>
-
-			<div className="max-w-6xl mx-auto px-6 mt-10">
-				<div className="bg-white rounded-lg p-6 shadow-md">
-					<h3 className="text-lg font-semibold">Our Mission</h3>
-					<p className="text-sm text-gray-700 mt-2">MICS is dedicated to creating an inclusive and supportive community for underrepresented students in computer science. We foster connections, provide mentorship opportunities, and celebrate the diverse perspectives that make our field stronger. Together, we're building the next generation of tech leaders.</p>
-				</div>
-			</div>
-
-			<div className="h-12" />
 		</div>
 	);
 }
 
-function StatCard({ label, value }) {
+function StatCard({ icon, label, value, delay }) {
 	return (
-		<div className="bg-white text-gray-900 rounded-lg py-4 px-6 text-center shadow-md">
-			<div className="text-2xl font-bold mt-2">{value}</div>
-			<div className="text-sm mt-1">{label}</div>
-		</div>
+		<motion.div className="bg-white rounded-2xl shadow-xl flex items-center p-6 space-x-4 transform transition hover:-translate-y-1 hover:shadow-2xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
+			<div>{icon}</div>
+			<div>
+				<div className="text-xl font-bold text-gray-900">{value}</div>
+				<div className="text-sm text-gray-500">{label}</div>
+			</div>
+		</motion.div>
 	);
 }
