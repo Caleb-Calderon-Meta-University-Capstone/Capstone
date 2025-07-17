@@ -64,7 +64,7 @@ export default function LeaderboardPage() {
 			<div className="flex flex-wrap justify-center gap-6 px-4 relative z-10">
 				{topThree.map((u, i) => (
 					<div key={u.id} className={`relative rounded-lg p-6 w-64 text-center border border-black ${i === 0 ? "glow-fire" : i === 1 ? "glow-fire-sm" : "glow-fire-xs"}`}>
-						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-300 border-2 border-orange-300">
+						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-300 border-2 border-gray-400">
 							<img src={u.profile_picture || "https://via.placeholder.com/80"} alt={u.name} className="h-full w-full object-cover" />
 						</div>
 						<h2 className="text-lg font-extrabold text-black">{u.name}</h2>

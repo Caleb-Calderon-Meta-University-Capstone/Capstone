@@ -107,7 +107,7 @@ export default function LandingPage() {
 						<h2 className="text-4xl md:text-5xl font-bold mb-4">A Home for Every Coder</h2>
 						<p className="text-lg md:text-xl text-gray-700 mb-6">From first-time debuggers to system architects, MICS Connect is your hub to learn, share, and thrive.</p>
 						<Link to="/events" className="inline-block bg-indigo-600 text-white font-semibold py-3 px-10 rounded-full shadow hover:bg-indigo-700 transition-all">
-							Explore Events ↗
+							Explore the Community ↗
 						</Link>
 					</div>
 				</motion.section>
