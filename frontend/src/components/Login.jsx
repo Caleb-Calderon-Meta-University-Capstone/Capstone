@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserAuth } from "../context/AuthContext.jsx";
-import { Button } from "./ui/button";
+import { supabase } from "../supabaseClient.jsx";
+import { Instagram, Linkedin, Globe2 } from "lucide-react";
 
-const Login = () => {
+export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const Login = () => {
 			} else {
 				navigate("/dashboard");
 			}
-		} catch (err) {
+		} catch {
 			setError("Something went wrong. Please try again.");
 		} finally {
 			setLoading(false);
@@ -32,26 +33,38 @@ const Login = () => {
 	};
 
 	return (
-		<div>
-			<form onSubmit={handleLogin} className="max-w-md m-auto pt-24">
-				<h2 className="text-2xl font-bold mb-6">Log In</h2>
-				<p>
+		<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+			<div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-lg">
+				<h2 className="text-3xl font-black text-gray-900 mb-2">Log In</h2>
+				<p className="text-gray-600 mb-6">
 					Don't have an account?{" "}
-					<Link className="text-blue-600 hover:underline" to="/signup">
+					<Link to="/signup" className="text-indigo-600 hover:underline">
 						Sign up!
 					</Link>
 				</p>
-				<div className="flex flex-col py-4">
-					<input placeholder="Email" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-					<input placeholder="Password" className="bg-blue-100 mt-2 border-2 border-black py-1.5 px-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-					{error && <p className="text-red-500 mt-2">{error}</p>}
-					<Button disabled={loading} className="mt-2">
-						{loading ? "Logging in..." : "Log in"}
-					</Button>
+
+				<form onSubmit={handleLogin} className="space-y-5">
+					<input type="email" placeholder="Penn State Email" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
+					<input type="password" placeholder="Password" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={password} onChange={(e) => setPassword(e.target.value)} required />
+					{error && <p className="text-red-500 text-sm">{error}</p>}
+
+					<button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition shadow">
+						{loading ? "Logging in..." : "Next →"}
+					</button>
+				</form>
+
+				<div className="mt-6 flex justify-center space-x-6 text-gray-600">
+					<a href="https://www.instagram.com/micspsu/?hl=en" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
+						<Instagram size={24} />
+					</a>
+					<a href="https://www.linkedin.com/company/penn-state-mics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
+						<Linkedin size={24} />
+					</a>
+					<a href="https://colorstack-by-micspsu.framer.website/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
+						<Globe2 size={24} />
+					</a>
 				</div>
-			</form>
+			</div>
 		</div>
 	);
-};
-
-export default Login;
+}
