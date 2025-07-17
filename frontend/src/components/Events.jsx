@@ -70,7 +70,7 @@ export default function Events({ role }) {
 		}
 
 		const eventIds = allEvents.map((e) => e.id);
-		const vectors = getEventFeedbackVectors(feedbackMap, eventIds);
+		const vectors = await getEventFeedbackVectors(feedbackMap, eventIds);
 		const clusters = clusterEventsKMeans(vectors, 5);
 		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
 		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
@@ -248,7 +248,7 @@ export default function Events({ role }) {
 					/>
 				)}
 
-				<div className="space-y-6">{activeTab === "all" ? renderList(events) : recommendedEvents.length > 0 ? renderList(recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet—give some feedback!</div>}</div>
+				<div className="space-y-6">{activeTab === "all" ? renderList(events) : recommendedEvents.length > 0 ? renderList(recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
 
 				<div className="text-right mt-6 text-sm text-gray-600 font-semibold">Total Points: {points}</div>
 			</div>
