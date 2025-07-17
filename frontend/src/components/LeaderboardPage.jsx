@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
+import Footer from "./Footer";
 
 export default function LeaderboardPage() {
 	const [users, setUsers] = useState([]);
@@ -77,7 +78,7 @@ export default function LeaderboardPage() {
 				))}
 			</div>
 
-			<div className="mx-auto mt-12 max-w-3xl rounded-lg bg-white/90 p-6 shadow-md border border-orange-300 relative z-10">
+			<div className="mx-auto my-12 max-w-3xl rounded-lg bg-white/90 p-6 shadow-md border border-orange-300 relative z-10">
 				<h3 className="mb-6 text-center text-2xl font-extrabold text-black"> Full Rankings </h3>
 				{users.map((u, i) => (
 					<div key={u.id} className="mb-5 flex items-center gap-4">
@@ -93,6 +94,7 @@ export default function LeaderboardPage() {
 					</div>
 				))}
 			</div>
+			<Footer />
 		</div>
 	);
 }

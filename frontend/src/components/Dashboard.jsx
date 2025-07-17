@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
+import Footer from "./Footer";
 
 export default function DashboardPage() {
 	const [points, setPoints] = useState(0);
@@ -118,6 +119,7 @@ export default function DashboardPage() {
 					</div>
 				</motion.section>
 			</div>
+			<Footer/>
 		</div>
 	);
 }
