@@ -49,7 +49,7 @@ export default function Login() {
 					{error && <p className="text-red-500 text-sm">{error}</p>}
 
 					<button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition shadow">
-						{loading ? "Logging in..." : "Next →"}
+						{loading ? "Logging in..." : "Log in →"}
 					</button>
 				</form>
 
