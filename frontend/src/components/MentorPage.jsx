@@ -5,6 +5,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { getTopMentorMatches } from "../utils/mentorMatchUtils";
 import { UserAuth } from "../context/AuthContext";
 import { PRESET_SKILLS, PRESET_INTERESTS } from "./constants/presets";
+import Footer from "./Footer";
 
 export default function MentorPage() {
 	const { session } = UserAuth();
@@ -216,6 +217,7 @@ export default function MentorPage() {
 						</div>
 					))}
 				</div>
+				<Footer />
 			</div>
 		</>
 	);

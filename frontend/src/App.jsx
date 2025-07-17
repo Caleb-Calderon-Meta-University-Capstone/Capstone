@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Signup from "./components/Signup.jsx";
+import LandingPage from "./components/LandingPage.jsx";
 
 function App() {
 	return (
 		<div>
-			<Signup />
+			<LandingPage />
 		</div>
 	);
 }

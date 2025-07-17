@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
+import Footer from "./Footer";
 
 export default function LeaderboardPage() {
 	const [users, setUsers] = useState([]);
@@ -47,16 +48,13 @@ export default function LeaderboardPage() {
 					border-radius: 9999px;
 				}
 				.glow-fire {
-					box-shadow: 0 0 40px 15px rgba(255, 68, 0, 0.85);
-					background-color: rgba(255, 247, 240, 0.95);
+					background-color: white
 				}
 				.glow-fire-sm {
-					box-shadow: 0 0 25px 10px rgba(255, 100, 0, 0.75);
-					background-color: rgba(255, 247, 240, 0.9);
+					background-color: white;
 				}
 				.glow-fire-xs {
-					box-shadow: 0 0 15px 6px rgba(255, 120, 0, 0.65);
-					background-color: rgba(255, 247, 240, 0.85);
+					background-color: white;
 				}
 			`}</style>
 
@@ -65,8 +63,8 @@ export default function LeaderboardPage() {
 
 			<div className="flex flex-wrap justify-center gap-6 px-4 relative z-10">
 				{topThree.map((u, i) => (
-					<div key={u.id} className={`relative rounded-lg p-6 w-64 text-center border border-orange-500 ${i === 0 ? "glow-fire" : i === 1 ? "glow-fire-sm" : "glow-fire-xs"}`}>
-						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-300 border-2 border-orange-300">
+					<div key={u.id} className={`relative rounded-lg p-6 w-64 text-center border border-black ${i === 0 ? "glow-fire" : i === 1 ? "glow-fire-sm" : "glow-fire-xs"}`}>
+						<div className="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full bg-gray-300 border-2 border-gray-400">
 							<img src={u.profile_picture || "https://via.placeholder.com/80"} alt={u.name} className="h-full w-full object-cover" />
 						</div>
 						<h2 className="text-lg font-extrabold text-black">{u.name}</h2>
@@ -77,7 +75,7 @@ export default function LeaderboardPage() {
 				))}
 			</div>
 
-			<div className="mx-auto mt-12 max-w-3xl rounded-lg bg-white/90 p-6 shadow-md border border-orange-300 relative z-10">
+			<div className="mx-auto my-12 max-w-3xl rounded-lg bg-white/90 p-6 shadow-md border border-orange-300 relative z-10">
 				<h3 className="mb-6 text-center text-2xl font-extrabold text-black"> Full Rankings </h3>
 				{users.map((u, i) => (
 					<div key={u.id} className="mb-5 flex items-center gap-4">
@@ -93,6 +91,7 @@ export default function LeaderboardPage() {
 					</div>
 				))}
 			</div>
+			<Footer />
 		</div>
 	);
 }

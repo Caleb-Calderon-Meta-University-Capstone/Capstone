@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavigationBar from "./NavigationBar";
 import Events from "./Events";
 import { supabase } from "../supabaseClient";
+import Footer from "./Footer";
 
 export default function EventsPage() {
 	const [role, setRole] = useState(null);
@@ -32,6 +33,7 @@ export default function EventsPage() {
 					<Events role={role} />
 				</div>
 			</div>
+			<Footer />
 		</div>
 	);
 }

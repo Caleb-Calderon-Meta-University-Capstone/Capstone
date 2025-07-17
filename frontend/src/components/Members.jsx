@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
+import Footer from "./Footer";
 
 export default function Members() {
 	const [members, setMembers] = useState([]);
@@ -87,6 +88,7 @@ export default function Members() {
 					);
 				})}
 			</div>
+			<Footer />
 		</div>
 	);
 }

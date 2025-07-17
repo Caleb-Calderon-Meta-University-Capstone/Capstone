@@ -4,6 +4,7 @@ import NavigationBar from "./NavigationBar";
 import { supabase } from "../supabaseClient";
 import { UserAuth } from "../context/AuthContext";
 import LoadingSpinner from "./LoadingSpinner";
+import Footer from "./Footer";
 
 export default function EditPage() {
 	const { session } = UserAuth();
@@ -368,6 +369,7 @@ export default function EditPage() {
 					</div>
 				</div>
 			</div>
+			<Footer />
 		</div>
 	);
 }

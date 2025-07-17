@@ -49,7 +49,7 @@ export default function NavigationBar() {
 
 	const handleLogout = async () => {
 		await signOut();
-		navigate("/login");
+		navigate("/landing");
 	};
 
 	return (
