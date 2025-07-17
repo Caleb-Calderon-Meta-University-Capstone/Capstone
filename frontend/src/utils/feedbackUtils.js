@@ -1,4 +1,5 @@
 import { supabase } from "../supabaseClient";
+import { academicBuildings } from "../components/constants/academicBuildings";
 export const FEEDBACK_TABLE = "event_feedback";
 
 //save or update user feedback for an event
@@ -36,12 +37,54 @@ export async function getUserFeedbackMap() {
 	}
 }
 
+// helper to categorize locations into buckets
+function getLocationCategory(raw) {
+	const l = (raw || "").toLowerCase().trim();
+
+	// virtual / online events
+	if (["zoom", "online", "virtual", "remote"].some((v) => l.includes(v))) {
+		return "loc:virtual";
+	}
+
+	// strip off optional "room"/"rm" plus trailing digits/text
+	const base = l.replace(/\b(?:room|rm\.?)?\s*\d+.*$/, "").trim();
+
+	// all Penn State academic buildings & hubs
+	if (academicBuildings.some((b) => base.includes(b))) {
+		return "loc:academic";
+	}
+
+	return "loc:other";
+}
+
 // build feedback count vectors for each event
-export function getEventFeedbackVectors(feedbackMap, eventIds) {
+export async function getEventFeedbackVectors(feedbackMap, eventIds) {
 	const vectorMap = {};
+
+	// fetch attendee data
+	const { data: registrations } = await supabase.from("event_registrations").select("event_id, user_id");
+
+	const attendeeCounts = {};
+	for (const r of registrations || []) {
+		attendeeCounts[r.event_id] = (attendeeCounts[r.event_id] || 0) + 1;
+	}
+
+	// Fetch event metadata
+	const { data: eventsData } = await supabase.from("events").select("id, location, duration");
+
+	// Get min/max for normalization
+	const durations = eventsData.map((e) => e.duration || 0);
+	const attendees = eventsData.map((e) => attendeeCounts[e.id] || 0);
+
+	const durMin = Math.min(...durations, 0);
+	const durMax = Math.max(...durations, 1);
+	const attMin = Math.min(...attendees, 0);
+	const attMax = Math.max(...attendees, 1);
+
 	eventIds.forEach((id) => {
 		const eid = String(id);
 		const freq = {};
+
 		for (const uid in feedbackMap) {
 			const entry = feedbackMap[uid][eid];
 			if (entry) {
@@ -51,8 +94,26 @@ export function getEventFeedbackVectors(feedbackMap, eventIds) {
 				});
 			}
 		}
+
+		const ev = eventsData.find((e) => e.id === id);
+		if (ev) {
+			// location bucket
+			const locKey = getLocationCategory(ev.location);
+			freq[locKey] = 1;
+
+			// duration (normalized)
+			if (typeof ev.duration === "number") {
+				freq["duration"] = (ev.duration - durMin) / (durMax - durMin);
+			}
+
+			// attendees (normalized)
+			const attCount = attendeeCounts[id] || 0;
+			freq["attendees"] = (attCount - attMin) / (attMax - attMin);
+		}
+
 		vectorMap[eid] = freq;
 	});
+
 	return vectorMap;
 }
 
@@ -97,6 +158,7 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 			clusters[bestIdx] = clusters[bestIdx] || [];
 			clusters[bestIdx].push(id);
 		});
+
 		// recalculate centroids by averaging the vectors in each cluster
 		const newCentroids = centroids.map((_, i) => {
 			const members = (clusters[i] || []).map((id) => vectors.find((v) => v.id === id).vec);
