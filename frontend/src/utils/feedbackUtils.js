@@ -2,7 +2,7 @@ import { supabase } from "../supabaseClient";
 import { academicBuildings } from "../components/constants/academicBuildings";
 export const FEEDBACK_TABLE = "event_feedback";
 
-//save or update user feedback for an event
+//save/update user feedback for an event
 export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 	try {
 		const { error } = await supabase.from(FEEDBACK_TABLE).upsert({ user_id: userId, event_id: eventId, liked, reasons: reasonsArray }, { onConflict: ["user_id", "event_id"] });
@@ -38,7 +38,7 @@ export async function getUserFeedbackMap() {
 }
 
 // helper to categorize locations into buckets
-function getLocationCategory(raw) {
+export function getLocationCategory(raw) {
 	const l = (raw || "").toLowerCase().trim();
 
 	// virtual / online events
@@ -118,7 +118,7 @@ export async function getEventFeedbackVectors(feedbackMap, eventIds) {
 }
 
 // calculate Euclidean distance between two vectors
-function euclidean(a, b) {
+export function euclidean(a, b) {
 	return Math.sqrt(a.reduce((sum, v, i) => sum + (v - b[i]) ** 2, 0));
 }
 
