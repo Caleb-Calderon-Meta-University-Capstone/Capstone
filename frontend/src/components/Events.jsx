@@ -22,6 +22,7 @@ export default function Events({ role }) {
 	const [activeTab, setActiveTab] = useState("all");
 	const [recommendedEvents, setRecommendedEvents] = useState([]);
 	const [googleToken, setGoogleToken] = useState(null);
+	const [query, setQuery] = useState("");
 
 	const loginWithGoogleCalendar = useGoogleLogin({
 		scope: "https://www.googleapis.com/auth/calendar.events",
@@ -117,8 +118,13 @@ export default function Events({ role }) {
 
 	if (loading) return <LoadingSpinner />;
 
+	const filterEvents = (list) => {
+		const q = query.toLowerCase();
+		return list.filter((e) => e.title?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.users?.name?.toLowerCase().includes(q));
+	};
+
 	const renderList = (list) =>
-		list.map((e) => {
+		filterEvents(list).map((e) => {
 			const isReg = registered.has(e.id);
 			return (
 				<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
@@ -190,46 +196,57 @@ export default function Events({ role }) {
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<div className="py-8 px-4 max-w-5xl mx-auto">
-				{role === "Admin" && (
-					<>
-						<button onClick={() => setShowAddModal(true)} className="mb-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition">
+				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
+					{role === "Admin" && (
+						<button onClick={() => setShowAddModal(true)} className="w-40 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded">
 							Add Event
 						</button>
-						{showAddModal && (
-							<AddEventModal
-								onClose={() => setShowAddModal(false)}
-								onSubmit={async (newEvent) => {
-									setSubmitting(true);
-									const { data, error } = await supabase
-										.from("events")
-										.insert([{ ...newEvent, created_by: userId }])
-										.select()
-										.single();
-									setSubmitting(false);
-									if (!error && data) {
-										const newEvents = [...events, data];
-										setEvents(newEvents);
-										setShowAddModal(false);
-										await refreshRecommendations(userId, newEvents);
-									} else {
-										console.error("Event creation error:", error);
-										alert("Failed to create event.");
-									}
-								}}
-								submitting={submitting}
-							/>
-						)}
-					</>
-				)}
+					)}
 
-				<div className="mb-6 flex space-x-4">
-					<button onClick={() => setActiveTab("all")} className={`py-2 px-4 rounded ${activeTab === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
-						All Events
-					</button>
-					<button onClick={() => setActiveTab("recommended")} className={`py-2 px-4 rounded ${activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
-						Recommended
-					</button>
+					<div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+						<div className="flex items-center w-full sm:w-auto">
+							<input type="text" placeholder="Search by title, desc, location, or creator..." className="w-full sm:w-96 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={query} onChange={(e) => setQuery(e.target.value)} />
+						</div>
+
+						<div className="flex gap-2">
+							<button onClick={() => setActiveTab("all")} className={`py-2 px-4 rounded w-32 ${activeTab === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+								All Events
+							</button>
+							<button
+								onClick={() => setActiveTab("recommended")}
+								className={`w-32 py-2 rounded flex justify-center items-center
+                  ${activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}
+							>
+								Recommended
+							</button>
+						</div>
+					</div>
 				</div>
+
+				{showAddModal && (
+					<AddEventModal
+						onClose={() => setShowAddModal(false)}
+						onSubmit={async (newEvent) => {
+							setSubmitting(true);
+							const { data, error } = await supabase
+								.from("events")
+								.insert([{ ...newEvent, created_by: userId }])
+								.select()
+								.single();
+							setSubmitting(false);
+							if (!error && data) {
+								const newEvents = [...events, data];
+								setEvents(newEvents);
+								setShowAddModal(false);
+								await refreshRecommendations(userId, newEvents);
+							} else {
+								console.error("Event creation error:", error);
+								alert("Failed to create event.");
+							}
+						}}
+						submitting={submitting}
+					/>
+				)}
 
 				<div className="space-y-6">{activeTab === "all" ? renderList(events) : recommendedEvents.length > 0 ? renderList(recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet—give some feedback!</div>}</div>
 
@@ -241,9 +258,7 @@ export default function Events({ role }) {
 				feedbackType={feedbackType}
 				eventTitle={modalEvent.title}
 				onSubmit={async (reasons) => {
-					if (feedbackType === "like" && reasons.length === 0) {
-						reasons.push("liked");
-					}
+					if (feedbackType === "like" && reasons.length === 0) reasons.push("liked");
 					if (userId && modalEvent.id) {
 						await saveUserFeedback(userId, modalEvent.id, feedbackType === "like", reasons);
 						await refreshRecommendations(userId, events);

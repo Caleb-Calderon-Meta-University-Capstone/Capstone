@@ -35,7 +35,7 @@ export default function DashboardPage() {
 			const { data: featured } = await supabase.from("users").select("id, name, year").order("created_at", { ascending: true }).limit(4);
 			setFeaturedMembers(featured || []);
 
-			setLoading(false); 
+			setLoading(false);
 		}
 		fetchData();
 	}, []);
@@ -45,9 +45,9 @@ export default function DashboardPage() {
 	return (
 		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
 			<NavigationBar />
-			<div className="text-center py-10">
-				<h1 className="text-4xl font-bold mb-2">Welcome to MICS Connect!</h1>
-				<p className="text-lg text-gray-700">Multicultural Innovators in Computer Science – Building community, fostering connections, and celebrating diversity in tech.</p>
+			<div className="text-center pt-12 pb-10">
+				<h1 className="text-5xl font-black text-gray-900 tracking-tight mb-3">Welcome to MICS Connect!</h1>
+				<p className="text-lg font-semibold text-gray-600 max-w-2xl mx-auto">Multicultural Innovators in Computer Science — building community, fostering connections, and celebrating diversity in tech.</p>
 			</div>
 
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-6 mb-10">
