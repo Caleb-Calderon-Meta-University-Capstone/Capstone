@@ -115,11 +115,11 @@ export default function DashboardPage() {
 					<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-20 mix-blend-multiply" />
 					<div className="relative z-10">
 						<h3 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h3>
-						<p className="text-gray-800 leading-relaxed">At MICS, we empower underrepresented CS students through mentorship, community-driven events, and meaningful connections. Together, we celebrate diversity, spark innovation, and build tomorrow’s tech leaders.</p>
+						<p className="text-gray-800 leading-relaxed"> Multicultural Innovators in Computer Sciences fosters an inclusive community that empowers individuals from diverse backgrounds to excel in the computer sciences. Through mentorship, collaboration, and innovation, we aim to inspire change and promote diversity in the tech industry.</p>
 					</div>
 				</motion.section>
 			</div>
-			<Footer/>
+			<Footer />
 		</div>
 	);
 }

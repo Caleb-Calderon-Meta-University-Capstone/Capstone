@@ -10,7 +10,7 @@ const PrivateRoute = ({ children }) => {
 		return <LoadingSpinner />;
 	}
 
-	return session ? children : <Navigate to="/signup" />;
+	return session ? children : <Navigate to="/landing" />;
 };
 
 export default PrivateRoute;

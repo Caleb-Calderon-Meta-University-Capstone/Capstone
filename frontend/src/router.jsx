@@ -10,11 +10,14 @@ import MemberPage from "./components/Members.jsx";
 import ProfilePage from "./components/Profile.jsx";
 import EditPage from "./components/EditProfile.jsx";
 import MentorPage from "./components/MentorPage.jsx";
+import LandingPage from "./components/LandingPage.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
+	{ path: "/landing", element: <LandingPage /> },
+	
 
 	{
 		path: "/edit-profile",
