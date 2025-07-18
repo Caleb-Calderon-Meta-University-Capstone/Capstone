@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Users, Trophy, Heart, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,40 +8,51 @@ import LoadingSpinner from "./LoadingSpinner";
 import Footer from "./Footer";
 
 export default function DashboardPage() {
-	const [points, setPoints] = useState(0);
+	const [userStats, setUserStats] = useState({ points: 0, rank: 0 });
 	const [totalMembers, setTotalMembers] = useState(0);
-	const [rank, setRank] = useState(0);
 	const [topContributors, setTopContributors] = useState([]);
 	const [featuredEvents, setFeaturedEvents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
+	const fetchUserStats = useCallback(async (userId) => {
+		const { data: userData } = await supabase.from("users").select("points").eq("id", userId).single();
+		const points = userData?.points ?? 0;
+		const { count: higherCount } = await supabase.from("users").select("id", { count: "exact", head: true }).gt("points", points);
+		return { points, rank: (higherCount || 0) + 1 };
+	}, []);
+
+	const fetchTotalMembers = useCallback(async () => {
+		const { count } = await supabase.from("users").select("id", { count: "exact", head: true });
+		return count || 0;
+	}, []);
+
+	const fetchTopContributors = useCallback(async () => {
+		const { data } = await supabase.from("users").select("id, name, year, points, profile_picture").order("points", { ascending: false }).limit(3);
+		return data || [];
+	}, []);
+
+	const fetchFeaturedEvents = useCallback(async () => {
+		const { data } = await supabase.from("events").select("id, title, date, location").order("date", { ascending: true }).limit(4);
+		return data || [];
+	}, []);
+
 	useEffect(() => {
 		async function fetchData() {
 			const { data: authData } = await supabase.auth.getUser();
 			const user = authData?.user;
-			if (!user) return;
+			if (!user) return setLoading(false);
 
-			const { data: userData } = await supabase.from("users").select("points").eq("id", user.id).single();
-			const pts = userData?.points ?? 0;
-			setPoints(pts);
+			const [userStats, members, contributors, events] = await Promise.all([fetchUserStats(user.id), fetchTotalMembers(), fetchTopContributors(), fetchFeaturedEvents()]);
 
-			const { count: membersCount } = await supabase.from("users").select("id", { count: "exact", head: true });
-			setTotalMembers(membersCount || 0);
-
-			const { count: higherCount } = await supabase.from("users").select("id", { count: "exact", head: true }).gt("points", pts);
-			setRank((higherCount || 0) + 1);
-
-			const { data: topData } = await supabase.from("users").select("id, name, year, points, profile_picture").order("points", { ascending: false }).limit(3);
-			setTopContributors(topData || []);
-
-			const { data: events } = await supabase.from("events").select("id, title, date, location").order("date", { ascending: true }).limit(4);
-			setFeaturedEvents(events || []);
-
+			setUserStats(userStats);
+			setTotalMembers(members);
+			setTopContributors(contributors);
+			setFeaturedEvents(events);
 			setLoading(false);
 		}
 		fetchData();
-	}, []);
+	}, [fetchUserStats, fetchTotalMembers, fetchTopContributors, fetchFeaturedEvents]);
 
 	if (loading) return <LoadingSpinner />;
 
@@ -62,8 +73,8 @@ export default function DashboardPage() {
 
 				<section className="grid grid-cols-1 md:grid-cols-3 gap-8">
 					<StatCard icon={<Users className="w-8 h-8 text-blue-600" />} label="Members" value={totalMembers} delay={0.2} />
-					<StatCard icon={<Heart className="w-8 h-8 text-red-500" />} label="Your Points" value={points} delay={0.4} />
-					<StatCard icon={<Trophy className="w-8 h-8 text-yellow-500" />} label="Your Rank" value={`#${rank}`} delay={0.6} />
+					<StatCard icon={<Heart className="w-8 h-8 text-red-500" />} label="Your Points" value={userStats.points} delay={0.2} />
+					<StatCard icon={<Trophy className="w-8 h-8 text-yellow-500" />} label="Your Rank" value={`#${userStats.rank}`} delay={0.2} />
 				</section>
 
 				<section className="space-y-6">
@@ -111,7 +122,7 @@ export default function DashboardPage() {
 					</div>
 				</section>
 
-				<motion.section className="relative p-8 bg-white bg-opacity-90 rounded-2xl shadow-inner overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+				<motion.section className="relative p-8 bg-white bg-opacity-90 rounded-2xl shadow-inner overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
 					<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-20 mix-blend-multiply" />
 					<div className="relative z-10">
 						<h3 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h3>
