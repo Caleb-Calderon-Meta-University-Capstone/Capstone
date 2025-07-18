@@ -111,10 +111,54 @@ export default function MentorPage() {
 			<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
 				<NavigationBar />
 				<div className="flex flex-col items-center mt-12 space-y-4 text-center">
-					<h1 className="text-5xl font-black text-gray-900 tracking-tight relative z-10">Mentor Matching</h1>
+					<div className="flex items-center space-x-2">
+						<h1 className="text-5xl font-black text-gray-900 tracking-tight">Mentor Matching</h1>
+
+						<div className="relative inline-block">
+							<HelpCircle className="peer w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" />
+							<div
+								className="
+      pointer-events-none opacity-0 peer-hover:opacity-100 transition-opacity duration-200
+      absolute top-full left-1/2 transform -translate-x-1/2 mt-2
+      w-72 bg-white/95 backdrop-blur-sm border border-gray-200
+      text-gray-900 text-sm rounded-lg shadow-lg p-4 z-50
+    "
+							>
+								<div
+									className="
+        absolute -top-2 left-1/2 transform -translate-x-1/2
+        w-3 h-3 bg-white/95 border-l border-t border-gray-200 rotate-45
+      "
+								/>
+								<h3 className="font-semibold text-gray-900 mb-2">How matching works</h3>
+								<ul className="list-decimal list-inside space-y-2">
+									<li>
+										<span className="font-semibold text-indigo-600">Vectorize</span> you & mentors on&nbsp;
+										<span className="italic">skills</span>, <span className="italic">interests</span>,&nbsp;
+										<span className="italic">AI interest</span>, <span className="italic">experience</span>, and&nbsp;
+										<span className="italic">meeting type</span>.
+									</li>
+									<li>
+										<span className="font-semibold text-indigo-600">Compute</span> cosine similarity + your likes to build a weighted graph.
+									</li>
+									<li>
+										<span className="font-semibold text-indigo-600">Run</span> Personalized PageRank from you to rank mentors by proximity.
+									</li>
+									<li>
+										<span className="font-semibold text-indigo-600">Blend</span> 60% PageRank & 40% cosine for the final ranking.
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
 
 					<p className="text-gray-600 text-lg font-semibold max-w-2xl relative z-10">
-						Find mentors who match your <span className="text-indigo-600 font-semibold">skills</span>, <span className="text-indigo-600 font-semibold">interests</span>, <span className="text-indigo-600 font-semibold">meeting type</span>, <span className="text-indigo-600 font-semibold">ai interest</span>, and <span className="text-indigo-600 font-semibold">experience</span>. Customize the weights below to get the most relevant recommendations.
+						Find mentors who match your&nbsp;
+						<span className="text-indigo-600 font-semibold">skills</span>,&nbsp;
+						<span className="text-indigo-600 font-semibold">interests</span>,&nbsp;
+						<span className="text-indigo-600 font-semibold">meeting type</span>,&nbsp;
+						<span className="text-indigo-600 font-semibold">AI interest</span>, and&nbsp;
+						<span className="text-indigo-600 font-semibold">experience</span>. Customize the weights below to get the most relevant recommendations.
 					</p>
 
 					<button onClick={() => setShowWeightModal(true)} className="mt-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow">
@@ -157,10 +201,13 @@ export default function MentorPage() {
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-8 py-6">
 					{topMentors.map(({ mentor, score }) => (
-						<div key={mentor.id} className="hover-pulse transition-transform transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center text-center border border-blue-200">
+						<div key={mentor.id} className="hover-pulse transition-transform transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center text-center border border-blue-200 relative">
 							<div className="absolute top-3 right-3">
 								<HelpCircle className="peer w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
-								<div className="opacity-0 peer-hover:opacity-100 transition-opacity absolute right-0 mt-1 w-64 p-3 bg-white text-gray-800 text-sm rounded-lg shadow-lg z-20">{generateMatchExplanation(userProfile, mentor)}</div>
+								<div className="opacity-0 peer-hover:opacity-100 transition-opacity  absolute right-0 mt-1 w-64 p-3 bg-white text-gray-800 text-sm rounded-lg shadow-lg z-20">
+									<div className="font-bold mb-2">Why did we match you?</div>
+									{generateMatchExplanation(userProfile, mentor)}
+								</div>
 							</div>
 
 							<div className="w-24 h-24 rounded-full overflow-hidden shadow-md border-4 border-blue-200 mb-4">
