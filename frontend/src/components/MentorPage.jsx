@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
-import { getTopMentorMatches } from "../utils/mentorMatchUtils";
+import { getTopMentorMatches, generateMatchExplanation } from "../utils/mentorMatchUtils";
 import { UserAuth } from "../context/AuthContext";
 import { PRESET_SKILLS, PRESET_INTERESTS } from "./constants/presets";
 import Footer from "./Footer";
+import { HelpCircle } from "lucide-react";
 
 export default function MentorPage() {
 	const { session } = UserAuth();
@@ -113,7 +114,7 @@ export default function MentorPage() {
 					<h1 className="text-5xl font-black text-gray-900 tracking-tight relative z-10">Mentor Matching</h1>
 
 					<p className="text-gray-600 text-lg font-semibold max-w-2xl relative z-10">
-						Find mentors who match your <span className="text-indigo-600 font-semibold">skills</span> and <span className="text-indigo-600 font-semibold">interests</span>. Customize the weights below to get the most relevant recommendations.
+						Find mentors who match your <span className="text-indigo-600 font-semibold">skills</span>, <span className="text-indigo-600 font-semibold">interests</span>, <span className="text-indigo-600 font-semibold">meeting type</span>, <span className="text-indigo-600 font-semibold">ai interest</span>, and <span className="text-indigo-600 font-semibold">experience</span>. Customize the weights below to get the most relevant recommendations.
 					</p>
 
 					<button onClick={() => setShowWeightModal(true)} className="mt-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow">
@@ -154,25 +155,31 @@ export default function MentorPage() {
 					</div>
 				)}
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-8 py-6">
 					{topMentors.map(({ mentor, score }) => (
-						<div key={mentor.id} className="hover-pulse transition transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-xl p-6 flex flex-col items-center text-center border border-blue-200">
+						<div key={mentor.id} className="hover-pulse transition-transform transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center text-center border border-blue-200">
+							<div className="absolute top-3 right-3">
+								<HelpCircle className="peer w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+								<div className="opacity-0 peer-hover:opacity-100 transition-opacity absolute right-0 mt-1 w-64 p-3 bg-white text-gray-800 text-sm rounded-lg shadow-lg z-20">{generateMatchExplanation(userProfile, mentor)}</div>
+							</div>
+
 							<div className="w-24 h-24 rounded-full overflow-hidden shadow-md border-4 border-blue-200 mb-4">
 								<img src={mentor.profile_picture || "https://picsum.photos/200"} alt={mentor.name} className="object-cover w-full h-full" />
 							</div>
 
-							<div className="text-lg font-bold flex items-center gap-2">
+							<div className="text-xl font-bold flex items-center gap-2 mb-2">
 								{mentor.name}
 								<span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">Mentor</span>
 							</div>
 
-							<div className="text-sm text-gray-600 mb-2">
-								{mentor.year || "N/A"} • {mentor.experience_years || 0} yrs experience
+							<div className="text-sm text-gray-600 mb-3">
+								{mentor.year || "N/A"} • {mentor.experience_years || 0} yr
+								{mentor.experience_years === 1 ? "" : "s"} experience
 							</div>
 
-							<p className="text-sm text-gray-700 mb-3">{mentor.bio || "No bio available."}</p>
+							<p className="text-sm text-gray-700 mb-4">{mentor.bio || "No bio available."}</p>
 
-							<div className="w-full mb-3">
+							<div className="w-full mb-4">
 								<div className="font-semibold text-sm mb-1">Skills</div>
 								<div className="flex flex-wrap gap-2 justify-center">
 									{mentor.skills &&

@@ -1,3 +1,4 @@
+
 //Create a constant for the maximum years of experience to normalize against
 const MAX_YEARS = 5;
 
