@@ -12,22 +12,22 @@ const SKILL_LEVEL_MAP = {
 };
 
 // These functions turn parts of a user's profile into numbers; This helps us compare users and find the best mentor matches later.
-function encodeSkills(user, globalSkills) {
+export function encodeSkills(user, globalSkills) {
 	return globalSkills.map((skill) => {
 		const level = user.skills?.[skill];
 		return SKILL_LEVEL_MAP[level] || 0;
 	});
 }
 
-function encodeInterests(user, globalInterests) {
+export function encodeInterests(user, globalInterests) {
 	return globalInterests.map((interest) => (user.interests?.includes(interest) ? 1 : 0));
 }
 
-function encodeAI(user) {
+export function encodeAI(user) {
 	return [user.ai_interest ? 1 : 0];
 }
 
-function encodeExperience(user, maxYears = MAX_YEARS) {
+export function encodeExperience(user, maxYears = MAX_YEARS) {
 	let years = 0;
 	const raw = user.experience_years;
 	if (raw != null) {
@@ -39,12 +39,12 @@ function encodeExperience(user, maxYears = MAX_YEARS) {
 	return [Math.min(years / maxYears, 1)];
 }
 
-function encodeMeeting(user) {
+export function encodeMeeting(user) {
 	return MEETING_OPTIONS.map((option) => (user.preferred_meeting === option ? 1 : 0));
 }
 
 // Turns all parts of a user profile into one weighted number array for similarity comparison
-function vectorizeUser(user, globalSkills, globalInterests, weights) {
+export function vectorizeUser(user, globalSkills, globalInterests, weights) {
 	const skillVec = encodeSkills(user, globalSkills).map((v) => v * weights.skills);
 	const interestVec = encodeInterests(user, globalInterests).map((v) => v * weights.interests);
 	const aiVec = encodeAI(user).map((v) => v * weights.ai_interest);
@@ -54,7 +54,7 @@ function vectorizeUser(user, globalSkills, globalInterests, weights) {
 }
 
 // Calculates how similar two vectors are using cosine similarity
-function cosineSimilarity(vecA, vecB) {
+export function cosineSimilarity(vecA, vecB) {
 	const dotProduct = vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
 	const magnitudeA = Math.sqrt(vecA.reduce((sum, val) => sum + val ** 2, 0));
 	const magnitudeB = Math.sqrt(vecB.reduce((sum, val) => sum + val ** 2, 0));
@@ -73,7 +73,7 @@ const ALPHA_BLEND = 0.6;
 // Builds an adjacency list where each node represents a user/mentor,
 // and edge weights are based on a blend of cosine similarity and like strength.
 // Likes are only considered from the current user (index 0) to mentors.
-function buildAdjacencyList(vectors, mentors, likesMap) {
+export function buildAdjacencyList(vectors, mentors, likesMap) {
 	if (!vectors.length || !mentors.length) return [];
 
 	const N = vectors.length;
@@ -113,7 +113,7 @@ function buildAdjacencyList(vectors, mentors, likesMap) {
 // - damping: probability of continuing the walk (default 0.85)
 // - maxIter: max number of iterations (default 100)
 // - tol: convergence threshold (default 1e-6)
-function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
+export function personalizedPageRank(adj, startIndex, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
 	const n = adj.length;
 	const r = Array(n).fill(1 / n); // current scores
 	const t = Array(n).fill(0); // teleport vector
