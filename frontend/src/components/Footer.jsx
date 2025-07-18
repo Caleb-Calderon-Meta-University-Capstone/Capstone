@@ -1,10 +1,17 @@
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Instagram, Linkedin, Globe2 } from "lucide-react";
 import { UserAuth } from "../context/AuthContext.jsx";
+import { SOCIAL_LINKS } from "./constants/socialLinks";
 
 export default function Footer() {
-	const { session } = UserAuth(); 
-	const loggedIn = !!session;
+	const { session } = UserAuth();
+	const loggedIn = useMemo(() => !!session, [session]);
+
+	const renderSocialLink = ({ href, icon: Icon, label }) => (
+		<a key={href} href={href} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600" aria-label={label}>
+			<Icon size={22} />
+		</a>
+	);
 
 	return (
 		<footer className="w-full bg-white border-t">
@@ -19,17 +26,7 @@ export default function Footer() {
 					</Link>
 				)}
 
-				<div className="flex gap-6 text-gray-500">
-					<a href="https://www.instagram.com/micspsu/?hl=en" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
-						<Instagram size={22} />
-					</a>
-					<a href="https://www.linkedin.com/company/penn-state-mics/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
-						<Linkedin size={22} />
-					</a>
-					<a href="https://colorstack-by-micspsu.framer.website/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600">
-						<Globe2 size={22} />
-					</a>
-				</div>
+				<div className="flex gap-6 text-gray-500">{SOCIAL_LINKS.map(renderSocialLink)}</div>
 			</div>
 		</footer>
 	);
