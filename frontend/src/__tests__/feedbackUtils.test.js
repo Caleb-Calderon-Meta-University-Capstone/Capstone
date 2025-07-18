@@ -1,4 +1,4 @@
-// unit tests for feedbackUtils – short, clear, and a hair more detail
+// unit tests for feedbackUtils 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FEEDBACK_TABLE, saveUserFeedback, getUserFeedbackMap, getLocationCategory, euclidean, getEventFeedbackVectors, getUserPreferenceVector, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
 

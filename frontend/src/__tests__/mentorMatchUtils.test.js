@@ -1,4 +1,4 @@
-// unit tests for mentor-match utils – every helper covered
+// unit tests for mentor-match utils
 import { describe, it, expect } from "vitest";
 import { encodeSkills, encodeInterests, encodeAI, encodeExperience, encodeMeeting, vectorizeUser, cosineSimilarity, buildAdjacencyList, personalizedPageRank, getTopMentorMatches } from "../utils/mentorMatchUtils";
 
