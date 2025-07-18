@@ -1,3 +1,4 @@
+import React from "react";
 
 //Create a constant for the maximum years of experience to normalize against
 const MAX_YEARS = 5;
@@ -174,4 +175,70 @@ export function getTopMentorMatches(currentUser, mentors, globalSkills, globalIn
 
 	// 6. Sort, slice to topN, and return
 	return final.sort((a, b) => b.score - a.score).slice(0, topN);
+}
+// function for joining an array of strings into list
+function joinWithCommasAndAnd(items) {
+	if (items.length === 1) {
+		return items[0];
+	}
+	if (items.length === 2) {
+		return React.createElement(React.Fragment, null, items[0], " and ", items[1]);
+	}
+	// 3 items
+	const children = [];
+	items.forEach((item, idx) => {
+		children.push(item);
+		if (idx < items.length - 2) {
+			children.push(", ");
+		} else if (idx === items.length - 2) {
+			children.push(", and ");
+		}
+	});
+	return React.createElement(React.Fragment, null, ...children);
+}
+
+// Generates an explanation for why a user was matched with a mentor
+export function generateMatchExplanation(user, mentor) {
+	const reasons = [];
+
+	// shared skills - up to 2
+	if (user.skills && mentor.skills) {
+		const sharedSkills = Object.keys(user.skills)
+			.filter((s) => mentor.skills[s])
+			.slice(0, 2);
+		if (sharedSkills.length === 1) {
+			reasons.push(React.createElement(React.Fragment, { key: "skills-1" }, "you both know ", React.createElement("span", { className: "text-indigo-600 font-semibold" }, sharedSkills[0])));
+		} else if (sharedSkills.length === 2) {
+			reasons.push(React.createElement(React.Fragment, { key: "skills-2" }, "you both know ", React.createElement("span", { className: "text-indigo-600 font-semibold" }, sharedSkills[0]), " and ", React.createElement("span", { className: "text-indigo-600 font-semibold" }, sharedSkills[1])));
+		}
+	}
+
+	// shared interests - up to 2
+	if (user.interests && mentor.interests) {
+		const sharedInterests = user.interests.filter((i) => mentor.interests.includes(i)).slice(0, 2);
+		if (sharedInterests.length === 1) {
+			reasons.push(React.createElement(React.Fragment, { key: "interest-1" }, "you both are interested in ", React.createElement("span", { className: "text-purple-600 font-semibold" }, sharedInterests[0])));
+		} else if (sharedInterests.length === 2) {
+			reasons.push(React.createElement(React.Fragment, { key: "interest-2" }, "you both are interested in ", React.createElement("span", { className: "text-purple-600 font-semibold" }, sharedInterests[0]), " and ", React.createElement("span", { className: "text-purple-600 font-semibold" }, sharedInterests[1])));
+		}
+	}
+
+	// preffered meeting meeting
+	if (user.preferred_meeting && user.preferred_meeting === mentor.preferred_meeting) {
+		reasons.push(React.createElement(React.Fragment, { key: "meeting" }, "you both prefer ", React.createElement("span", { className: "text-teal-600 font-semibold" }, user.preferred_meeting.toLowerCase()), " sessions"));
+	}
+
+	// ai interest
+	if (user.ai_interest && mentor.ai_interest) {
+		reasons.push(React.createElement(React.Fragment, { key: "ai" }, "you’re both interested in ", React.createElement("span", { className: "text-pink-600 font-semibold" }, "AI")));
+	}
+
+	// fallback
+	if (reasons.length === 0) {
+		return React.createElement(React.Fragment, null, "We matched you based on ", React.createElement("span", { className: "font-semibold" }, "overall compatibility"), ".");
+	}
+
+	// build final sentence
+	const list = joinWithCommasAndAnd(reasons);
+	return React.createElement(React.Fragment, null, "We matched you because ", list, ".");
 }

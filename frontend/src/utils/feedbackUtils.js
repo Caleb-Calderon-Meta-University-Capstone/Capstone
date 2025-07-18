@@ -2,7 +2,7 @@ import { supabase } from "../supabaseClient";
 import { academicBuildings } from "../components/constants/academicBuildings";
 export const FEEDBACK_TABLE = "event_feedback";
 
-//save/update user feedback for an event
+//save update user feedback for an event
 export async function saveUserFeedback(userId, eventId, liked, reasonsArray) {
 	try {
 		const { error } = await supabase.from(FEEDBACK_TABLE).upsert({ user_id: userId, event_id: eventId, liked, reasons: reasonsArray }, { onConflict: ["user_id", "event_id"] });
