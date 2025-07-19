@@ -65,9 +65,7 @@ export default function DashboardPage() {
 
 			<div className="relative z-10 max-w-7xl mx-auto px-6 py-20 space-y-20">
 				<motion.header initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
-					<h1 className="text-5xl sm:text-6xl font-extrabold text-gray-800 mb-4">
-						Welcome to <span className="text-blue-600">MICS Connect</span>
-					</h1>
+					<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="mx-auto mb-4 h-20 w-auto" />
 					<p className="text-xl text-gray-700 max-w-3xl mx-auto">A vibrant hub for multicultural innovators in CS. Discover, connect, and grow with a community that celebrates you.</p>
 				</motion.header>
 

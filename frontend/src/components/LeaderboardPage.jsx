@@ -58,8 +58,13 @@ export default function LeaderboardPage() {
 				}
 			`}</style>
 
-			<h1 className="text-5xl font-black text-center pt-12 text-gray-900 tracking-tight relative z-10">MICS Leaderboard</h1>
-			<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Celebrating the most engaged and impactful members of our community</p>
+			<div className="text-center pt-12">
+				<div className="flex items-center justify-center mb-4">
+					<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
+					<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">MICS Leaderboard</h1>
+				</div>
+				<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Celebrating the most engaged and impactful members of our community</p>
+			</div>
 
 			<div className="flex flex-wrap justify-center gap-6 px-4 relative z-10">
 				{topThree.map((u, i) => (

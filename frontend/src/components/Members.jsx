@@ -35,8 +35,13 @@ export default function Members() {
         .hover-pulse:hover{animation:pulse-glow 1.8s ease-in-out infinite;}
       `}</style>
 			<NavigationBar />
-			<h1 className="text-5xl font-black text-center pt-12 text-gray-900 tracking-tight relative z-10">Member Directory</h1>
-			<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Connect with {members.length} amazing MICS members</p>
+			<div className="text-center pt-12">
+				<div className="flex items-center justify-center mb-4">
+					<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
+					<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">Member Directory</h1>
+				</div>
+				<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Connect with {members.length} amazing MICS members</p>
+			</div>
 
 			<div className="flex justify-center mt-4">
 				<input type="text" placeholder="Search by name, skill, or interest..." className="w-80 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={query} onChange={(e) => setQuery(e.target.value)} />

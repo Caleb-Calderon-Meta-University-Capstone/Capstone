@@ -112,6 +112,7 @@ export default function MentorPage() {
 				<NavigationBar />
 				<div className="flex flex-col items-center mt-12 space-y-4 text-center">
 					<div className="flex items-center space-x-2">
+						<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
 						<h1 className="text-5xl font-black text-gray-900 tracking-tight">Mentor Matching</h1>
 
 						<div className="relative inline-block">

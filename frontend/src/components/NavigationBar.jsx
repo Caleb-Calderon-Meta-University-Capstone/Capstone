@@ -54,16 +54,21 @@ export default function NavigationBar() {
 
 	return (
 		<NavigationMenu className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm w-full h-full">
-			<NavigationMenuList className="flex justify-center space-x-8 items-center">
-				{navLinks.map(({ title, to }) => (
-					<NavigationMenuItem key={to}>
-						<NavigationMenuLink asChild>
-							<Link to={to} className={`text-sm font-medium transition-colors ${location.pathname === to ? "text-blue-600 underline underline-offset-4" : "text-gray-700 hover:text-blue-500"}`}>
-								{title}
-							</Link>
-						</NavigationMenuLink>
-					</NavigationMenuItem>
-				))}
+			<NavigationMenuList className="flex justify-between items-center">
+				<div className="flex items-center space-x-8">
+					<Link to="/dashboard">
+						<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-10 w-auto" />
+					</Link>
+					{navLinks.map(({ title, to }) => (
+						<NavigationMenuItem key={to}>
+							<NavigationMenuLink asChild>
+								<Link to={to} className={`text-sm font-medium transition-colors ${location.pathname === to ? "text-blue-600 underline underline-offset-4" : "text-gray-700 hover:text-blue-500"}`}>
+									{title}
+								</Link>
+							</NavigationMenuLink>
+						</NavigationMenuItem>
+					))}
+				</div>
 
 				<NavigationMenuItem className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 					<div className="p-0 border border-blue-200 rounded-full bg-transparent cursor-pointer hover:ring-2 hover:ring-blue-300 transition-transform duration-200">

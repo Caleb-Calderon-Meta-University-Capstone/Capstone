@@ -51,7 +51,10 @@ export default function LandingPage() {
 					<motion.div className="absolute right-8 bottom-8 w-72 h-72 bg-white/10 rotate-45 blur-2xl" style={{ translateY: useTransform(scrollYProgress, [0, 0.5], [0, 200]) }} />
 
 					<motion.div className="z-10 text-center px-6" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
-						<h1 className="text-5xl md:text-7xl font-extrabold mb-4 drop-shadow-lg">MICS Connect</h1>
+						<div className="flex items-center justify-center mb-4">
+							<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-24 w-auto drop-shadow-lg mr-4" />
+							<h1 className="text-5xl md:text-7xl font-extrabold drop-shadow-lg">MICS Connect</h1>
+						</div>
 						<p className="max-w-2xl mx-auto text-lg md:text-2xl font-light mb-6">Empowering underrepresented talent through mentorship, collaboration, and innovation.</p>
 						<Link to="/signup" className="inline-block bg-white/90 text-indigo-700 font-semibold py-3 px-8 rounded-full shadow-lg backdrop-blur-sm hover:bg-white transition-all">
 							Join the Community ↗

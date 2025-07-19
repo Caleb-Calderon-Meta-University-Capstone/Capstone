@@ -59,8 +59,11 @@ export default function Signup() {
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
 			<div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-lg">
-				<h2 className="text-3xl font-black text-gray-900 mb-2">Sign Up</h2>
-				<p className="text-gray-600 mb-6">Please fill your information below</p>
+				<div className="text-center mb-6">
+					<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="mx-auto mb-4 h-16 w-auto" />
+					<h2 className="text-3xl font-black text-gray-900 mb-2">Sign Up</h2>
+					<p className="text-gray-600 mb-6">Please fill your information below</p>
+				</div>
 
 				<form onSubmit={handleSignUp} className="space-y-5">
 					<input type="text" placeholder="Name" className="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={name} onChange={(e) => setName(e.target.value)} />
