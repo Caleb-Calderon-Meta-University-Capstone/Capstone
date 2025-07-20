@@ -1,4 +1,4 @@
-import { Instagram, Linkedin, Globe2 } from "lucide-react";
+import { landingPageSocialLinks } from "./socialLinks.js";
 
 export const features = [
 	{
@@ -27,8 +27,4 @@ export const partners = [
 	{ name: "J.P. Morgan", domain: "jpmorganchase.com" },
 ];
 
-export const socialLinks = [
-	{ icon: Instagram, url: "https://www.instagram.com/micspsu/?hl=en", label: "Instagram" },
-	{ icon: Linkedin, url: "https://www.linkedin.com/company/penn-state-mics/", label: "LinkedIn" },
-	{ icon: Globe2, url: "https://colorstack-by-micspsu.framer.website/", label: "Website" },
-];
+export const socialLinks = landingPageSocialLinks;
