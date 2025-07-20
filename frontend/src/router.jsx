@@ -7,6 +7,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import EventsPage from "./components/EventsPage.jsx";
 import LeaderboardPage from "./components/LeaderboardPage.jsx";
 import MemberPage from "./components/Members.jsx";
+import MemberCardPage from "./components/MemberCardPage.jsx";
 import ProfilePage from "./components/Profile.jsx";
 import EditPage from "./components/EditProfile.jsx";
 import MentorPage from "./components/MentorPage.jsx";
@@ -17,7 +18,6 @@ export const router = createBrowserRouter([
 	{ path: "/signup", element: <Signup /> },
 	{ path: "/login", element: <Signin /> },
 	{ path: "/landing", element: <LandingPage /> },
-	
 
 	{
 		path: "/edit-profile",
@@ -49,6 +49,14 @@ export const router = createBrowserRouter([
 		element: (
 			<PrivateRoute>
 				<MemberPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/member/:id",
+		element: (
+			<PrivateRoute>
+				<MemberCardPage />
 			</PrivateRoute>
 		),
 	},

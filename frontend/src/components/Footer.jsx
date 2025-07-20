@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext.jsx";
-import { SOCIAL_LINKS } from "./constants/socialLinks";
+import { footerSocialLinks } from "./constants/socialLinks";
 
 export default function Footer() {
 	const { session } = UserAuth();
@@ -27,7 +27,7 @@ export default function Footer() {
 					</Link>
 				)}
 
-				<div className="flex gap-6 text-gray-500">{SOCIAL_LINKS.map(renderSocialLink)}</div>
+				<div className="flex gap-6 text-gray-500">{footerSocialLinks.map(renderSocialLink)}</div>
 			</div>
 		</footer>
 	);
