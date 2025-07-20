@@ -1,4 +1,4 @@
-export const PRESET_SKILLS = [
+const SKILLS_DATA = [
 	"Bootstrap",
 	"C#",
 	"C++",
@@ -35,4 +35,12 @@ export const PRESET_SKILLS = [
 	"Backend Development",
 ];
 
-export const PRESET_INTERESTS = ["Anime & Gaming", "Consulting", "Content Creation", "Cybersecurity", "Data Science & Analytics", "Diversity in Tech", "Leadership & Public Speaking", "Music & Performing Arts", "Product Management", "Program Management", "Project Management", "Software Engineering", "Sports & Fitness", "Startups & Entrepreneurship", "Stocks & Investing"];
+const INTERESTS_DATA = ["Anime & Gaming", "Consulting", "Content Creation", "Cybersecurity", "Data Science & Analytics", "Diversity in Tech", "Leadership & Public Speaking", "Music & Performing Arts", "Product Management", "Program Management", "Project Management", "Software Engineering", "Sports & Fitness", "Startups & Entrepreneurship", "Stocks & Investing"];
+
+export const PRESET_SKILLS = SKILLS_DATA;
+
+export const PRESET_INTERESTS = INTERESTS_DATA;
+
+export const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced"];
+
+export const yearOptions = ["Freshman", "Sophomore", "Junior", "Senior"];

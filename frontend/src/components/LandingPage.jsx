@@ -1,41 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Instagram, Linkedin, Globe2 } from "lucide-react";
 import Footer from "./Footer";
-
-const features = [
-	{
-		title: "Mentor Matching",
-		description: "Recommendations to connect with the ideal mentors.",
-		gradient: "from-teal-400 to-cyan-500",
-	},
-	{
-		title: "Event Discovery",
-		description: "Personalized reccomendations to find events such as hackathons, talks, and socials tailored to you.",
-		gradient: "from-amber-400 to-orange-500",
-	},
-	{
-		title: "Growth Points",
-		description: "Earn and redeem points to unlock exclusive perks.",
-		gradient: "from-fuchsia-500 to-pink-500",
-	},
-];
-
-const partners = [
-	{ name: "EY", domain: "ey.com" },
-	{ name: "Emerson", domain: "emerson.com" },
-	{ name: "FedEx", domain: "fedex.com" },
-	{ name: "HackPSU", domain: "hackpsu.org" },
-	{ name: "Lockheed Martin", domain: "lockheedmartin.com" },
-	{ name: "J.P. Morgan", domain: "jpmorganchase.com" },
-];
-
-const socialLinks = [
-	{ icon: Instagram, url: "https://www.instagram.com/micspsu/?hl=en", label: "Instagram" },
-	{ icon: Linkedin, url: "https://www.linkedin.com/company/penn-state-mics/", label: "LinkedIn" },
-	{ icon: Globe2, url: "https://colorstack-by-micspsu.framer.website/", label: "Website" },
-];
+import { features, partners, socialLinks } from "./constants/landingPageData";
 
 export default function LandingPage() {
 	const { scrollYProgress } = useScroll();
@@ -51,7 +18,10 @@ export default function LandingPage() {
 					<motion.div className="absolute right-8 bottom-8 w-72 h-72 bg-white/10 rotate-45 blur-2xl" style={{ translateY: useTransform(scrollYProgress, [0, 0.5], [0, 200]) }} />
 
 					<motion.div className="z-10 text-center px-6" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
-						<h1 className="text-5xl md:text-7xl font-extrabold mb-4 drop-shadow-lg">MICS Connect</h1>
+						<div className="flex items-center justify-center mb-4">
+							<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-24 w-auto drop-shadow-lg mr-4" />
+							<h1 className="text-5xl md:text-7xl font-extrabold drop-shadow-lg">MICS Connect</h1>
+						</div>
 						<p className="max-w-2xl mx-auto text-lg md:text-2xl font-light mb-6">Empowering underrepresented talent through mentorship, collaboration, and innovation.</p>
 						<Link to="/signup" className="inline-block bg-white/90 text-indigo-700 font-semibold py-3 px-8 rounded-full shadow-lg backdrop-blur-sm hover:bg-white transition-all">
 							Join the Community ↗
