@@ -135,8 +135,8 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 		vec: features.map((f) => eventVectors[eid][f] || 0),
 	}));
 
-	const kEff = Math.min(k, vectors.length);
-	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
+	const effectiveK = Math.min(k, vectors.length);
+	let centroids = vectors.slice(0, effectiveK).map((v) => [...v.vec]);
 	let changed = true;
 	let clusters = {};
 
