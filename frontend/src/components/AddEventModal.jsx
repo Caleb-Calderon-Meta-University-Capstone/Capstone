@@ -27,7 +27,6 @@ export default function AddEventModal({ onClose, onSubmit, submitting }) {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		// Validate Zoom link if it looks like a Zoom link
 		if (location.toLowerCase().includes("zoom")) {
 			if (!isValidPennStateZoomLink(location)) {
 				setLocationError("Zoom links must be official Penn State links (https://psu.zoom.us/j/...) ");
