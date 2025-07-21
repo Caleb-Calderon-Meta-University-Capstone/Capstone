@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
 import Footer from "./Footer";
+import "../styles/leaderboard.css";
 
 export default function LeaderboardPage() {
 	const [users, setUsers] = useState([]);
@@ -42,33 +43,6 @@ export default function LeaderboardPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 font-sans text-black relative overflow-hidden">
 			<NavigationBar />
-
-			<style>{`
-				@keyframes lavaFlow {
-					0% { background-position: 0% 50%; }
-					50% { background-position: 100% 50%; }
-					100% { background-position: 0% 50%; }
-				}
-				@keyframes moltenGlow {
-					0%, 100% { opacity: 0.2; }
-					50% { opacity: 0.4; }
-				}
-				.lava-bar {
-					background-image: linear-gradient(90deg, #ff3c00, #ff6b00, #ffa500, #ff3c00);
-					background-size: 300% 100%;
-					animation: lavaFlow 3s ease-in-out infinite;
-					border-radius: 9999px;
-				}
-				.glow-fire {
-					background-color: white
-				}
-				.glow-fire-sm {
-					background-color: white;
-				}
-				.glow-fire-xs {
-					background-color: white;
-				}
-			`}</style>
 
 			<div className="text-center pt-12">
 				<div className="flex items-center justify-center mb-4">
