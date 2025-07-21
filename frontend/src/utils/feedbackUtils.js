@@ -39,15 +39,15 @@ export async function getUserFeedbackMap() {
 
 // helper to categorize locations into buckets
 export function getLocationCategory(raw) {
-	const l = (raw || "").toLowerCase().trim();
+	const location = (raw || "").toLowerCase().trim();
 
 	// virtual / online events
-	if (["zoom", "online", "virtual", "remote"].some((v) => l.includes(v))) {
+	if (["zoom", "online", "virtual", "remote"].some((v) => location.includes(v))) {
 		return "loc:virtual";
 	}
 
 	// strip off optional "room"/"rm" plus trailing digits/text
-	const base = l.replace(/\b(?:room|rm\.?)?\s*\d+.*$/, "").trim();
+	const base = location.replace(/\b(?:room|rm\.?)?\s*\d+.*$/, "").trim();
 
 	// all Penn State academic buildings & hubs
 	if (academicBuildings.some((b) => base.includes(b))) {
@@ -135,8 +135,8 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 		vec: features.map((f) => eventVectors[eid][f] || 0),
 	}));
 
-	const kEff = Math.min(k, vectors.length);
-	let centroids = vectors.slice(0, kEff).map((v) => [...v.vec]);
+	const effectiveK = Math.min(k, vectors.length);
+	let centroids = vectors.slice(0, effectiveK).map((v) => [...v.vec]);
 	let changed = true;
 	let clusters = {};
 
@@ -177,11 +177,11 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 // build and normalize user preference vector from liked feedback
 export function getUserPreferenceVector(userId, feedbackMap) {
 	const freq = {};
-	const userFb = feedbackMap[userId] || {};
+	const userFeedback = feedbackMap[userId] || {};
 
 	// build and normalize user preference vector from liked feedback
-	Object.keys(userFb).forEach((eid) => {
-		const { liked, reasons } = userFb[eid];
+	Object.keys(userFeedback).forEach((eid) => {
+		const { liked, reasons } = userFeedback[eid];
 		if (liked) {
 			reasons.forEach((r) => {
 				freq[r] = (freq[r] || 0) + 1;
@@ -202,12 +202,12 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 // recommend up to topN events based on user preferences
 export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVectors, topN = 5) {
 	const prefs = getUserPreferenceVector(userId, feedbackMap);
-	const seen = new Set(Object.keys(feedbackMap[userId] || {}));
+	const seenEvents = new Set(Object.keys(feedbackMap[userId] || {}));
 	const scored = [];
 	// iterate through each cluster's events
 	Object.values(clusterMap).forEach((members) => {
 		members.forEach((eid) => {
-			if (!seen.has(eid)) {
+			if (!seenEvents.has(eid)) {
 				const vec = eventVectors[eid] || {};
 				let score = 0;
 

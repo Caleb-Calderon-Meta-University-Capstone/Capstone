@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
+function isValidPennStateZoomLink(url) {
+	return /^https:\/\/psu\.zoom\.us\/j\/[0-9]+(\?.*)?$/.test(url.trim());
+}
+
 export default function AddEventModal({ onClose, onSubmit, submitting }) {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
@@ -9,6 +13,7 @@ export default function AddEventModal({ onClose, onSubmit, submitting }) {
 	const [location, setLocation] = useState("");
 	const [points, setPoints] = useState(10);
 	const [duration, setDuration] = useState(60);
+	const [locationError, setLocationError] = useState("");
 
 	const resetForm = () => {
 		setTitle("");
@@ -22,6 +27,13 @@ export default function AddEventModal({ onClose, onSubmit, submitting }) {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		if (location.toLowerCase().includes("zoom")) {
+			if (!isValidPennStateZoomLink(location)) {
+				setLocationError("Zoom links must be official Penn State links (https://psu.zoom.us/j/...) ");
+				return;
+			}
+		}
+		setLocationError("");
 		const fullDate = new Date(`${date}T${time}`);
 		onSubmit({
 			title,
@@ -87,6 +99,7 @@ export default function AddEventModal({ onClose, onSubmit, submitting }) {
 							Location *
 						</label>
 						<input id="event-location" type="text" required value={location} onChange={(e) => setLocation(e.target.value)} placeholder="ex. Zoom, Student Union, Room 110" className="w-full border px-3 py-2 rounded bg-blue-50" />
+						{locationError && <div className="text-red-600 text-sm mt-1">{locationError}</div>}
 					</div>
 
 					<div>
