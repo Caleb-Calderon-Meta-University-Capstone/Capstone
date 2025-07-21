@@ -177,11 +177,11 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 // build and normalize user preference vector from liked feedback
 export function getUserPreferenceVector(userId, feedbackMap) {
 	const freq = {};
-	const userFb = feedbackMap[userId] || {};
+	const userFeedback = feedbackMap[userId] || {};
 
 	// build and normalize user preference vector from liked feedback
-	Object.keys(userFb).forEach((eid) => {
-		const { liked, reasons } = userFb[eid];
+	Object.keys(userFeedback).forEach((eid) => {
+		const { liked, reasons } = userFeedback[eid];
 		if (liked) {
 			reasons.forEach((r) => {
 				freq[r] = (freq[r] || 0) + 1;
