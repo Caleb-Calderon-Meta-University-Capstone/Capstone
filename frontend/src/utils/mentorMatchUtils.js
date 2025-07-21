@@ -73,9 +73,9 @@ const MAX_LIKES = 5;
 const ALPHA_BLEND = 0.6;
 
 // Vector component sizes for user profile encoding
-export const AI_VEC_LEN = 1; 
-export const EXPERIENCE_VEC_LEN = 1; 
-export const MEETING_VEC_LEN = MEETING_OPTIONS.length; 
+export const AI_VEC_LEN = 1;
+export const EXPERIENCE_VEC_LEN = 1;
+export const MEETING_VEC_LEN = MEETING_OPTIONS.length;
 
 // Builds an adjacency list where each node represents a user/mentor,
 // and edge weights are based on a blend of cosine similarity and like strength.
@@ -189,17 +189,7 @@ function joinWithCommasAndAnd(items) {
 	if (items.length === 2) {
 		return React.createElement(React.Fragment, null, items[0], " and ", items[1]);
 	}
-	// 3 items
-	const children = [];
-	items.forEach((item, idx) => {
-		children.push(item);
-		if (idx < items.length - 2) {
-			children.push(", ");
-		} else if (idx === items.length - 2) {
-			children.push(", and ");
-		}
-	});
-	return React.createElement(React.Fragment, null, ...children);
+	return React.createElement(React.Fragment, null, ...items.slice(0, -1).map((item, idx) => [React.createElement(React.Fragment, { key: idx }, item, idx < items.length - 2 ? ", " : ", and ")]), items[items.length - 1]);
 }
 
 // Generates an explanation for why a user was matched with a mentor
