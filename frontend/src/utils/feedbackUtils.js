@@ -39,7 +39,7 @@ export async function getUserFeedbackMap() {
 
 // helper to categorize locations into buckets
 export function getLocationCategory(raw) {
-	const l = (raw || "").toLowerCase().trim();
+	const location = (raw || "").toLowerCase().trim();
 
 	// virtual / online events
 	if (["zoom", "online", "virtual", "remote"].some((v) => l.includes(v))) {
@@ -47,7 +47,7 @@ export function getLocationCategory(raw) {
 	}
 
 	// strip off optional "room"/"rm" plus trailing digits/text
-	const base = l.replace(/\b(?:room|rm\.?)?\s*\d+.*$/, "").trim();
+	const base = location.replace(/\b(?:room|rm\.?)?\s*\d+.*$/, "").trim();
 
 	// all Penn State academic buildings & hubs
 	if (academicBuildings.some((b) => base.includes(b))) {
