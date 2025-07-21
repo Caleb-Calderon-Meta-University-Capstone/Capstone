@@ -72,6 +72,11 @@ const MAX_LIKES = 5;
 // weight for blending PPR vs cosine similarity (hybrid)
 const ALPHA_BLEND = 0.6;
 
+// Vector component sizes for user profile encoding
+export const AI_VEC_LEN = 1; 
+export const EXPERIENCE_VEC_LEN = 1; 
+export const MEETING_VEC_LEN = MEETING_OPTIONS.length; 
+
 // Builds an adjacency list where each node represents a user/mentor,
 // and edge weights are based on a blend of cosine similarity and like strength.
 // Likes are only considered from the current user (index 0) to mentors.

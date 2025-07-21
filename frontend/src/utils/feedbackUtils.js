@@ -42,7 +42,7 @@ export function getLocationCategory(raw) {
 	const location = (raw || "").toLowerCase().trim();
 
 	// virtual / online events
-	if (["zoom", "online", "virtual", "remote"].some((v) => l.includes(v))) {
+	if (["zoom", "online", "virtual", "remote"].some((v) => location.includes(v))) {
 		return "loc:virtual";
 	}
 

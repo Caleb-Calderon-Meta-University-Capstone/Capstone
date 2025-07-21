@@ -1,6 +1,6 @@
 // unit tests for mentor-match utils
 import { describe, it, expect } from "vitest";
-import { encodeSkills, encodeInterests, encodeAI, encodeExperience, encodeMeeting, vectorizeUser, cosineSimilarity, buildAdjacencyList, personalizedPageRank, getTopMentorMatches } from "../utils/mentorMatchUtils";
+import { encodeSkills, encodeInterests, encodeAI, encodeExperience, encodeMeeting, vectorizeUser, cosineSimilarity, buildAdjacencyList, personalizedPageRank, getTopMentorMatches, AI_VEC_LEN, EXPERIENCE_VEC_LEN, MEETING_VEC_LEN } from "../utils/mentorMatchUtils";
 
 // shared constants
 const SKILLS = ["Python", "React", "C++"];
@@ -15,7 +15,7 @@ const W = {
 	preferred_meeting: 0.1,
 };
 
-// fixture users 
+// fixture users
 const user = {
 	skills: { Python: "Advanced", React: "Intermediate" },
 	interests: ["AI", "Games"],
@@ -71,7 +71,7 @@ describe("encode helpers", () => {
 describe("vectorizeUser + cosineSimilarity", () => {
 	it("vectorizeUser builds full weighted vector", () => {
 		const vec = vectorizeUser(user, SKILLS, INTERESTS, W);
-		const expectedLen = SKILLS.length + INTERESTS.length + 1 + 1 + 3; // 3+3+1+1+3
+		const expectedLen = SKILLS.length + INTERESTS.length + AI_VEC_LEN + EXPERIENCE_VEC_LEN + MEETING_VEC_LEN;
 		expect(vec.length).toBe(expectedLen);
 	});
 
