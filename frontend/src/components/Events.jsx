@@ -8,6 +8,28 @@ import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
 import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
 
+function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", cancelText = "Cancel", showCancel = false }) {
+	if (!open) return null;
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+			<div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+				{title && <h3 className="text-lg font-bold mb-2 text-gray-900">{title}</h3>}
+				<div className="mb-4 text-gray-800">{message}</div>
+				<div className="flex justify-end gap-2">
+					{showCancel && (
+						<button onClick={onClose} className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800">
+							{cancelText}
+						</button>
+					)}
+					<button onClick={onConfirm || onClose} className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white">
+						{confirmText}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function Events({ role }) {
 	const [state, setState] = useState({
 		events: [],
@@ -28,15 +50,17 @@ export default function Events({ role }) {
 
 	const setStateField = (field, value) => setState((prev) => ({ ...prev, [field]: value }));
 
+	const [modal, setModal] = useState({ open: false, title: "", message: "", onConfirm: null, showCancel: false });
+
 	const loginWithGoogleCalendar = useGoogleLogin({
 		scope: "https://www.googleapis.com/auth/calendar.events",
 		onSuccess: (tokenResponse) => {
 			setStateField("googleToken", tokenResponse.access_token);
-			alert("Google Calendar Connected!");
+			setModal({ open: true, title: "Success", message: "Google Calendar Connected!", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 		onError: (err) => {
 			console.error("Google login failed:", err);
-			alert("Failed to connect to Google Calendar");
+			setModal({ open: true, title: "Error", message: "Failed to connect to Google Calendar", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 	});
 
@@ -85,16 +109,25 @@ export default function Events({ role }) {
 	}, [fetchUserData, refreshRecommendations]);
 
 	const deleteEvent = async (id) => {
-		if (!window.confirm("Are you sure you want to delete this event?")) return;
-		const { error } = await supabase.from("events").delete().eq("id", id);
-		if (error) {
-			console.error("Delete error:", error);
-			alert("Failed to delete event.");
-			return;
-		}
-		const newEvents = state.events.filter((e) => e.id !== id);
-		setStateField("events", newEvents);
-		await refreshRecommendations(state.userId, newEvents);
+		setModal({
+			open: true,
+			title: "Delete Event",
+			message: "Are you sure you want to delete this event?",
+			showCancel: true,
+			onConfirm: async () => {
+				setModal((m) => ({ ...m, open: false }));
+				const { error } = await supabase.from("events").delete().eq("id", id);
+				if (error) {
+					console.error("Delete error:", error);
+					setModal({ open: true, title: "Error", message: "Failed to delete event.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
+					return;
+				}
+				const newEvents = state.events.filter((e) => e.id !== id);
+				setStateField("events", newEvents);
+				await refreshRecommendations(state.userId, newEvents);
+			},
+			onClose: () => setModal((m) => ({ ...m, open: false })),
+		});
 	};
 
 	const toggleRegister = async (id, eventPoints) => {
@@ -140,7 +173,7 @@ export default function Events({ role }) {
 			await refreshRecommendations(state.userId, newEvents);
 		} else {
 			console.error("Event creation error:", error);
-			alert("Failed to create event.");
+			setModal({ open: true, title: "Error", message: "Failed to create event.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		}
 	};
 
@@ -233,6 +266,7 @@ export default function Events({ role }) {
 
 	return (
 		<div className="text-gray-900 min-h-screen">
+			<Modal {...modal} />
 			<div className="py-8 px-4 max-w-5xl mx-auto">
 				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
 					{role === "Admin" && (
