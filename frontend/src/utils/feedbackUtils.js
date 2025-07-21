@@ -202,12 +202,12 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 // recommend up to topN events based on user preferences
 export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVectors, topN = 5) {
 	const prefs = getUserPreferenceVector(userId, feedbackMap);
-	const seen = new Set(Object.keys(feedbackMap[userId] || {}));
+	const seenEvents = new Set(Object.keys(feedbackMap[userId] || {}));
 	const scored = [];
 	// iterate through each cluster's events
 	Object.values(clusterMap).forEach((members) => {
 		members.forEach((eid) => {
-			if (!seen.has(eid)) {
+			if (!seenEvents.has(eid)) {
 				const vec = eventVectors[eid] || {};
 				let score = 0;
 
