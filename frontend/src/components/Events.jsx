@@ -516,33 +516,50 @@ export default function Events({ role, onTabChange }) {
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<Modal {...modal} />
-			<div className="py-8 px-4 max-w-5xl mx-auto">
-				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
+			<div className="py-8 px-4 max-w-6xl mx-auto">
+				<div className="mb-8">
+					<div className="relative max-w-2xl mx-auto">
+						<input type="text" placeholder="Search events by title, description, location, or creator..." className="w-full bg-white/95 backdrop-blur-sm border-0 rounded-xl px-4 py-3 pl-12 text-gray-900 placeholder-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50" value={state.query} onChange={(e) => setStateField("query", e.target.value)} />
+						<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+							<svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+							</svg>
+						</div>
+					</div>
+				</div>
+
+				<div className="flex flex-wrap justify-center gap-3 mb-8">
+					<button onClick={() => setStateField("activeTab", "all")} className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 ${state.activeTab === "all" ? "bg-white text-indigo-700 shadow-lg" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"}`}>
+						All Events
+					</button>
+					<button onClick={() => setStateField("activeTab", "recommended")} className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 ${state.activeTab === "recommended" ? "bg-white text-indigo-700 shadow-lg" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"}`}>
+						Recommended
+					</button>
+				</div>
+
+				<div className="flex flex-wrap justify-center gap-3 mb-8">
 					{role === "Admin" && (
-						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded">
+						<button onClick={() => setStateField("showAddModal", true)} className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+							</svg>
 							Add Event
 						</button>
 					)}
-					<div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-						<div className="flex items-center w-full sm:w-auto">
-							<input type="text" placeholder="Search by title, desc, location, or creator..." className="w-full sm:w-96 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={state.query} onChange={(e) => setStateField("query", e.target.value)} />
-						</div>
-						<div className="flex gap-2">
-							<button onClick={() => setStateField("activeTab", "all")} className={`py-2 px-4 rounded w-32 ${state.activeTab === "all" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
-								All Events
-							</button>
-							<button onClick={() => setStateField("activeTab", "recommended")} className={`w-32 py-2 rounded flex justify-center items-center ${state.activeTab === "recommended" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
-								Recommended
-							</button>
-							<button onClick={() => navigate("/events/visualization")} className="w-40 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded transition-colors">
-								View Visualization
-							</button>
-							<button onClick={() => setStateField("showFilters", !state.showFilters)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
-								{state.showFilters ? "Hide Filters" : "Advanced Filters"}
-								<span className="text-xs">{state.showFilters ? "−" : "+"}</span>
-							</button>
-						</div>
-					</div>
+
+					<button onClick={() => navigate("/events/visualization")} className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+						</svg>
+						View Visualization
+					</button>
+
+					<button onClick={() => setStateField("showFilters", !state.showFilters)} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+						</svg>
+						{state.showFilters ? "Hide Filters" : "Advanced Filters"}
+					</button>
 				</div>
 
 				<AdvancedFiltersModal
