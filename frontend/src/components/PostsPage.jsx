@@ -26,6 +26,8 @@ export default function PostsPage() {
 	const [sortBy, setSortBy] = useState("date");
 	const [sortDirection, setSortDirection] = useState("desc");
 	const [showSortDropdown, setShowSortDropdown] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
+	const postsPerPage = 5;
 
 	useEffect(() => {
 		fetchUserAndPosts();
@@ -281,6 +283,15 @@ export default function PostsPage() {
 		})
 	);
 
+	const indexOfLastPost = currentPage * postsPerPage;
+	const indexOfFirstPost = indexOfLastPost - postsPerPage;
+	const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+	const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [activeTab, sortBy, sortDirection]);
+
 	if (loading) return <LoadingSpinner />;
 
 	if (error) {
@@ -381,15 +392,54 @@ export default function PostsPage() {
 						</button>
 					</div>
 
+					<div className="text-center mb-6">
+						<p className="text-white/90 font-medium">
+							Showing {indexOfFirstPost + 1}-{Math.min(indexOfLastPost, filteredPosts.length)} of {filteredPosts.length} posts
+						</p>
+					</div>
+
 					<div className="space-y-4">
-						{filteredPosts.length === 0 ? (
+						{currentPosts.length === 0 ? (
 							<div className="text-center py-12">
 								<p className="text-white text-lg">{activeTab === "my" ? "You haven't created any posts yet." : "No posts yet. Be the first to share something!"}</p>
 							</div>
 						) : (
-							filteredPosts.map((post) => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentUserId={currentUser?.id} onDelete={handleDeletePost} onEdit={handleEditPost} />)
+							currentPosts.map((post) => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentUserId={currentUser?.id} onDelete={handleDeletePost} onEdit={handleEditPost} />)
 						)}
 					</div>
+
+					{totalPages > 1 && (
+						<div className="flex justify-center items-center gap-2 mt-8 mb-4">
+							<button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+								Previous
+							</button>
+
+							<div className="flex gap-1">
+								{Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+									const shouldShow = pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 1;
+
+									if (shouldShow) {
+										return (
+											<button key={pageNum} onClick={() => setCurrentPage(pageNum)} className={`px-3 py-2 rounded-lg font-medium transition-colors ${pageNum === currentPage ? "bg-indigo-600 text-white" : "bg-white/20 text-white hover:bg-white/30"}`}>
+												{pageNum}
+											</button>
+										);
+									} else if ((pageNum === 2 && currentPage > 3) || (pageNum === totalPages - 1 && currentPage < totalPages - 2)) {
+										return (
+											<span key={pageNum} className="px-2 py-2 text-white/60">
+												...
+											</span>
+										);
+									}
+									return null;
+								})}
+							</div>
+
+							<button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+								Next
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 
