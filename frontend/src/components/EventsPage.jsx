@@ -6,6 +6,7 @@ import Footer from "./Footer";
 
 export default function EventsPage() {
 	const [role, setRole] = useState(null);
+	const [activeTab, setActiveTab] = useState("all");
 
 	const fetchUserRole = useCallback(async () => {
 		const {
@@ -27,12 +28,12 @@ export default function EventsPage() {
 				<div className="w-fit mx-auto text-center">
 					<div className="flex items-center justify-center mb-4">
 						<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
-						<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">MICS Events Schedule</h1>
+						<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">{activeTab === "recommended" ? "MICS Recommended Events" : "MICS Events Schedule"}</h1>
 					</div>
-					<p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Stay connected with upcoming events, workshops, and networking opportunities</p>
+					{activeTab === "recommended" ? <p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Recommended events using K-means algorithm based on your feedback</p> : <p className="text-center text-gray-600 mt-3 mb-10 text-lg font-semibold relative z-10">Stay connected with upcoming events, workshops, and networking opportunities</p>}
 				</div>
 				<div>
-					<Events role={role} />
+					<Events role={role} onTabChange={setActiveTab} />
 				</div>
 			</div>
 			<Footer />

@@ -31,7 +31,7 @@ function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", c
 	);
 }
 
-export default function Events({ role }) {
+export default function Events({ role, onTabChange }) {
 	const navigate = useNavigate();
 	const [state, setState] = useState({
 		events: [],
@@ -50,7 +50,12 @@ export default function Events({ role }) {
 		query: "",
 	});
 
-	const setStateField = (field, value) => setState((prev) => ({ ...prev, [field]: value }));
+	const setStateField = (field, value) => {
+		setState((prev) => ({ ...prev, [field]: value }));
+		if (field === "activeTab" && onTabChange) {
+			onTabChange(value);
+		}
+	};
 
 	const [modal, setModal] = useState({ open: false, title: "", message: "", onConfirm: null, showCancel: false });
 
