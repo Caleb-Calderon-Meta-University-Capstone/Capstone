@@ -66,12 +66,18 @@ export default function Events({ role, onTabChange }) {
 		showFilters: false,
 		showEventDetailModal: false,
 		selectedEvent: null,
+		currentPage: 1,
+		eventsPerPage: 6,
 	});
 
 	const setStateField = (field, value) => {
 		setState((prev) => ({ ...prev, [field]: value }));
 		if (field === "activeTab" && onTabChange) {
 			onTabChange(value);
+		}
+
+		if (["query", "filters", "sortBy", "sortOrder", "activeTab"].includes(field)) {
+			setState((prev) => ({ ...prev, currentPage: 1 }));
 		}
 	};
 
@@ -260,7 +266,6 @@ export default function Events({ role, onTabChange }) {
 			filtered = filtered.filter((e) => e.title?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.users?.name?.toLowerCase().includes(q));
 		}
 
-		// Date range filter
 		if (state.filters.dateRange.start || state.filters.dateRange.end) {
 			filtered = filtered.filter((e) => {
 				const eventDate = new Date(e.date);
@@ -508,7 +513,20 @@ export default function Events({ role, onTabChange }) {
 	const renderEventList = (list) => {
 		const filtered = filterEvents(list);
 		const sorted = sortEvents(filtered);
-		return sorted.map(renderEventCard);
+
+		const indexOfLastEvent = state.currentPage * state.eventsPerPage;
+		const indexOfFirstEvent = indexOfLastEvent - state.eventsPerPage;
+		const currentEvents = sorted.slice(indexOfFirstEvent, indexOfLastEvent);
+		const totalPages = Math.ceil(sorted.length / state.eventsPerPage);
+
+		return {
+			events: currentEvents.map(renderEventCard),
+			totalPages,
+			totalEvents: sorted.length,
+			currentPage: state.currentPage,
+			indexOfFirstEvent,
+			indexOfLastEvent,
+		};
 	};
 
 	if (state.loading) return <LoadingSpinner />;
@@ -577,17 +595,53 @@ export default function Events({ role, onTabChange }) {
 
 				{state.showAddModal && <AddEventModal onClose={() => setStateField("showAddModal", false)} onSubmit={handleAddEvent} submitting={state.submitting} />}
 
-				<div className="mb-4 text-sm text-white">
-					{(() => {
-						const list = state.activeTab === "all" ? state.events : state.recommendedEvents;
-						const filtered = filterEvents(list);
-						const total = list.length;
-						const showing = filtered.length;
-						return `Showing ${showing} of ${total} events`;
-					})()}
-				</div>
+				{(() => {
+					const list = state.activeTab === "all" ? state.events : state.recommendedEvents;
+					const eventListData = renderEventList(list);
 
-				<div className="space-y-6">{state.activeTab === "all" ? renderEventList(state.events) : state.recommendedEvents.length > 0 ? renderEventList(state.recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
+					return (
+						<>
+							<div className="mb-4 text-sm text-white text-center">
+								Showing {eventListData.indexOfFirstEvent + 1}-{Math.min(eventListData.indexOfLastEvent, eventListData.totalEvents)} of {eventListData.totalEvents} events
+							</div>
+
+							<div className="space-y-6">{state.activeTab === "all" ? eventListData.events : state.recommendedEvents.length > 0 ? eventListData.events : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
+
+							{eventListData.totalPages > 1 && (
+								<div className="flex justify-center items-center gap-2 mt-8 mb-4">
+									<button onClick={() => setStateField("currentPage", Math.max(state.currentPage - 1, 1))} disabled={state.currentPage === 1} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+										Previous
+									</button>
+
+									<div className="flex gap-1">
+										{Array.from({ length: eventListData.totalPages }, (_, i) => i + 1).map((pageNum) => {
+											const shouldShow = pageNum === 1 || pageNum === eventListData.totalPages || Math.abs(pageNum - state.currentPage) <= 1;
+
+											if (shouldShow) {
+												return (
+													<button key={pageNum} onClick={() => setStateField("currentPage", pageNum)} className={`px-3 py-2 rounded-lg font-medium transition-colors ${pageNum === state.currentPage ? "bg-indigo-600 text-white" : "bg-white/20 text-white hover:bg-white/30"}`}>
+														{pageNum}
+													</button>
+												);
+											} else if ((pageNum === 2 && state.currentPage > 3) || (pageNum === eventListData.totalPages - 1 && state.currentPage < eventListData.totalPages - 2)) {
+												return (
+													<span key={pageNum} className="px-2 py-2 text-white/60">
+														...
+													</span>
+												);
+											}
+											return null;
+										})}
+									</div>
+
+									<button onClick={() => setStateField("currentPage", Math.min(state.currentPage + 1, eventListData.totalPages))} disabled={state.currentPage === eventListData.totalPages} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+										Next
+									</button>
+								</div>
+							)}
+						</>
+					);
+				})()}
 
 				<div className="text-right mt-6 text-sm text-white font-semibold">Total Points: {state.points}</div>
 			</div>

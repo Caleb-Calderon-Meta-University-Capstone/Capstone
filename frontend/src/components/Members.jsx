@@ -222,7 +222,7 @@ export default function Members() {
 	const indexOfFirstMember = indexOfLastMember - membersPerPage;
 	const currentMembers = filteredMembers.slice(indexOfFirstMember, indexOfLastMember);
 	const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
-		// Reset to page 1 when search query changes
+
 	useEffect(() => {
 		setCurrentPage(1);
 	}, [query]);
@@ -261,7 +261,6 @@ export default function Members() {
 				<Header memberCount={members.length} />
 				<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
 
-				
 				<div className="text-center mb-4 mt-4">
 					<p className="text-white/90 font-medium">
 						Showing {indexOfFirstMember + 1}-{Math.min(indexOfLastMember, filteredMembers.length)} of {filteredMembers.length} members
@@ -278,14 +277,12 @@ export default function Members() {
 					)}
 				</div>
 
-				
 				{totalPages > 1 && (
 					<div className="flex justify-center items-center gap-2 mb-8">
 						<button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
 							Previous
 						</button>
 
-						{/* Page Numbers */}
 						<div className="flex gap-1">
 							{Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
 								const shouldShow = pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 1;
