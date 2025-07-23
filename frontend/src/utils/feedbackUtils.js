@@ -175,7 +175,7 @@ export function clusterEventsKMeans(eventVectors, k = 5) {
 }
 
 // build and normalize user preference vector from liked feedback
-export function getUserPreferenceVector(userId, feedbackMap) {
+export function getUserPreferenceVector(userId, feedbackMap, eventVectors) {
 	const freq = {};
 	const userFeedback = feedbackMap[userId] || {};
 
@@ -185,6 +185,11 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 		if (liked) {
 			reasons.forEach((r) => {
 				freq[r] = (freq[r] || 0) + 1;
+			});
+			// Include the event's full feature vector
+			const evVec = eventVectors[eid] || {};
+			Object.entries(evVec).forEach(([f, v]) => {
+				freq[f] = (freq[f] || 0) + v;
 			});
 		}
 	});
@@ -201,7 +206,7 @@ export function getUserPreferenceVector(userId, feedbackMap) {
 
 // recommend up to topN events based on user preferences
 export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVectors, topN = 5) {
-	const prefs = getUserPreferenceVector(userId, feedbackMap);
+	const prefs = getUserPreferenceVector(userId, feedbackMap, eventVectors);
 	const seenEvents = new Set(Object.keys(feedbackMap[userId] || {}));
 	const scored = [];
 	// iterate through each cluster's events

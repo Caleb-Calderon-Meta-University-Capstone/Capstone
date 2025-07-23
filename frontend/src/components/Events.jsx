@@ -85,19 +85,20 @@ export default function Events({ role, onTabChange }) {
 
 	const refreshRecommendations = useCallback(async (uid, allEvents) => {
 		const feedbackMap = await getUserFeedbackMap();
+
 		if (!feedbackMap[uid] || Object.keys(feedbackMap[uid]).length === 0) {
 			setStateField("recommendedEvents", []);
 			return;
 		}
+
 		const eventIds = allEvents.map((e) => e.id);
 		const vectors = await getEventFeedbackVectors(feedbackMap, eventIds);
 		const clusters = clusterEventsKMeans(vectors, 5);
 		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
 		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
-		setStateField(
-			"recommendedEvents",
-			allEvents.filter((e) => recIds.includes(e.id))
-		);
+		const recommendedEvents = allEvents.filter((e) => recIds.includes(e.id));
+
+		setStateField("recommendedEvents", recommendedEvents);
 	}, []);
 
 	useEffect(() => {
