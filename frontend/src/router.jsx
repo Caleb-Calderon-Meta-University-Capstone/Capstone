@@ -13,6 +13,7 @@ import EditPage from "./components/EditProfile.jsx";
 import MentorPage from "./components/MentorPage.jsx";
 import LandingPage from "./components/LandingPage.jsx";
 import EventsVisualization from "./components/visualization/EventsVisualization.jsx";
+import PostsPage from "./components/PostsPage.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
@@ -90,6 +91,14 @@ export const router = createBrowserRouter([
 		element: (
 			<PrivateRoute>
 				<LeaderboardPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/posts",
+		element: (
+			<PrivateRoute>
+				<PostsPage />
 			</PrivateRoute>
 		),
 	},
