@@ -173,19 +173,19 @@ export default function EditPage() {
 	if (loading) return <LoadingSpinner />;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+		<div className="min-h-screen bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white">
 			<NavigationBar />
 			<div className="py-8 px-4 max-w-4xl mx-auto">
-				<h1 className="text-4xl font-bold mb-6">Edit Profile</h1>
+				<h1 className="text-4xl font-bold mb-6 text-white">Edit Profile</h1>
 				{error && <p className="text-red-500 mb-4">{error}</p>}
 				<div className="space-y-6">
 					<div className="bg-white p-6 rounded-xl shadow text-center">
 						<div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4">
 							<img src={profilePreview || "/default-avatar.png"} alt="avatar" className="object-cover w-full h-full" />
 						</div>
-						<input type="file" accept="image/*" onChange={handleProfilePicChange} className="mb-4" />
-						<input type="text" className="w-full bg-gray-100 p-2 rounded mb-4" placeholder="Full Name" value={form.name} onChange={(e) => setFormField("name", e.target.value)} />
-						<select className="w-full bg-gray-100 p-2 rounded" value={form.year} onChange={(e) => setFormField("year", e.target.value)}>
+						<input type="file" accept="image/*" onChange={handleProfilePicChange} className="mb-4 text-gray-900" />
+						<input type="text" className="w-full bg-gray-100 p-2 rounded mb-4 text-gray-900" placeholder="Full Name" value={form.name} onChange={(e) => setFormField("name", e.target.value)} />
+						<select className="w-full bg-gray-100 p-2 rounded text-gray-900" value={form.year} onChange={(e) => setFormField("year", e.target.value)}>
 							<option value="">Select Year</option>
 							{yearOptions.map((opt) => (
 								<option key={opt} value={opt}>
@@ -193,18 +193,18 @@ export default function EditPage() {
 								</option>
 							))}
 						</select>
-						<p className="mt-4 text-sm font-medium text-blue-600">{userData?.points ?? 0} points</p>
+						<p className="mt-4 text-sm font-medium text-blue-700">{userData?.points ?? 0} points</p>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">About Me</h3>
-						<textarea rows={4} className="w-full bg-gray-100 p-2 rounded" placeholder="Tell us about yourself" value={form.bio} onChange={(e) => setFormField("bio", e.target.value)} />
+						<h3 className="text-xl font-bold mb-2 text-gray-900">About Me</h3>
+						<textarea rows={4} className="w-full bg-gray-100 p-2 rounded text-gray-900" placeholder="Tell us about yourself" value={form.bio} onChange={(e) => setFormField("bio", e.target.value)} />
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">LinkedIn URL</h3>
-						<input type="url" className="w-full bg-gray-100 p-2 rounded" placeholder="https://www.linkedin.com/in/your-profile" value={form.linkedInUrl} onChange={(e) => setFormField("linkedInUrl", e.target.value)} />
+						<h3 className="text-xl font-bold mb-2 text-gray-900">LinkedIn URL</h3>
+						<input type="url" className="w-full bg-gray-100 p-2 rounded text-gray-900" placeholder="https://www.linkedin.com/in/your-profile" value={form.linkedInUrl} onChange={(e) => setFormField("linkedInUrl", e.target.value)} />
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Skills</h3>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Skills</h3>
 						<div className="flex flex-wrap gap-2 mb-4">
 							{Object.entries(form.skills).map(([skill, level]) => (
 								<div key={skill} className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1 rounded-full">
@@ -230,14 +230,14 @@ export default function EditPage() {
 							))}
 						</div>
 						<div className="flex gap-2">
-							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
+							<input className="flex-1 bg-gray-100 p-2 rounded text-gray-900" placeholder="Add a skill..." value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
 							<button onClick={addCustomSkill} className="px-4 rounded bg-blue-600 text-white">
 								+
 							</button>
 						</div>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Interests</h3>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Interests</h3>
 						<div className="flex flex-wrap gap-2 mb-4">
 							{form.interests.map((i) => (
 								<span key={i} className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full">
@@ -256,32 +256,32 @@ export default function EditPage() {
 							))}
 						</div>
 						<div className="flex gap-2">
-							<input className="flex-1 bg-gray-100 p-2 rounded" placeholder="Add an interest..." value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={handleInterestKey} />
+							<input className="flex-1 bg-gray-100 p-2 rounded text-gray-900" placeholder="Add an interest..." value={interestInput} onChange={(e) => setInterestInput(e.target.value)} onKeyDown={handleInterestKey} />
 							<button onClick={addCustomInterest} className="px-4 rounded bg-purple-600 text-white">
 								+
 							</button>
 						</div>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Mentorship Role</h3>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Mentorship Role</h3>
 						<div className="flex gap-4">
-							<label className="flex items-center gap-2">
+							<label className="flex items-center gap-2 text-gray-900">
 								<input type="radio" name="mentorRole" value="Mentor" checked={form.mentorRole === "Mentor"} onChange={() => setFormField("mentorRole", "Mentor")} />
 								Mentor
 							</label>
-							<label className="flex items-center gap-2">
+							<label className="flex items-center gap-2 text-gray-900">
 								<input type="radio" name="mentorRole" value="Mentee" checked={form.mentorRole === "Mentee"} onChange={() => setFormField("mentorRole", "Mentee")} />
 								Mentee
 							</label>
-							<label className="flex items-center gap-2">
+							<label className="flex items-center gap-2 text-gray-900">
 								<input type="radio" name="mentorRole" value="" checked={form.mentorRole === ""} onChange={() => setFormField("mentorRole", "")} />
 								None
 							</label>
 						</div>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Years of Experience</h3>
-						<select className="w-full bg-gray-100 p-2 rounded" value={form.experienceYears} onChange={(e) => setFormField("experienceYears", e.target.value)}>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Years of Experience</h3>
+						<select className="w-full bg-gray-100 p-2 rounded text-gray-900" value={form.experienceYears} onChange={(e) => setFormField("experienceYears", e.target.value)}>
 							<option value="">Select experience</option>
 							<option value="0">0 (Just getting started)</option>
 							<option value="1">1 year</option>
@@ -291,21 +291,21 @@ export default function EditPage() {
 						</select>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Are you interested in AI?</h3>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Are you interested in AI?</h3>
 						<div className="flex items-center gap-4">
-							<label className="flex items-center gap-2">
+							<label className="flex items-center gap-2 text-gray-900">
 								<input type="radio" name="aiInterest" checked={form.aiInterest === true} onChange={() => setFormField("aiInterest", true)} />
 								Yes
 							</label>
-							<label className="flex items-center gap-2">
+							<label className="flex items-center gap-2 text-gray-900">
 								<input type="radio" name="aiInterest" checked={form.aiInterest === false} onChange={() => setFormField("aiInterest", false)} />
 								No
 							</label>
 						</div>
 					</div>
 					<div className="bg-white p-6 rounded-xl shadow">
-						<h3 className="text-xl font-bold mb-2">Preferred Meeting Type</h3>
-						<select className="w-full bg-gray-100 p-2 rounded" value={form.preferredMeeting} onChange={(e) => setFormField("preferredMeeting", e.target.value)}>
+						<h3 className="text-xl font-bold mb-2 text-gray-900">Preferred Meeting Type</h3>
+						<select className="w-full bg-gray-100 p-2 rounded text-gray-900" value={form.preferredMeeting} onChange={(e) => setFormField("preferredMeeting", e.target.value)}>
 							<option value="">Select preference</option>
 							<option value="In person">In person</option>
 							<option value="Zoom">Zoom</option>
