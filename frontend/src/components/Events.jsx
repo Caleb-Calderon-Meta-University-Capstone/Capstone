@@ -307,7 +307,7 @@ export default function Events({ role, onTabChange }) {
 			<div className="py-8 px-4 max-w-5xl mx-auto">
 				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
 					{role === "Admin" && (
-						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded">
+						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded">
 							Add Event
 						</button>
 					)}
