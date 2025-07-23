@@ -57,7 +57,7 @@ export default function DashboardPage() {
 	if (loading) return <LoadingSpinner />;
 
 	return (
-		<div className="relative bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 min-h-screen overflow-hidden">
+		<div className="relative bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 min-h-screen overflow-hidden">
 			<motion.div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-300 rounded-full filter blur-3xl opacity-30" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 6, repeat: Infinity }} />
 			<motion.div className="absolute -bottom-28 -right-28 w-72 h-72 bg-green-200 rounded-full filter blur-2xl opacity-25" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }} />
 
@@ -66,10 +66,10 @@ export default function DashboardPage() {
 			<div className="relative z-10 max-w-7xl mx-auto px-6 py-20 space-y-20">
 				<motion.header initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
 					<div className="flex items-center justify-center mb-4">
-						<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
-						<h1 className="text-5xl font-black text-center text-gray-900 tracking-tight relative z-10">MICS Connect</h1>
+						<img src="/MICS_Colorstack_Logo_Light.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
+						<h1 className="text-5xl font-black text-center text-white tracking-tight relative z-10">MICS Connect</h1>
 					</div>
-					<p className="text-xl text-gray-700 max-w-3xl mx-auto">A vibrant hub for multicultural innovators in CS. Discover, connect, and grow with a community that celebrates you.</p>
+					<p className="text-xl text-white max-w-3xl mx-auto">A vibrant hub for multicultural innovators in CS. Discover, connect, and grow with a community that celebrates you.</p>
 				</motion.header>
 
 				<section className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -80,11 +80,11 @@ export default function DashboardPage() {
 
 				<section className="space-y-6">
 					<div className="flex flex-col md:flex-row items-center justify-center md:justify-between space-y-4 md:space-y-0">
-						<h2 className="text-3xl font-semibold text-gray-800 flex items-center">
-							<Calendar className="w-6 h-6 text-blue-600 mr-2" />
+						<h2 className="text-3xl font-semibold text-white flex items-center">
+							<Calendar className="w-6 h-6 text-white mr-2" />
 							Featured Events
 						</h2>
-						<button onClick={() => navigate("/events")} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+						<button onClick={() => navigate("/events")} className="px-4 py-2 text-sm font-medium text-indigo-700 bg-white rounded-lg hover:bg-gray-100 transition">
 							View All Events
 						</button>
 					</div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
 				</section>
 
 				<section className="space-y-6">
-					<h2 className="text-3xl font-semibold text-gray-800">Top Contributors</h2>
+					<h2 className="text-3xl font-semibold text-white">Top Contributors</h2>
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 						{topContributors.map((user, idx) => (
 							<motion.div key={user.id} className="bg-white rounded-2xl shadow-2xl p-6 flex items-center justify-between" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.2 }}>
@@ -123,8 +123,7 @@ export default function DashboardPage() {
 					</div>
 				</section>
 
-				<motion.section className="relative p-8 bg-white bg-opacity-90 rounded-2xl shadow-inner overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-					<div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-20 mix-blend-multiply" />
+				<motion.section className="relative p-8 bg-white rounded-2xl shadow-inner overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
 					<div className="relative z-10">
 						<h3 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h3>
 						<p className="text-gray-800 leading-relaxed"> Multicultural Innovators in Computer Sciences fosters an inclusive community that empowers individuals from diverse backgrounds to excel in the computer sciences. Through mentorship, collaboration, and innovation, we aim to inspire change and promote diversity in the tech industry.</p>
