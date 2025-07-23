@@ -236,7 +236,7 @@ export default function Members() {
 	}
 
 	return (
-		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen relative">
+		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen relative flex flex-col">
 			<style>{`
 				@keyframes pulse-glow {
 					0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0.3); }
@@ -246,17 +246,19 @@ export default function Members() {
 			`}</style>
 
 			<NavigationBar />
-			<Header memberCount={members.length} />
-			<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
+			<div className="flex-1">
+				<Header memberCount={members.length} />
+				<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
-				{filteredMembers.length === 0 ? (
-					<div className="col-span-full text-center py-8">
-						<p className="text-white text-lg">{query ? `No members found matching "${query}"` : "No members available"}</p>
-					</div>
-				) : (
-					filteredMembers.map((member) => <MemberCard key={member.id} member={member} onClick={() => navigate(`/member/${member.id}`)} />)
-				)}
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
+					{filteredMembers.length === 0 ? (
+						<div className="col-span-full text-center py-8">
+							<p className="text-white text-lg">{query ? `No members found matching "${query}"` : "No members available"}</p>
+						</div>
+					) : (
+						filteredMembers.map((member) => <MemberCard key={member.id} member={member} onClick={() => navigate(`/member/${member.id}`)} />)
+					)}
+				</div>
 			</div>
 
 			<Footer />

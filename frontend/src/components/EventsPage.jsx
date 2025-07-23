@@ -23,9 +23,9 @@ export default function EventsPage() {
 	}, []);
 
 	return (
-		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen">
+		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen flex flex-col">
 			<NavigationBar active="events" />
-			<div className="py-12 px-4">
+			<div className="flex-1 py-12 px-4">
 				<div className="w-fit mx-auto text-center">
 					<div className="flex items-center justify-center mb-4">
 						<img src="/MICS_Colorstack_Logo_Light.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
