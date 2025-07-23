@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -7,7 +7,7 @@ import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
-import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
+import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser, generateEventRecommendationExplanation } from "../utils/feedbackUtils";
 
 function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", cancelText = "Cancel", showCancel = false }) {
 	if (!open) return null;
@@ -48,6 +48,8 @@ export default function Events({ role, onTabChange }) {
 		recommendedEvents: [],
 		googleToken: null,
 		query: "",
+		userFeedback: {},
+		hoveredEvent: null,
 	});
 
 	const setStateField = (field, value) => {
@@ -88,8 +90,11 @@ export default function Events({ role, onTabChange }) {
 
 		if (!feedbackMap[uid] || Object.keys(feedbackMap[uid]).length === 0) {
 			setStateField("recommendedEvents", []);
+			setStateField("userFeedback", {});
 			return;
 		}
+
+		setStateField("userFeedback", feedbackMap[uid]);
 
 		const eventIds = allEvents.map((e) => e.id);
 		const vectors = await getEventFeedbackVectors(feedbackMap, eventIds);
@@ -201,15 +206,31 @@ export default function Events({ role, onTabChange }) {
 
 	const renderEventCard = (e) => {
 		const isReg = state.registered.has(e.id);
+		const isRecommended = state.activeTab === "recommended";
+
 		return (
-			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col">
+			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col relative">
 				<div className="flex justify-between items-start">
 					<h2 className="text-xl font-semibold">{e.title}</h2>
-					{role === "Admin" && (
-						<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
-							Delete
-						</button>
-					)}
+					<div className="flex items-center gap-2">
+						{isRecommended && (
+							<div className="relative inline-block">
+								<HelpCircle className="w-5 h-5 text-indigo-500 hover:text-indigo-600 cursor-pointer" onMouseEnter={() => setStateField("hoveredEvent", e.id)} onMouseLeave={() => setStateField("hoveredEvent", null)} />
+								{state.hoveredEvent === e.id && (
+									<div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-80 p-4 bg-white text-gray-800 text-sm rounded-lg shadow-xl z-50 border border-indigo-200">
+										<div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-indigo-200 rotate-45" />
+										<div className="font-bold mb-3 text-indigo-700">Why was this recommended?</div>
+										<div className="text-sm" dangerouslySetInnerHTML={{ __html: generateEventRecommendationExplanation(e, state.userFeedback) }} />
+									</div>
+								)}
+							</div>
+						)}
+						{role === "Admin" && (
+							<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+								Delete
+							</button>
+						)}
+					</div>
 				</div>
 				<div className="text-sm text-gray-600 mt-1">+{e.points} pts</div>
 				<div className="text-gray-500 text-sm mt-1">
@@ -266,6 +287,14 @@ export default function Events({ role, onTabChange }) {
 				</div>
 			</div>
 		);
+	};
+
+	const ColoredExplanation = ({ explanation }) => {
+		if (typeof explanation === "string") {
+			return <span>{explanation}</span>;
+		}
+
+		return <span>{explanation}</span>;
 	};
 
 	const renderEventList = (list) => filterEvents(list).map(renderEventCard);
