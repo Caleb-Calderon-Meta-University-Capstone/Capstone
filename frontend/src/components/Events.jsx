@@ -307,7 +307,7 @@ export default function Events({ role, onTabChange }) {
 			<div className="py-8 px-4 max-w-5xl mx-auto">
 				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
 					{role === "Admin" && (
-						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded">
+						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded">
 							Add Event
 						</button>
 					)}
@@ -316,10 +316,10 @@ export default function Events({ role, onTabChange }) {
 							<input type="text" placeholder="Search by title, desc, location, or creator..." className="w-full sm:w-96 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={state.query} onChange={(e) => setStateField("query", e.target.value)} />
 						</div>
 						<div className="flex gap-2">
-							<button onClick={() => setStateField("activeTab", "all")} className={`py-2 px-4 rounded w-32 ${state.activeTab === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+							<button onClick={() => setStateField("activeTab", "all")} className={`py-2 px-4 rounded w-32 ${state.activeTab === "all" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
 								All Events
 							</button>
-							<button onClick={() => setStateField("activeTab", "recommended")} className={`w-32 py-2 rounded flex justify-center items-center ${state.activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
+							<button onClick={() => setStateField("activeTab", "recommended")} className={`w-32 py-2 rounded flex justify-center items-center ${state.activeTab === "recommended" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
 								Recommended
 							</button>
 							<button onClick={() => navigate("/events/visualization")} className="w-40 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded transition-colors">
@@ -333,7 +333,7 @@ export default function Events({ role, onTabChange }) {
 
 				<div className="space-y-6">{state.activeTab === "all" ? renderEventList(state.events) : state.recommendedEvents.length > 0 ? renderEventList(state.recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
 
-				<div className="text-right mt-6 text-sm text-gray-600 font-semibold">Total Points: {state.points}</div>
+				<div className="text-right mt-6 text-sm text-white font-semibold">Total Points: {state.points}</div>
 			</div>
 
 			<FeedbackModal visible={state.modalVisible} feedbackType={state.feedbackType} eventTitle={state.modalEvent.title} onSubmit={handleFeedback} onClose={() => setStateField("modalVisible", false)} />

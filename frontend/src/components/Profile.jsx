@@ -59,8 +59,8 @@ const ProfileHeader = ({ userData }) => {
 				/>
 			</div>
 			<h2 className="text-2xl font-semibold text-gray-900">{userData?.name || "Unknown User"}</h2>
-			<p className="text-gray-600 mb-2">{userData?.year || "Student"}</p>
-			<span className="px-3 py-1 text-sm font-medium border border-blue-500 text-blue-500 rounded-full bg-blue-50">{userData?.points ?? 0} points</span>
+			<p className="text-gray-700 mb-2">{userData?.year || "Student"}</p>
+			<span className="px-3 py-1 text-sm font-medium border border-blue-500 text-blue-700 rounded-full bg-blue-50">{userData?.points ?? 0} points</span>
 		</div>
 	);
 };
@@ -68,7 +68,7 @@ const ProfileHeader = ({ userData }) => {
 const AboutSection = ({ bio }) => (
 	<section className="bg-white p-6 rounded-xl shadow">
 		<h3 className="text-xl font-bold mb-3 text-gray-900">About Me</h3>
-		<p className="text-gray-700 leading-relaxed">{bio || "No bio yet. Add a bio to tell others about yourself!"}</p>
+		<p className="text-gray-800 leading-relaxed">{bio || "No bio yet. Add a bio to tell others about yourself!"}</p>
 	</section>
 );
 
@@ -77,7 +77,7 @@ const SkillsSection = ({ skills }) => {
 		return (
 			<section className="bg-white p-6 rounded-xl shadow">
 				<h3 className="text-xl font-bold mb-3 text-gray-900">Skills</h3>
-				<p className="text-gray-500 text-sm">No skills listed yet.</p>
+				<p className="text-gray-700 text-sm">No skills listed yet.</p>
 			</section>
 		);
 	}
@@ -101,7 +101,7 @@ const InterestsSection = ({ interests }) => {
 		return (
 			<section className="bg-white p-6 rounded-xl shadow">
 				<h3 className="text-xl font-bold mb-3 text-gray-900">Interests</h3>
-				<p className="text-gray-500 text-sm">No interests listed yet.</p>
+				<p className="text-gray-700 text-sm">No interests listed yet.</p>
 			</section>
 		);
 	}
@@ -131,7 +131,7 @@ const StatCard = ({ value, label, color = "blue" }) => {
 	return (
 		<div className={`${colorClasses[color]} p-6 rounded-xl text-center shadow`}>
 			<p className="text-2xl font-bold">{value}</p>
-			<p className="text-sm text-gray-600">{label}</p>
+			<p className="text-sm text-gray-700">{label}</p>
 		</div>
 	);
 };
@@ -152,7 +152,7 @@ const EditProfileButton = ({ onClick }) => (
 );
 
 const ErrorState = ({ error, onRetry }) => (
-	<div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+	<div className="flex flex-col min-h-screen bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white">
 		<NavigationBar />
 		<div className="flex-1 flex items-center justify-center">
 			<div className="text-center max-w-md mx-auto px-4">
@@ -175,8 +175,8 @@ const ErrorState = ({ error, onRetry }) => (
 const ProfileContent = ({ userData, onEditProfile }) => (
 	<div className="max-w-6xl mx-auto p-6">
 		<div className="flex items-center justify-between mb-8">
-			<h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
-			<div className="text-sm text-gray-600">Member since {new Date(userData?.created_at).toLocaleDateString()}</div>
+			<h1 className="text-4xl font-bold text-white">My Profile</h1>
+			<div className="text-sm text-white">Member since {new Date(userData?.created_at).toLocaleDateString()}</div>
 		</div>
 
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -211,7 +211,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+		<div className="flex flex-col min-h-screen bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white">
 			<NavigationBar />
 			<main className="flex-1">
 				<ProfileContent userData={userData} onEditProfile={handleEditProfile} />

@@ -84,12 +84,12 @@ const NavigationLinks = ({ currentPath }) => (
 
 const ProfileDropdown = ({ email, onProfileClick, onLogoutClick }) => (
 	<div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-3 min-w-[160px] z-50 opacity-100 scale-100 transition-all duration-200 ease-out">
-		<p className="text-xs text-gray-500 mb-2 px-1 truncate">{email}</p>
+		<p className="text-xs text-gray-700 mb-2 px-1 truncate">{email}</p>
 		<div className="flex flex-col space-y-1">
-			<button onClick={onProfileClick} className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors text-left w-full">
+			<button onClick={onProfileClick} className="text-sm px-2 py-1 rounded-md hover:bg-gray-100 transition-colors text-left w-full text-gray-900">
 				Profile
 			</button>
-			<button onClick={onLogoutClick} className="text-sm px-2 py-1 text-left rounded-md hover:bg-gray-100 transition-colors w-full">
+			<button onClick={onLogoutClick} className="text-sm px-2 py-1 text-left rounded-md hover:bg-gray-100 transition-colors w-full text-gray-900">
 				Log Out
 			</button>
 		</div>

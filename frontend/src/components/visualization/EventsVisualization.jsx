@@ -281,11 +281,10 @@ export default function EventsVisualization() {
 		d3.select(svgRef.current).selectAll("*").remove();
 
 		const width = 1400;
-		const height = 1200; 
+		const height = 1200;
 		const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
 		const svg = d3.select(svgRef.current).attr("width", width).attr("height", height);
-
 
 		const nodes = [];
 		const links = [];
@@ -294,7 +293,6 @@ export default function EventsVisualization() {
 			const characteristics = analyzeClusterCharacteristics(cluster);
 			const distances = calculateClusterDistances(cluster);
 
-	
 			const cols = Math.ceil(Math.sqrt(clusters.length));
 			const row = Math.floor(index / cols);
 			const col = index % cols;
@@ -440,12 +438,13 @@ export default function EventsVisualization() {
 	}, [clusters, createVisualization]);
 
 	return (
-		<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen">
 			<NavigationBar active="events" />
 			<div className="py-8 px-4 max-w-7xl mx-auto">
 				<div className="text-center mb-6">
-					<div className="flex items-center justify-center gap-2 mb-2">
-						<h1 className="text-3xl font-bold text-gray-900">Event Clusters Visualization</h1>
+					<div className="flex items-center justify-center gap-4 mb-2">
+						<img src="/MICS_Colorstack_Logo_Light.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
+						<h1 className="text-5xl font-black text-white tracking-tight">Event Clusters Visualization</h1>
 						<HelpTooltip>
 							<div className="space-y-2">
 								<p>
@@ -469,7 +468,7 @@ export default function EventsVisualization() {
 							</div>
 						</HelpTooltip>
 					</div>
-					<p className="text-gray-600 mb-4">Explore how events are grouped based on user feedback patterns and preferences</p>
+					<p className="text-gray-200 mb-4">Explore how events are grouped based on user feedback patterns and preferences</p>
 					<div className="flex justify-start">
 						<button onClick={() => navigate("/events")} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition-colors">
 							← Back to Events
