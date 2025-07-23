@@ -108,12 +108,12 @@ export default function MentorPage() {
         .hover-pulse:hover { animation: pulse-glow 1.8s ease-in-out infinite; }
       `}</style>
 
-			<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+			<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen">
 				<NavigationBar />
 				<div className="flex flex-col items-center mt-12 space-y-4 text-center">
 					<div className="flex items-center space-x-2">
-						<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
-						<h1 className="text-5xl font-black text-gray-900 tracking-tight">Mentor Matching</h1>
+						<img src="/MICS_Colorstack_Logo_Light.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
+						<h1 className="text-5xl font-black text-white tracking-tight">Mentor Matching</h1>
 
 						<div className="relative inline-block">
 							<HelpCircle className="peer w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" />
@@ -153,13 +153,13 @@ export default function MentorPage() {
 						</div>
 					</div>
 
-					<p className="text-gray-600 text-lg font-semibold max-w-2xl relative z-10">
+					<p className="text-white text-lg font-semibold max-w-2xl relative z-10">
 						Find mentors who match your&nbsp;
-						<span className="text-indigo-600 font-semibold">skills</span>,&nbsp;
-						<span className="text-indigo-600 font-semibold">interests</span>,&nbsp;
-						<span className="text-indigo-600 font-semibold">meeting type</span>,&nbsp;
-						<span className="text-indigo-600 font-semibold">AI interest</span>, and&nbsp;
-						<span className="text-indigo-600 font-semibold">experience</span>. Customize the weights below to get the most relevant recommendations.
+						<span className="text-yellow-300 font-semibold">skills</span>,&nbsp;
+						<span className="text-yellow-300 font-semibold">interests</span>,&nbsp;
+						<span className="text-yellow-300 font-semibold">meeting type</span>,&nbsp;
+						<span className="text-yellow-300 font-semibold">AI interest</span>, and&nbsp;
+						<span className="text-yellow-300 font-semibold">experience</span>. Customize the weights below to get the most relevant recommendations.
 					</p>
 
 					<button onClick={() => setShowWeightModal(true)} className="mt-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow">
@@ -215,7 +215,7 @@ export default function MentorPage() {
 								<img src={mentor.profile_picture || "https://picsum.photos/200"} alt={mentor.name} className="object-cover w-full h-full" />
 							</div>
 
-							<div className="text-xl font-bold flex items-center gap-2 mb-2">
+							<div className="text-xl font-bold flex items-center gap-2 mb-2 text-gray-900">
 								{mentor.name}
 								<span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full">Mentor</span>
 							</div>
@@ -228,7 +228,7 @@ export default function MentorPage() {
 							<p className="text-sm text-gray-700 mb-4">{mentor.bio || "No bio available."}</p>
 
 							<div className="w-full mb-4">
-								<div className="font-semibold text-sm mb-1">Skills</div>
+								<div className="font-semibold text-sm mb-1 text-gray-900">Skills</div>
 								<div className="flex flex-wrap gap-2 justify-center">
 									{mentor.skills &&
 										Object.entries(mentor.skills).map(([skill, level]) => (
@@ -240,7 +240,7 @@ export default function MentorPage() {
 							</div>
 
 							<div className="w-full mb-3">
-								<div className="font-semibold text-sm mb-1">Interests</div>
+								<div className="font-semibold text-sm mb-1 text-gray-900">Interests</div>
 								<div className="flex flex-wrap gap-2 justify-center">
 									{mentor.interests?.map((interest) => (
 										<span key={interest} className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
