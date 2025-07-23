@@ -98,6 +98,37 @@ const SearchInput = ({ query, setQuery }) => (
 	</div>
 );
 
+const SortDropdown = ({ sortBy, setSortBy, sortOrder, setSortOrder }) => (
+	<div className="flex justify-center mt-4 gap-2">
+		<select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-white border border-gray-300 rounded px-3 py-2 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900">
+			<option value="name">Sort by Name</option>
+			<option value="points">Sort by Points</option>
+			<option value="year">Sort by Year</option>
+			<option value="role">Sort by Role</option>
+		</select>
+		<select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="bg-white border border-gray-300 rounded px-3 py-2 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900">
+			<option value="asc">Ascending</option>
+			<option value="desc">Descending</option>
+		</select>
+	</div>
+);
+
+const SearchAndSortControls = ({ query, setQuery, sortBy, setSortBy, sortOrder, setSortOrder }) => (
+	<div className="flex justify-center mt-4 gap-2">
+		<input type="text" placeholder="Search by name, skill, or interest..." className="w-80 bg-white border border-gray-300 rounded px-3 py-2 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900" value={query} onChange={(e) => setQuery(e.target.value)} />
+		<select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-white border border-gray-300 rounded px-3 py-2 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900">
+			<option value="name">Sort by Name</option>
+			<option value="points">Sort by Points</option>
+			<option value="year">Sort by Year</option>
+			<option value="role">Sort by Role</option>
+		</select>
+		<select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="bg-white border border-gray-300 rounded px-3 py-2 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900">
+			<option value="asc">Ascending</option>
+			<option value="desc">Descending</option>
+		</select>
+	</div>
+);
+
 const Header = ({ memberCount }) => (
 	<div className="text-center pt-12">
 		<div className="flex items-center justify-center mb-4">
@@ -114,6 +145,8 @@ export default function Members() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [query, setQuery] = useState("");
+	const [sortBy, setSortBy] = useState("name");
+	const [sortOrder, setSortOrder] = useState("asc");
 
 	useEffect(() => {
 		fetchMembers();
@@ -139,14 +172,49 @@ export default function Members() {
 		}
 	};
 
-	const filteredMembers = members.filter((member) => {
-		const searchQuery = query.toLowerCase();
-		const nameMatch = member.name?.toLowerCase().includes(searchQuery);
-		const skillsMatch = member.skills && Object.keys(member.skills).some((skill) => skill.toLowerCase().includes(searchQuery));
-		const interestsMatch = member.interests?.some((interest) => interest.toLowerCase().includes(searchQuery));
+	const sortMembers = (list) => {
+		const sorted = [...list];
+		sorted.sort((a, b) => {
+			let aValue, bValue;
 
-		return nameMatch || skillsMatch || interestsMatch;
-	});
+			switch (sortBy) {
+				case "name":
+					aValue = a.name?.toLowerCase() || "";
+					bValue = b.name?.toLowerCase() || "";
+					break;
+				case "points":
+					aValue = a.points || 0;
+					bValue = b.points || 0;
+					break;
+				case "year":
+					aValue = a.year || "";
+					bValue = b.year || "";
+					break;
+				case "role":
+					aValue = a.role?.toLowerCase() || "";
+					bValue = b.role?.toLowerCase() || "";
+					break;
+				default:
+					aValue = a.name?.toLowerCase() || "";
+					bValue = b.name?.toLowerCase() || "";
+			}
+
+			return sortOrder === "asc" ? (aValue > bValue ? 1 : -1) : aValue < bValue ? 1 : -1;
+		});
+
+		return sorted;
+	};
+
+	const filteredMembers = sortMembers(
+		members.filter((member) => {
+			const searchQuery = query.toLowerCase();
+			const nameMatch = member.name?.toLowerCase().includes(searchQuery);
+			const skillsMatch = member.skills && Object.keys(member.skills).some((skill) => skill.toLowerCase().includes(searchQuery));
+			const interestsMatch = member.interests?.some((interest) => interest.toLowerCase().includes(searchQuery));
+
+			return nameMatch || skillsMatch || interestsMatch;
+		})
+	);
 
 	if (loading) return <LoadingSpinner />;
 
@@ -179,7 +247,7 @@ export default function Members() {
 
 			<NavigationBar />
 			<Header memberCount={members.length} />
-			<SearchInput query={query} setQuery={setQuery} />
+			<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
 				{filteredMembers.length === 0 ? (
