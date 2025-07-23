@@ -92,12 +92,12 @@ export default function MemberCardPage() {
 
 	if (error) {
 		return (
-			<div className="bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900 min-h-screen">
+			<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen">
 				<NavigationBar />
 				<div className="flex items-center justify-center min-h-screen">
 					<div className="text-center">
-						<h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Member</h2>
-						<p className="text-gray-700 mb-4">{error}</p>
+						<h2 className="text-2xl font-bold text-red-400 mb-4">Error Loading Member</h2>
+						<p className="text-white mb-4">{error}</p>
 						<div className="space-x-4">
 							<button onClick={fetchMember} className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors">
 								Try Again
@@ -116,11 +116,11 @@ export default function MemberCardPage() {
 	const hasLinkedIn = member.linked_in_url && member.linked_in_url !== "#";
 
 	return (
-		<div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 text-gray-900">
+		<div className="flex flex-col min-h-screen bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-gray-900">
 			<NavigationBar />
 			<div className="flex-1">
 				<div className="max-w-4xl mx-auto px-6 py-12">
-					<button onClick={() => navigate("/members")} className="mb-8 flex items-center text-indigo-600 hover:text-indigo-800 transition-colors">
+					<button onClick={() => navigate("/members")} className="mb-8 flex items-center text-white hover:text-gray-200 transition-colors">
 						<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
 						</svg>

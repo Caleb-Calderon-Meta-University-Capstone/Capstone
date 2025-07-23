@@ -51,7 +51,7 @@ export default function Login() {
 	);
 
 	return (
-		<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+		<div className="min-h-screen bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 flex items-center justify-center px-4">
 			<div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-lg">
 				<div className="text-center mb-6">
 					<img src="/MICS_Colorstack_Logo.png" alt="MICS by ColorStack" className="mx-auto mb-4 h-16 w-auto" />
