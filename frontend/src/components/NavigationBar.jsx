@@ -9,6 +9,7 @@ const NAV_LINKS = [
 	{ title: "Home", to: "/dashboard" },
 	{ title: "Members", to: "/members" },
 	{ title: "Events", to: "/events" },
+	{ title: "Posts", to: "/posts" },
 	{ title: "Leaderboard", to: "/leaderboard" },
 	{ title: "Mentors", to: "/mentors" },
 ];
