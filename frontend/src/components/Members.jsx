@@ -147,6 +147,8 @@ export default function Members() {
 	const [query, setQuery] = useState("");
 	const [sortBy, setSortBy] = useState("name");
 	const [sortOrder, setSortOrder] = useState("asc");
+	const [currentPage, setCurrentPage] = useState(1);
+	const membersPerPage = 12;
 
 	useEffect(() => {
 		fetchMembers();
@@ -216,6 +218,15 @@ export default function Members() {
 		})
 	);
 
+	const indexOfLastMember = currentPage * membersPerPage;
+	const indexOfFirstMember = indexOfLastMember - membersPerPage;
+	const currentMembers = filteredMembers.slice(indexOfFirstMember, indexOfLastMember);
+	const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [query]);
+
 	if (loading) return <LoadingSpinner />;
 
 	if (error) {
@@ -236,7 +247,7 @@ export default function Members() {
 	}
 
 	return (
-		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen relative">
+		<div className="bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 text-white min-h-screen relative flex flex-col">
 			<style>{`
 				@keyframes pulse-glow {
 					0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0.3); }
@@ -246,16 +257,57 @@ export default function Members() {
 			`}</style>
 
 			<NavigationBar />
-			<Header memberCount={members.length} />
-			<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
+			<div className="flex-1">
+				<Header memberCount={members.length} />
+				<SearchAndSortControls query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
-				{filteredMembers.length === 0 ? (
-					<div className="col-span-full text-center py-8">
-						<p className="text-white text-lg">{query ? `No members found matching "${query}"` : "No members available"}</p>
+				<div className="text-center mb-4 mt-4">
+					<p className="text-white/90 font-medium">
+						Showing {indexOfFirstMember + 1}-{Math.min(indexOfLastMember, filteredMembers.length)} of {filteredMembers.length} members
+					</p>
+				</div>
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-10">
+					{currentMembers.length === 0 ? (
+						<div className="col-span-full text-center py-8">
+							<p className="text-white text-lg">{query ? `No members found matching "${query}"` : "No members available"}</p>
+						</div>
+					) : (
+						currentMembers.map((member) => <MemberCard key={member.id} member={member} onClick={() => navigate(`/member/${member.id}`)} />)
+					)}
+				</div>
+
+				{totalPages > 1 && (
+					<div className="flex justify-center items-center gap-2 mb-8">
+						<button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+							Previous
+						</button>
+
+						<div className="flex gap-1">
+							{Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+								const shouldShow = pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 1;
+
+								if (shouldShow) {
+									return (
+										<button key={pageNum} onClick={() => setCurrentPage(pageNum)} className={`px-3 py-2 rounded-lg font-medium transition-colors ${pageNum === currentPage ? "bg-indigo-600 text-white" : "bg-white/20 text-white hover:bg-white/30"}`}>
+											{pageNum}
+										</button>
+									);
+								} else if ((pageNum === 2 && currentPage > 3) || (pageNum === totalPages - 1 && currentPage < totalPages - 2)) {
+									return (
+										<span key={pageNum} className="px-2 py-2 text-white/60">
+											...
+										</span>
+									);
+								}
+								return null;
+							})}
+						</div>
+
+						<button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+							Next
+						</button>
 					</div>
-				) : (
-					filteredMembers.map((member) => <MemberCard key={member.id} member={member} onClick={() => navigate(`/member/${member.id}`)} />)
 				)}
 			</div>
 

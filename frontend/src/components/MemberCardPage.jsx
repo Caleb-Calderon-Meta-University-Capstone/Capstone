@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
@@ -56,6 +56,7 @@ const InterestsSection = ({ interests }) => {
 export default function MemberCardPage() {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [member, setMember] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -63,6 +64,12 @@ export default function MemberCardPage() {
 	useEffect(() => {
 		fetchMember();
 	}, [id]);
+
+	const getBackPath = () => {
+		const searchParams = new URLSearchParams(location.search);
+		const from = searchParams.get("from");
+		return from === "mentors" ? "/mentors" : "/members";
+	};
 
 	const fetchMember = async () => {
 		try {
@@ -102,8 +109,8 @@ export default function MemberCardPage() {
 							<button onClick={fetchMember} className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors">
 								Try Again
 							</button>
-							<button onClick={() => navigate("/members")} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
-								Back to Members
+							<button onClick={() => navigate(getBackPath())} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+								Back to {getBackPath() === "/mentors" ? "Mentors" : "Members"}
 							</button>
 						</div>
 					</div>
@@ -120,11 +127,11 @@ export default function MemberCardPage() {
 			<NavigationBar />
 			<div className="flex-1">
 				<div className="max-w-4xl mx-auto px-6 py-12">
-					<button onClick={() => navigate("/members")} className="mb-8 flex items-center text-white hover:text-gray-200 transition-colors">
+					<button onClick={() => navigate(getBackPath())} className="mb-8 flex items-center text-white hover:text-gray-200 transition-colors">
 						<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
 						</svg>
-						Back to Members
+						Back to {getBackPath() === "/mentors" ? "Mentors" : "Members"}
 					</button>
 
 					<div className="bg-white rounded-2xl shadow-xl p-8">

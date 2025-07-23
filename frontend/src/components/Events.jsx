@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ThumbsUp, ThumbsDown, HelpCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
@@ -8,6 +8,7 @@ import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
 import AdvancedFiltersModal from "./AdvancedFiltersModal";
+import EventDetailModal from "./EventDetailModal";
 import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser, generateEventRecommendationExplanation } from "../utils/feedbackUtils";
 
 function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", cancelText = "Cancel", showCancel = false }) {
@@ -34,6 +35,7 @@ function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", c
 
 export default function Events({ role, onTabChange }) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [state, setState] = useState({
 		events: [],
 		registered: new Set(),
@@ -62,12 +64,20 @@ export default function Events({ role, onTabChange }) {
 		sortBy: "date",
 		sortOrder: "asc",
 		showFilters: false,
+		showEventDetailModal: false,
+		selectedEvent: null,
+		currentPage: 1,
+		eventsPerPage: 6,
 	});
 
 	const setStateField = (field, value) => {
 		setState((prev) => ({ ...prev, [field]: value }));
 		if (field === "activeTab" && onTabChange) {
 			onTabChange(value);
+		}
+
+		if (["query", "filters", "sortBy", "sortOrder", "activeTab"].includes(field)) {
+			setState((prev) => ({ ...prev, currentPage: 1 }));
 		}
 	};
 
@@ -77,11 +87,11 @@ export default function Events({ role, onTabChange }) {
 		scope: "https://www.googleapis.com/auth/calendar.events",
 		onSuccess: (tokenResponse) => {
 			setStateField("googleToken", tokenResponse.access_token);
-			setModal({ open: true, title: "Success", message: "Google Calendar Connected!", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
+			setModal({ open: true, title: "Success", message: "Google Calendar Connected! You can now add events to your calendar.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 		onError: (err) => {
 			console.error("Google login failed:", err);
-			setModal({ open: true, title: "Error", message: "Failed to connect to Google Calendar", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
+			setModal({ open: true, title: "Error", message: "Failed to connect to Google Calendar. Please try again.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 	});
 
@@ -97,7 +107,7 @@ export default function Events({ role, onTabChange }) {
 		};
 	}, []);
 
-	const refreshRecommendations = useCallback(async (uid, allEvents) => {
+	const refreshRecommendations = useCallback(async (uid, allEvents, registeredEventIds = []) => {
 		const feedbackMap = await getUserFeedbackMap();
 
 		if (!feedbackMap[uid] || Object.keys(feedbackMap[uid]).length === 0) {
@@ -111,7 +121,7 @@ export default function Events({ role, onTabChange }) {
 		const eventIds = allEvents.map((e) => e.id);
 		const vectors = await getEventFeedbackVectors(feedbackMap, eventIds);
 		const clusters = clusterEventsKMeans(vectors, 5);
-		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
+		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, registeredEventIds, 10);
 		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
 		const recommendedEvents = allEvents.filter((e) => recIds.includes(e.id));
 
@@ -129,9 +139,30 @@ export default function Events({ role, onTabChange }) {
 			}
 			const userData = await fetchUserData(user);
 			setState((prev) => ({ ...prev, ...userData, loading: false }));
-			await refreshRecommendations(user.id, userData.events);
+			await refreshRecommendations(user.id, userData.events, Array.from(userData.registered));
 		})();
 	}, [fetchUserData, refreshRecommendations]);
+
+	useEffect(() => {
+		if (!state.loading && state.events.length > 0) {
+			const searchParams = new URLSearchParams(location.search);
+			const eventId = searchParams.get("event");
+
+			if (eventId) {
+				const event = state.events.find((e) => e.id.toString() === eventId);
+				if (event) {
+					setState((prev) => ({
+						...prev,
+						selectedEvent: event,
+						showEventDetailModal: true,
+					}));
+					const newUrl = new URL(window.location);
+					newUrl.searchParams.delete("event");
+					window.history.replaceState({}, "", newUrl);
+				}
+			}
+		}
+	}, [state.loading, state.events, location.search]);
 
 	const deleteEvent = async (id) => {
 		setModal({
@@ -149,7 +180,7 @@ export default function Events({ role, onTabChange }) {
 				}
 				const newEvents = state.events.filter((e) => e.id !== id);
 				setStateField("events", newEvents);
-				await refreshRecommendations(state.userId, newEvents);
+				await refreshRecommendations(state.userId, newEvents, Array.from(state.registered));
 			},
 			onClose: () => setModal((m) => ({ ...m, open: false })),
 		});
@@ -195,7 +226,7 @@ export default function Events({ role, onTabChange }) {
 			const newEvents = [...state.events, data];
 			setStateField("events", newEvents);
 			setStateField("showAddModal", false);
-			await refreshRecommendations(state.userId, newEvents);
+			await refreshRecommendations(state.userId, newEvents, Array.from(state.registered));
 		} else {
 			console.error("Event creation error:", error);
 			setModal({ open: true, title: "Error", message: "Failed to create event.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
@@ -206,9 +237,25 @@ export default function Events({ role, onTabChange }) {
 		if (state.feedbackType === "like" && reasons.length === 0) reasons.push("liked");
 		if (state.userId && state.modalEvent.id) {
 			await saveUserFeedback(state.userId, state.modalEvent.id, state.feedbackType === "like", reasons);
-			await refreshRecommendations(state.userId, state.events);
+			await refreshRecommendations(state.userId, state.events, Array.from(state.registered));
 		}
 		setStateField("modalVisible", false);
+	};
+
+	const openEventDetailModal = (event) => {
+		setState((prev) => ({
+			...prev,
+			selectedEvent: event,
+			showEventDetailModal: true,
+		}));
+	};
+
+	const closeEventDetailModal = () => {
+		setState((prev) => ({
+			...prev,
+			showEventDetailModal: false,
+			selectedEvent: null,
+		}));
 	};
 
 	const filterEvents = (list) => {
@@ -219,7 +266,6 @@ export default function Events({ role, onTabChange }) {
 			filtered = filtered.filter((e) => e.title?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.users?.name?.toLowerCase().includes(q));
 		}
 
-		// Date range filter
 		if (state.filters.dateRange.start || state.filters.dateRange.end) {
 			filtered = filtered.filter((e) => {
 				const eventDate = new Date(e.date);
@@ -292,13 +338,31 @@ export default function Events({ role, onTabChange }) {
 		const isRecommended = state.activeTab === "recommended";
 
 		return (
-			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col relative">
+			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col relative cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border border-transparent hover:border-indigo-200" onClick={() => openEventDetailModal(e)}>
 				<div className="flex justify-between items-start">
-					<h2 className="text-xl font-semibold">{e.title}</h2>
+					<h2
+						className="text-xl font-semibold cursor-pointer hover:text-indigo-600 transition-colors"
+						onClick={(event) => {
+							event.stopPropagation();
+							openEventDetailModal(e);
+						}}
+					>
+						{e.title}
+					</h2>
 					<div className="flex items-center gap-2">
 						{isRecommended && (
 							<div className="relative inline-block">
-								<HelpCircle className="w-5 h-5 text-indigo-500 hover:text-indigo-600 cursor-pointer" onMouseEnter={() => setStateField("hoveredEvent", e.id)} onMouseLeave={() => setStateField("hoveredEvent", null)} />
+								<HelpCircle
+									className="w-5 h-5 text-indigo-500 hover:text-indigo-600 cursor-pointer"
+									onMouseEnter={(event) => {
+										event.stopPropagation();
+										setStateField("hoveredEvent", e.id);
+									}}
+									onMouseLeave={(event) => {
+										event.stopPropagation();
+										setStateField("hoveredEvent", null);
+									}}
+								/>
 								{state.hoveredEvent === e.id && (
 									<div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-80 p-4 bg-white text-gray-800 text-sm rounded-lg shadow-xl z-50 border border-indigo-200">
 										<div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-indigo-200 rotate-45" />
@@ -309,7 +373,13 @@ export default function Events({ role, onTabChange }) {
 							</div>
 						)}
 						{role === "Admin" && (
-							<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+							<button
+								onClick={(event) => {
+									event.stopPropagation();
+									deleteEvent(e.id);
+								}}
+								className="text-red-600 hover:text-red-800 text-sm"
+							>
 								Delete
 							</button>
 						)}
@@ -333,20 +403,38 @@ export default function Events({ role, onTabChange }) {
 					Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
 				</div>
 				<div className="mt-6 flex items-center gap-4">
-					<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`}>
+					<button
+						onClick={(event) => {
+							event.stopPropagation();
+							toggleRegister(e.id, e.points);
+						}}
+						className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`}
+					>
 						{isReg ? "Cancel Registration" : "Register"}
 					</button>
 					<button
-						onClick={() => {
-							if (state.googleToken) addEventToGoogleCalendar(state.googleToken, e);
-							else loginWithGoogleCalendar();
+						onClick={async (event) => {
+							event.stopPropagation();
+							if (state.googleToken) {
+								const result = await addEventToGoogleCalendar(state.googleToken, e);
+								setModal({
+									open: true,
+									title: result.success ? "Success" : "Error",
+									message: result.message,
+									onConfirm: () => setModal((m) => ({ ...m, open: false })),
+									showCancel: false,
+								});
+							} else {
+								loginWithGoogleCalendar();
+							}
 						}}
 						className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
 					>
 						{state.googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
 					</button>
 					<button
-						onClick={() => {
+						onClick={(event) => {
+							event.stopPropagation();
 							setStateField("modalEvent", e);
 							setStateField("feedbackType", "like");
 							setStateField("modalVisible", true);
@@ -357,7 +445,8 @@ export default function Events({ role, onTabChange }) {
 						<ThumbsUp size={20} />
 					</button>
 					<button
-						onClick={() => {
+						onClick={(event) => {
+							event.stopPropagation();
 							setStateField("modalEvent", e);
 							setStateField("feedbackType", "dislike");
 							setStateField("modalVisible", true);
@@ -424,7 +513,20 @@ export default function Events({ role, onTabChange }) {
 	const renderEventList = (list) => {
 		const filtered = filterEvents(list);
 		const sorted = sortEvents(filtered);
-		return sorted.map(renderEventCard);
+
+		const indexOfLastEvent = state.currentPage * state.eventsPerPage;
+		const indexOfFirstEvent = indexOfLastEvent - state.eventsPerPage;
+		const currentEvents = sorted.slice(indexOfFirstEvent, indexOfLastEvent);
+		const totalPages = Math.ceil(sorted.length / state.eventsPerPage);
+
+		return {
+			events: currentEvents.map(renderEventCard),
+			totalPages,
+			totalEvents: sorted.length,
+			currentPage: state.currentPage,
+			indexOfFirstEvent,
+			indexOfLastEvent,
+		};
 	};
 
 	if (state.loading) return <LoadingSpinner />;
@@ -432,33 +534,50 @@ export default function Events({ role, onTabChange }) {
 	return (
 		<div className="text-gray-900 min-h-screen">
 			<Modal {...modal} />
-			<div className="py-8 px-4 max-w-5xl mx-auto">
-				<div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8 mb-4">
+			<div className="py-8 px-4 max-w-6xl mx-auto">
+				<div className="mb-8">
+					<div className="relative max-w-2xl mx-auto">
+						<input type="text" placeholder="Search events by title, description, location, or creator..." className="w-full bg-white/95 backdrop-blur-sm border-0 rounded-xl px-4 py-3 pl-12 text-gray-900 placeholder-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50" value={state.query} onChange={(e) => setStateField("query", e.target.value)} />
+						<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+							<svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+							</svg>
+						</div>
+					</div>
+				</div>
+
+				<div className="flex flex-wrap justify-center gap-3 mb-8">
+					<button onClick={() => setStateField("activeTab", "all")} className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 ${state.activeTab === "all" ? "bg-white text-indigo-700 shadow-lg" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"}`}>
+						All Events
+					</button>
+					<button onClick={() => setStateField("activeTab", "recommended")} className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 ${state.activeTab === "recommended" ? "bg-white text-indigo-700 shadow-lg" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"}`}>
+						Recommended
+					</button>
+				</div>
+
+				<div className="flex flex-wrap justify-center gap-3 mb-8">
 					{role === "Admin" && (
-						<button onClick={() => setStateField("showAddModal", true)} className="w-40 bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded">
+						<button onClick={() => setStateField("showAddModal", true)} className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+							</svg>
 							Add Event
 						</button>
 					)}
-					<div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-						<div className="flex items-center w-full sm:w-auto">
-							<input type="text" placeholder="Search by title, desc, location, or creator..." className="w-full sm:w-96 bg-white border border-gray-300 rounded px-3 py-2 shadow" value={state.query} onChange={(e) => setStateField("query", e.target.value)} />
-						</div>
-						<div className="flex gap-2">
-							<button onClick={() => setStateField("activeTab", "all")} className={`py-2 px-4 rounded w-32 ${state.activeTab === "all" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
-								All Events
-							</button>
-							<button onClick={() => setStateField("activeTab", "recommended")} className={`w-32 py-2 rounded flex justify-center items-center ${state.activeTab === "recommended" ? "bg-purple-600 text-white" : "bg-white text-gray-700"}`}>
-								Recommended
-							</button>
-							<button onClick={() => navigate("/events/visualization")} className="w-40 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded transition-colors">
-								View Visualization
-							</button>
-							<button onClick={() => setStateField("showFilters", !state.showFilters)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
-								{state.showFilters ? "Hide Filters" : "Advanced Filters"}
-								<span className="text-xs">{state.showFilters ? "−" : "+"}</span>
-							</button>
-						</div>
-					</div>
+
+					<button onClick={() => navigate("/events/visualization")} className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+						</svg>
+						View Visualization
+					</button>
+
+					<button onClick={() => setStateField("showFilters", !state.showFilters)} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+						</svg>
+						{state.showFilters ? "Hide Filters" : "Advanced Filters"}
+					</button>
 				</div>
 
 				<AdvancedFiltersModal
@@ -476,22 +595,60 @@ export default function Events({ role, onTabChange }) {
 
 				{state.showAddModal && <AddEventModal onClose={() => setStateField("showAddModal", false)} onSubmit={handleAddEvent} submitting={state.submitting} />}
 
-				<div className="mb-4 text-sm text-white">
-					{(() => {
-						const list = state.activeTab === "all" ? state.events : state.recommendedEvents;
-						const filtered = filterEvents(list);
-						const total = list.length;
-						const showing = filtered.length;
-						return `Showing ${showing} of ${total} events`;
-					})()}
-				</div>
+				{(() => {
+					const list = state.activeTab === "all" ? state.events : state.recommendedEvents;
+					const eventListData = renderEventList(list);
 
-				<div className="space-y-6">{state.activeTab === "all" ? renderEventList(state.events) : state.recommendedEvents.length > 0 ? renderEventList(state.recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
+					return (
+						<>
+							<div className="mb-4 text-sm text-white text-center">
+								Showing {eventListData.indexOfFirstEvent + 1}-{Math.min(eventListData.indexOfLastEvent, eventListData.totalEvents)} of {eventListData.totalEvents} events
+							</div>
+
+							<div className="space-y-6">{state.activeTab === "all" ? eventListData.events : state.recommendedEvents.length > 0 ? eventListData.events : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
+
+							{eventListData.totalPages > 1 && (
+								<div className="flex justify-center items-center gap-2 mt-8 mb-4">
+									<button onClick={() => setStateField("currentPage", Math.max(state.currentPage - 1, 1))} disabled={state.currentPage === 1} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+										Previous
+									</button>
+
+									<div className="flex gap-1">
+										{Array.from({ length: eventListData.totalPages }, (_, i) => i + 1).map((pageNum) => {
+											const shouldShow = pageNum === 1 || pageNum === eventListData.totalPages || Math.abs(pageNum - state.currentPage) <= 1;
+
+											if (shouldShow) {
+												return (
+													<button key={pageNum} onClick={() => setStateField("currentPage", pageNum)} className={`px-3 py-2 rounded-lg font-medium transition-colors ${pageNum === state.currentPage ? "bg-indigo-600 text-white" : "bg-white/20 text-white hover:bg-white/30"}`}>
+														{pageNum}
+													</button>
+												);
+											} else if ((pageNum === 2 && state.currentPage > 3) || (pageNum === eventListData.totalPages - 1 && state.currentPage < eventListData.totalPages - 2)) {
+												return (
+													<span key={pageNum} className="px-2 py-2 text-white/60">
+														...
+													</span>
+												);
+											}
+											return null;
+										})}
+									</div>
+
+									<button onClick={() => setStateField("currentPage", Math.min(state.currentPage + 1, eventListData.totalPages))} disabled={state.currentPage === eventListData.totalPages} className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300">
+										Next
+									</button>
+								</div>
+							)}
+						</>
+					);
+				})()}
 
 				<div className="text-right mt-6 text-sm text-white font-semibold">Total Points: {state.points}</div>
 			</div>
 
 			<FeedbackModal visible={state.modalVisible} feedbackType={state.feedbackType} eventTitle={state.modalEvent.title} onSubmit={handleFeedback} onClose={() => setStateField("modalVisible", false)} />
+
+			<EventDetailModal event={state.selectedEvent} isOpen={state.showEventDetailModal} onClose={closeEventDetailModal} onRegister={toggleRegister} isRegistered={state.selectedEvent ? state.registered.has(state.selectedEvent.id) : false} currentUserId={state.userId} role={role} />
 		</div>
 	);
 }

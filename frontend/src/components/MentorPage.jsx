@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import NavigationBar from "./NavigationBar";
 import LoadingSpinner from "./LoadingSpinner";
@@ -11,6 +12,7 @@ import { HelpCircle } from "lucide-react";
 export default function MentorPage() {
 	const { session } = UserAuth();
 	const userId = session?.user?.id;
+	const navigate = useNavigate();
 
 	const [weights, setWeights] = useState({
 		skills: 0.4,
@@ -170,10 +172,10 @@ export default function MentorPage() {
 				{showWeightModal && (
 					<div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
 						<div className="bg-white p-6 rounded-lg w-96">
-							<h2 className="text-xl mb-4">Feature Weights</h2>
+							<h2 className="text-xl mb-4 text-gray-900">Feature Weights</h2>
 							{Object.entries(weights).map(([key, val]) => (
 								<div key={key} className="mb-3">
-									<label className="block font-medium">{key.replace("_", " ")}</label>
+									<label className="block font-medium text-gray-900">{key.replace("_", " ")}</label>
 									<input
 										type="range"
 										min="0"
@@ -188,11 +190,11 @@ export default function MentorPage() {
 										}
 										className="w-full"
 									/>
-									<div className="text-sm text-right">{(val * 100).toFixed(0)}%</div>
+									<div className="text-sm text-right text-gray-700">{(val * 100).toFixed(0)}%</div>
 								</div>
 							))}
 							<div className="flex justify-end mt-4">
-								<button onClick={() => setShowWeightModal(false)} className="px-4 py-2 bg-gray-200 rounded">
+								<button onClick={() => setShowWeightModal(false)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors">
 									Close
 								</button>
 							</div>
@@ -202,7 +204,7 @@ export default function MentorPage() {
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-8 py-6">
 					{topMentors.map(({ mentor, score }) => (
-						<div key={mentor.id} className="hover-pulse transition-transform transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center text-center border border-blue-200 relative">
+						<div key={mentor.id} className="hover-pulse transition-transform transform hover:scale-105 hover:ring-4 hover:ring-indigo-300 hover:ring-opacity-40 hover:ring-offset-2 bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center text-center border border-blue-200 relative cursor-pointer" onClick={() => navigate(`/member/${mentor.id}?from=mentors`)}>
 							<div className="absolute top-3 right-3">
 								<HelpCircle className="peer w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
 								<div className="opacity-0 peer-hover:opacity-100 transition-opacity  absolute right-0 mt-1 w-64 p-3 bg-white text-gray-800 text-sm rounded-lg shadow-lg z-20">
@@ -212,7 +214,7 @@ export default function MentorPage() {
 							</div>
 
 							<div className="w-24 h-24 rounded-full overflow-hidden shadow-md border-4 border-blue-200 mb-4">
-								<img src={mentor.profile_picture || "https://picsum.photos/200"} alt={mentor.name} className="object-cover w-full h-full" />
+								<img src={mentor.profile_picture || "/default-avatar.svg"} alt={mentor.name} className="object-cover w-full h-full" />
 							</div>
 
 							<div className="text-xl font-bold flex items-center gap-2 mb-2 text-gray-900">
@@ -261,11 +263,20 @@ export default function MentorPage() {
 							<div className="text-sm text-gray-600 mb-2">{mentor.points ?? 0} total points</div>
 
 							<div className="flex gap-2">
-								<a href={mentor.linked_in_url || "#"} target="_blank" rel="noopener noreferrer" className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm ${mentor.linked_in_url ? "" : "opacity-50 pointer-events-none"}`}>
-									Connect
+								<a href={mentor.linked_in_url || "#"} target="_blank" rel="noopener noreferrer" className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full text-sm shadow-sm transition-colors duration-200 flex items-center ${mentor.linked_in_url ? "" : "opacity-50 pointer-events-none"}`} onClick={(e) => e.stopPropagation()}>
+									<svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+										<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+									</svg>
+									Connect on LinkedIn
 								</a>
 
-								<button onClick={() => toggleLike(mentor.id)} className={`px-4 py-2 rounded-full text-sm shadow-sm ${likedMentors.has(mentor.id) ? "bg-red-400 hover:bg-red-500 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-white"}`}>
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										toggleLike(mentor.id);
+									}}
+									className={`px-4 py-2 rounded-full text-sm shadow-sm ${likedMentors.has(mentor.id) ? "bg-red-400 hover:bg-red-500 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-white"}`}
+								>
 									{likedMentors.has(mentor.id) ? "Unlike" : "Like"}
 								</button>
 							</div>

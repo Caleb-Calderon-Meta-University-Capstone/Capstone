@@ -172,13 +172,12 @@ describe("Events Component", () => {
 
 	describe("Search Functionality", () => {
 		it("filters events by search query", async () => {
-			// should filter events when you type in search box
 			renderEvents();
 			await waitFor(() => {
 				expect(screen.getByText("Test Event 1")).toBeInTheDocument();
 			});
 
-			const searchInput = screen.getByPlaceholderText("Search by title, desc, location, or creator...");
+			const searchInput = screen.getByPlaceholderText("Search events by title, description, location, or creator...");
 			fireEvent.change(searchInput, { target: { value: "Test Event 2" } });
 
 			await waitFor(() => {
@@ -188,13 +187,12 @@ describe("Events Component", () => {
 		});
 
 		it("filters by description", async () => {
-			// should find events by description text too
 			renderEvents();
 			await waitFor(() => {
 				expect(screen.getByText("Test Event 1")).toBeInTheDocument();
 			});
 
-			const searchInput = screen.getByPlaceholderText("Search by title, desc, location, or creator...");
+			const searchInput = screen.getByPlaceholderText("Search events by title, description, location, or creator...");
 			fireEvent.change(searchInput, { target: { value: "description 2" } });
 
 			await waitFor(() => {
@@ -206,16 +204,14 @@ describe("Events Component", () => {
 
 	describe("Tab Navigation", () => {
 		it("shows all events by default", async () => {
-			// should start on "all events" tab
 			renderEvents();
 			await waitFor(() => {
-				expect(screen.getByText("All Events")).toHaveClass("bg-indigo-600");
-				expect(screen.getByText("Recommended")).toHaveClass("bg-gray-100");
+				expect(screen.getByText("All Events")).toHaveClass("bg-white", "text-indigo-700", "shadow-lg");
+				expect(screen.getByText("Recommended")).toHaveClass("bg-white/20", "text-white");
 			});
 		});
 
 		it("switches to recommended tab", async () => {
-			// should switch tabs when you click them
 			renderEvents();
 			await waitFor(() => {
 				const recommendedButton = screen.getByText("Recommended");
@@ -223,8 +219,8 @@ describe("Events Component", () => {
 			});
 
 			await waitFor(() => {
-				expect(screen.getByText("Recommended")).toHaveClass("bg-indigo-600");
-				expect(screen.getByText("All Events")).toHaveClass("bg-gray-100");
+				expect(screen.getByText("Recommended")).toHaveClass("bg-white", "text-indigo-700", "shadow-lg");
+				expect(screen.getByText("All Events")).toHaveClass("bg-white/20", "text-white");
 			});
 		});
 	});

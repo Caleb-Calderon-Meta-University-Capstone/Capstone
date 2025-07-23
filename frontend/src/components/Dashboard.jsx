@@ -57,13 +57,13 @@ export default function DashboardPage() {
 	if (loading) return <LoadingSpinner />;
 
 	return (
-		<div className="relative bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 min-h-screen overflow-hidden">
+		<div className="relative bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 min-h-screen overflow-hidden flex flex-col">
 			<motion.div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-300 rounded-full filter blur-3xl opacity-30" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 6, repeat: Infinity }} />
 			<motion.div className="absolute -bottom-28 -right-28 w-72 h-72 bg-green-200 rounded-full filter blur-2xl opacity-25" animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }} />
 
 			<NavigationBar />
 
-			<div className="relative z-10 max-w-7xl mx-auto px-6 py-20 space-y-20">
+			<div className="relative z-10 max-w-7xl mx-auto px-6 py-20 space-y-20 flex-1">
 				<motion.header initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
 					<div className="flex items-center justify-center mb-4">
 						<img src="/MICS_Colorstack_Logo_Light.png" alt="MICS by ColorStack" className="h-16 w-auto mr-4" />
@@ -96,7 +96,7 @@ export default function DashboardPage() {
 									<p className="text-sm text-gray-500 mb-2">{new Date(event.date).toLocaleDateString()}</p>
 									<p className="text-sm text-gray-600">{event.location}</p>
 								</div>
-								<button onClick={() => navigate("/events")} className="mt-4 px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition">
+								<button onClick={() => navigate(`/events?event=${event.id}`)} className="mt-4 px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition">
 									More Details
 								</button>
 							</motion.div>
