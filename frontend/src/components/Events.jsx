@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ThumbsUp, ThumbsDown, HelpCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
@@ -8,6 +8,7 @@ import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
 import AdvancedFiltersModal from "./AdvancedFiltersModal";
+import EventDetailModal from "./EventDetailModal";
 import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser, generateEventRecommendationExplanation } from "../utils/feedbackUtils";
 
 function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", cancelText = "Cancel", showCancel = false }) {
@@ -34,6 +35,7 @@ function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", c
 
 export default function Events({ role, onTabChange }) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [state, setState] = useState({
 		events: [],
 		registered: new Set(),
@@ -62,6 +64,8 @@ export default function Events({ role, onTabChange }) {
 		sortBy: "date",
 		sortOrder: "asc",
 		showFilters: false,
+		showEventDetailModal: false,
+		selectedEvent: null,
 	});
 
 	const setStateField = (field, value) => {
@@ -132,6 +136,27 @@ export default function Events({ role, onTabChange }) {
 			await refreshRecommendations(user.id, userData.events);
 		})();
 	}, [fetchUserData, refreshRecommendations]);
+
+	useEffect(() => {
+		if (!state.loading && state.events.length > 0) {
+			const searchParams = new URLSearchParams(location.search);
+			const eventId = searchParams.get("event");
+
+			if (eventId) {
+				const event = state.events.find((e) => e.id.toString() === eventId);
+				if (event) {
+					setState((prev) => ({
+						...prev,
+						selectedEvent: event,
+						showEventDetailModal: true,
+					}));
+					const newUrl = new URL(window.location);
+					newUrl.searchParams.delete("event");
+					window.history.replaceState({}, "", newUrl);
+				}
+			}
+		}
+	}, [state.loading, state.events, location.search]);
 
 	const deleteEvent = async (id) => {
 		setModal({
@@ -209,6 +234,22 @@ export default function Events({ role, onTabChange }) {
 			await refreshRecommendations(state.userId, state.events);
 		}
 		setStateField("modalVisible", false);
+	};
+
+	const openEventDetailModal = (event) => {
+		setState((prev) => ({
+			...prev,
+			selectedEvent: event,
+			showEventDetailModal: true,
+		}));
+	};
+
+	const closeEventDetailModal = () => {
+		setState((prev) => ({
+			...prev,
+			showEventDetailModal: false,
+			selectedEvent: null,
+		}));
 	};
 
 	const filterEvents = (list) => {
@@ -292,13 +333,31 @@ export default function Events({ role, onTabChange }) {
 		const isRecommended = state.activeTab === "recommended";
 
 		return (
-			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col relative">
+			<div key={e.id} className="bg-white rounded-lg shadow-md p-6 flex flex-col relative cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border border-transparent hover:border-indigo-200" onClick={() => openEventDetailModal(e)}>
 				<div className="flex justify-between items-start">
-					<h2 className="text-xl font-semibold">{e.title}</h2>
+					<h2
+						className="text-xl font-semibold cursor-pointer hover:text-indigo-600 transition-colors"
+						onClick={(event) => {
+							event.stopPropagation();
+							openEventDetailModal(e);
+						}}
+					>
+						{e.title}
+					</h2>
 					<div className="flex items-center gap-2">
 						{isRecommended && (
 							<div className="relative inline-block">
-								<HelpCircle className="w-5 h-5 text-indigo-500 hover:text-indigo-600 cursor-pointer" onMouseEnter={() => setStateField("hoveredEvent", e.id)} onMouseLeave={() => setStateField("hoveredEvent", null)} />
+								<HelpCircle
+									className="w-5 h-5 text-indigo-500 hover:text-indigo-600 cursor-pointer"
+									onMouseEnter={(event) => {
+										event.stopPropagation();
+										setStateField("hoveredEvent", e.id);
+									}}
+									onMouseLeave={(event) => {
+										event.stopPropagation();
+										setStateField("hoveredEvent", null);
+									}}
+								/>
 								{state.hoveredEvent === e.id && (
 									<div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-80 p-4 bg-white text-gray-800 text-sm rounded-lg shadow-xl z-50 border border-indigo-200">
 										<div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-indigo-200 rotate-45" />
@@ -309,7 +368,13 @@ export default function Events({ role, onTabChange }) {
 							</div>
 						)}
 						{role === "Admin" && (
-							<button onClick={() => deleteEvent(e.id)} className="text-red-600 hover:text-red-800 text-sm">
+							<button
+								onClick={(event) => {
+									event.stopPropagation();
+									deleteEvent(e.id);
+								}}
+								className="text-red-600 hover:text-red-800 text-sm"
+							>
 								Delete
 							</button>
 						)}
@@ -333,11 +398,18 @@ export default function Events({ role, onTabChange }) {
 					Created by <span className="font-medium text-gray-800">{e.users?.name ?? "Unknown"}</span>
 				</div>
 				<div className="mt-6 flex items-center gap-4">
-					<button onClick={() => toggleRegister(e.id, e.points)} className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`}>
+					<button
+						onClick={(event) => {
+							event.stopPropagation();
+							toggleRegister(e.id, e.points);
+						}}
+						className={`text-sm font-medium py-2 px-4 rounded transition ${isReg ? "bg-gray-300 hover:bg-gray-400 text-black" : "bg-blue-500 hover:bg-blue-600 text-white"}`}
+					>
 						{isReg ? "Cancel Registration" : "Register"}
 					</button>
 					<button
-						onClick={async () => {
+						onClick={async (event) => {
+							event.stopPropagation();
 							if (state.googleToken) {
 								const result = await addEventToGoogleCalendar(state.googleToken, e);
 								setModal({
@@ -356,7 +428,8 @@ export default function Events({ role, onTabChange }) {
 						{state.googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
 					</button>
 					<button
-						onClick={() => {
+						onClick={(event) => {
+							event.stopPropagation();
 							setStateField("modalEvent", e);
 							setStateField("feedbackType", "like");
 							setStateField("modalVisible", true);
@@ -367,7 +440,8 @@ export default function Events({ role, onTabChange }) {
 						<ThumbsUp size={20} />
 					</button>
 					<button
-						onClick={() => {
+						onClick={(event) => {
+							event.stopPropagation();
 							setStateField("modalEvent", e);
 							setStateField("feedbackType", "dislike");
 							setStateField("modalVisible", true);
@@ -502,6 +576,8 @@ export default function Events({ role, onTabChange }) {
 			</div>
 
 			<FeedbackModal visible={state.modalVisible} feedbackType={state.feedbackType} eventTitle={state.modalEvent.title} onSubmit={handleFeedback} onClose={() => setStateField("modalVisible", false)} />
+
+			<EventDetailModal event={state.selectedEvent} isOpen={state.showEventDetailModal} onClose={closeEventDetailModal} onRegister={toggleRegister} isRegistered={state.selectedEvent ? state.registered.has(state.selectedEvent.id) : false} currentUserId={state.userId} role={role} />
 		</div>
 	);
 }

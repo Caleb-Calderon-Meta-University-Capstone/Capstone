@@ -96,7 +96,7 @@ export default function DashboardPage() {
 									<p className="text-sm text-gray-500 mb-2">{new Date(event.date).toLocaleDateString()}</p>
 									<p className="text-sm text-gray-600">{event.location}</p>
 								</div>
-								<button onClick={() => navigate("/events")} className="mt-4 px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition">
+								<button onClick={() => navigate(`/events?event=${event.id}`)} className="mt-4 px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition">
 									More Details
 								</button>
 							</motion.div>
