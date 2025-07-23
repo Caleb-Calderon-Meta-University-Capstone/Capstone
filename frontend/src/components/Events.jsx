@@ -7,6 +7,7 @@ import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
 import AddEventModal from "./AddEventModal";
 import LoadingSpinner from "./LoadingSpinner";
 import FeedbackModal from "./FeedbackModal";
+import AdvancedFiltersModal from "./AdvancedFiltersModal";
 import { saveUserFeedback, getUserFeedbackMap, getEventFeedbackVectors, clusterEventsKMeans, recommendEventsForUser, generateEventRecommendationExplanation } from "../utils/feedbackUtils";
 
 function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", cancelText = "Cancel", showCancel = false }) {
@@ -50,6 +51,17 @@ export default function Events({ role, onTabChange }) {
 		query: "",
 		userFeedback: {},
 		hoveredEvent: null,
+		filters: {
+			dateRange: { start: null, end: null },
+			pointsRange: { min: null, max: null },
+			location: "",
+			creator: "",
+			registrationStatus: "all",
+			eventType: "all",
+		},
+		sortBy: "date",
+		sortOrder: "asc",
+		showFilters: false,
 	});
 
 	const setStateField = (field, value) => {
@@ -200,8 +212,79 @@ export default function Events({ role, onTabChange }) {
 	};
 
 	const filterEvents = (list) => {
-		const q = state.query.toLowerCase();
-		return list.filter((e) => e.title?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.users?.name?.toLowerCase().includes(q));
+		let filtered = list;
+
+		if (state.query) {
+			const q = state.query.toLowerCase();
+			filtered = filtered.filter((e) => e.title?.toLowerCase().includes(q) || e.description?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q) || e.users?.name?.toLowerCase().includes(q));
+		}
+
+		// Date range filter
+		if (state.filters.dateRange.start || state.filters.dateRange.end) {
+			filtered = filtered.filter((e) => {
+				const eventDate = new Date(e.date);
+				const start = state.filters.dateRange.start ? new Date(state.filters.dateRange.start) : null;
+				const end = state.filters.dateRange.end ? new Date(state.filters.dateRange.end) : null;
+
+				if (start && end) {
+					return eventDate >= start && eventDate <= end;
+				} else if (start) {
+					return eventDate >= start;
+				} else if (end) {
+					return eventDate <= end;
+				}
+				return true;
+			});
+		}
+
+		if (state.filters.pointsRange.min !== null || state.filters.pointsRange.max !== null) {
+			filtered = filtered.filter((e) => {
+				const points = e.points || 0;
+				const min = state.filters.pointsRange.min !== null ? state.filters.pointsRange.min : 0;
+				const max = state.filters.pointsRange.max !== null ? state.filters.pointsRange.max : Infinity;
+				return points >= min && points <= max;
+			});
+		}
+
+		if (state.filters.location) {
+			filtered = filtered.filter((e) => e.location?.toLowerCase().includes(state.filters.location.toLowerCase()));
+		}
+
+		if (state.filters.creator) {
+			filtered = filtered.filter((e) => e.users?.name?.toLowerCase().includes(state.filters.creator.toLowerCase()));
+		}
+
+		if (state.filters.registrationStatus !== "all") {
+			filtered = filtered.filter((e) => {
+				const isRegistered = state.registered.has(e.id);
+				return state.filters.registrationStatus === "registered" ? isRegistered : !isRegistered;
+			});
+		}
+
+		if (state.filters.eventType !== "all") {
+			filtered = filtered.filter((e) => {
+				const title = e.title?.toLowerCase() || "";
+				const description = e.description?.toLowerCase() || "";
+				const content = title + " " + description;
+
+				switch (state.filters.eventType) {
+					case "workshop":
+						return content.includes("workshop") || content.includes("training") || content.includes("session");
+					case "networking":
+						return content.includes("networking") || content.includes("meet") || content.includes("social");
+					case "seminar":
+						return content.includes("seminar") || content.includes("lecture") || content.includes("talk");
+					case "hackathon":
+						return content.includes("hackathon") || content.includes("competition") || content.includes("contest");
+					case "conference":
+						return content.includes("conference") || content.includes("summit") || content.includes("symposium");
+					default:
+						return true;
+				}
+			});
+		}
+
+		return filtered;
 	};
 
 	const renderEventCard = (e) => {
@@ -297,7 +380,52 @@ export default function Events({ role, onTabChange }) {
 		return <span>{explanation}</span>;
 	};
 
-	const renderEventList = (list) => filterEvents(list).map(renderEventCard);
+	const sortEvents = (list) => {
+		const sorted = [...list];
+		sorted.sort((a, b) => {
+			let aValue, bValue;
+
+			switch (state.sortBy) {
+				case "date":
+					aValue = new Date(a.date);
+					bValue = new Date(b.date);
+					break;
+				case "title":
+					aValue = a.title?.toLowerCase() || "";
+					bValue = b.title?.toLowerCase() || "";
+					break;
+				case "points":
+					aValue = a.points || 0;
+					bValue = b.points || 0;
+					break;
+				case "creator":
+					aValue = a.users?.name?.toLowerCase() || "";
+					bValue = b.users?.name?.toLowerCase() || "";
+					break;
+				case "location":
+					aValue = a.location?.toLowerCase() || "";
+					bValue = b.location?.toLowerCase() || "";
+					break;
+				default:
+					aValue = new Date(a.date);
+					bValue = new Date(b.date);
+			}
+
+			if (state.sortOrder === "asc") {
+				return aValue > bValue ? 1 : -1;
+			} else {
+				return aValue < bValue ? 1 : -1;
+			}
+		});
+
+		return sorted;
+	};
+
+	const renderEventList = (list) => {
+		const filtered = filterEvents(list);
+		const sorted = sortEvents(filtered);
+		return sorted.map(renderEventCard);
+	};
 
 	if (state.loading) return <LoadingSpinner />;
 
@@ -325,11 +453,38 @@ export default function Events({ role, onTabChange }) {
 							<button onClick={() => navigate("/events/visualization")} className="w-40 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded transition-colors">
 								View Visualization
 							</button>
+							<button onClick={() => setStateField("showFilters", !state.showFilters)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+								{state.showFilters ? "Hide Filters" : "Advanced Filters"}
+								<span className="text-xs">{state.showFilters ? "−" : "+"}</span>
+							</button>
 						</div>
 					</div>
 				</div>
 
+				<AdvancedFiltersModal
+					visible={state.showFilters}
+					onClose={() => setStateField("showFilters", false)}
+					filters={state.filters}
+					onFiltersChange={(filters) => setStateField("filters", filters)}
+					sortBy={state.sortBy}
+					sortOrder={state.sortOrder}
+					onSortChange={({ sortBy, sortOrder }) => {
+						setStateField("sortBy", sortBy);
+						setStateField("sortOrder", sortOrder);
+					}}
+				/>
+
 				{state.showAddModal && <AddEventModal onClose={() => setStateField("showAddModal", false)} onSubmit={handleAddEvent} submitting={state.submitting} />}
+
+				<div className="mb-4 text-sm text-white">
+					{(() => {
+						const list = state.activeTab === "all" ? state.events : state.recommendedEvents;
+						const filtered = filterEvents(list);
+						const total = list.length;
+						const showing = filtered.length;
+						return `Showing ${showing} of ${total} events`;
+					})()}
+				</div>
 
 				<div className="space-y-6">{state.activeTab === "all" ? renderEventList(state.events) : state.recommendedEvents.length > 0 ? renderEventList(state.recommendedEvents) : <div className="text-center text-gray-500">No recommendations yet! Give some feedback!</div>}</div>
 
