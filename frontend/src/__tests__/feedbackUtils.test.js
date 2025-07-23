@@ -1,4 +1,4 @@
-// unit tests for feedbackUtils 
+// unit tests for feedbackUtils
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FEEDBACK_TABLE, saveUserFeedback, getUserFeedbackMap, getLocationCategory, euclidean, getEventFeedbackVectors, getUserPreferenceVector, clusterEventsKMeans, recommendEventsForUser } from "../utils/feedbackUtils";
 
@@ -80,11 +80,15 @@ describe("getUserPreferenceVector", () => {
 				2: { liked: true, reasons: new Set(["fun"]) },
 			},
 		};
-		expect(getUserPreferenceVector("u1", fb)).toEqual({ fun: 2 / 3, food: 1 / 3 });
+		const eventVectors = {
+			1: { fun: 1, food: 1 },
+			2: { fun: 1 },
+		};
+		expect(getUserPreferenceVector("u1", fb, eventVectors)).toEqual({ fun: 2 / 3, food: 1 / 3 });
 	});
 
 	it("returns empty obj if user has no likes", () => {
-		expect(getUserPreferenceVector("u1", { u1: {} })).toEqual({});
+		expect(getUserPreferenceVector("u1", { u1: {} }, {})).toEqual({});
 	});
 });
 
