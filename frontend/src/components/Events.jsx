@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
@@ -31,6 +32,7 @@ function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", c
 }
 
 export default function Events({ role }) {
+	const navigate = useNavigate();
 	const [state, setState] = useState({
 		events: [],
 		registered: new Set(),
@@ -284,6 +286,9 @@ export default function Events({ role }) {
 							</button>
 							<button onClick={() => setStateField("activeTab", "recommended")} className={`w-32 py-2 rounded flex justify-center items-center ${state.activeTab === "recommended" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700"}`}>
 								Recommended
+							</button>
+							<button onClick={() => navigate("/events/visualization")} className="w-40 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 rounded transition-colors">
+								View Visualization
 							</button>
 						</div>
 					</div>

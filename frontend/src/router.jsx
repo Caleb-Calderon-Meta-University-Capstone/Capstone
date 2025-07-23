@@ -12,6 +12,7 @@ import ProfilePage from "./components/Profile.jsx";
 import EditPage from "./components/EditProfile.jsx";
 import MentorPage from "./components/MentorPage.jsx";
 import LandingPage from "./components/LandingPage.jsx";
+import EventsVisualization from "./components/visualization/EventsVisualization.jsx";
 
 export const router = createBrowserRouter([
 	{ path: "/", element: <App /> },
@@ -73,6 +74,14 @@ export const router = createBrowserRouter([
 		element: (
 			<PrivateRoute>
 				<EventsPage />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "/events/visualization",
+		element: (
+			<PrivateRoute>
+				<EventsVisualization />
 			</PrivateRoute>
 		),
 	},

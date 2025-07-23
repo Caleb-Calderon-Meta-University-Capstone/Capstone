@@ -27,6 +27,9 @@ dist-ssr
 
 node_modules/
 
+# Package lock files
+package-lock.json
+yarn.lock
 
 frontend/.env
 backend/.env
