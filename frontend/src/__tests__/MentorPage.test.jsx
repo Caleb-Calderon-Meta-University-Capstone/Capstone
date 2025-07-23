@@ -272,26 +272,23 @@ describe("MentorPage Component", () => {
 
 	describe("Connect Buttons", () => {
 		it("shows connect buttons for mentors with LinkedIn", async () => {
-			// should show connect buttons for mentors with LinkedIn URLs
 			renderMentorPage();
 			await waitFor(() => {
 				expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument();
 			});
 			await waitFor(() => {
-				const connectButtons = screen.getAllByText("Connect");
+				const connectButtons = screen.getAllByText("Connect on LinkedIn");
 				expect(connectButtons.length).toBeGreaterThan(0);
 			});
 		});
 
 		it("disables connect button for mentors without LinkedIn", async () => {
-			// should disable connect button if no LinkedIn URL
 			renderMentorPage();
 			await waitFor(() => {
 				expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument();
 			});
 			await waitFor(() => {
-				const connectButtons = screen.getAllByText("Connect");
-				// Check if any are disabled (this would need more specific testing)
+				const connectButtons = screen.getAllByText("Connect on LinkedIn");
 				expect(connectButtons.length).toBeGreaterThan(0);
 			});
 		});
