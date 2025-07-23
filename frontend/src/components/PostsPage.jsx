@@ -28,6 +28,7 @@ export default function PostsPage() {
 	const [showSortDropdown, setShowSortDropdown] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const postsPerPage = 5;
+	const [errorModal, setErrorModal] = useState({ show: false, message: "" });
 
 	useEffect(() => {
 		fetchUserAndPosts();
@@ -175,7 +176,7 @@ export default function PostsPage() {
 			setPostToEdit(null);
 		} catch (err) {
 			console.error("Error creating/updating post:", err);
-			alert("Failed to save post. Please try again.");
+			setErrorModal({ show: true, message: "Failed to save post. Please try again." });
 		} finally {
 			setSubmitting(false);
 		}
@@ -244,7 +245,7 @@ export default function PostsPage() {
 			setPostToDelete(null);
 		} catch (err) {
 			console.error("Error deleting post:", err);
-			alert("Failed to delete post. Please try again.");
+			setErrorModal({ show: true, message: "Failed to delete post. Please try again." });
 		} finally {
 			setDeleting(false);
 		}
@@ -456,6 +457,32 @@ export default function PostsPage() {
 				initialData={editMode ? posts.find((p) => p.id === postToEdit) : null}
 			/>
 			<DeleteConfirmModal visible={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} onConfirm={confirmDeletePost} postTitle={posts.find((p) => p.id === postToDelete)?.title} deleting={deleting} />
+
+
+			{errorModal.show && (
+				<div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+					<div className="bg-white rounded-lg shadow-lg p-6 w-96 max-w-sm mx-4">
+						<div className="flex items-center mb-4">
+							<div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+								<svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+								</svg>
+							</div>
+							<div className="ml-3">
+								<h3 className="text-lg font-medium text-gray-900">Error</h3>
+							</div>
+						</div>
+						<div className="mb-6">
+							<p className="text-sm text-gray-700">{errorModal.message}</p>
+						</div>
+						<div className="flex justify-end">
+							<button onClick={() => setErrorModal({ show: false, message: "" })} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+								OK
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
 			<Footer />
 		</div>
