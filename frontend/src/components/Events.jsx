@@ -101,7 +101,7 @@ export default function Events({ role, onTabChange }) {
 		};
 	}, []);
 
-	const refreshRecommendations = useCallback(async (uid, allEvents) => {
+	const refreshRecommendations = useCallback(async (uid, allEvents, registeredEventIds = []) => {
 		const feedbackMap = await getUserFeedbackMap();
 
 		if (!feedbackMap[uid] || Object.keys(feedbackMap[uid]).length === 0) {
@@ -115,7 +115,7 @@ export default function Events({ role, onTabChange }) {
 		const eventIds = allEvents.map((e) => e.id);
 		const vectors = await getEventFeedbackVectors(feedbackMap, eventIds);
 		const clusters = clusterEventsKMeans(vectors, 5);
-		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, 10);
+		const recIdsRaw = recommendEventsForUser(uid, feedbackMap, clusters, vectors, registeredEventIds, 10);
 		const recIds = recIdsRaw.map((id) => (typeof id === "string" ? Number(id) : id));
 		const recommendedEvents = allEvents.filter((e) => recIds.includes(e.id));
 
@@ -133,7 +133,7 @@ export default function Events({ role, onTabChange }) {
 			}
 			const userData = await fetchUserData(user);
 			setState((prev) => ({ ...prev, ...userData, loading: false }));
-			await refreshRecommendations(user.id, userData.events);
+			await refreshRecommendations(user.id, userData.events, Array.from(userData.registered));
 		})();
 	}, [fetchUserData, refreshRecommendations]);
 
@@ -174,7 +174,7 @@ export default function Events({ role, onTabChange }) {
 				}
 				const newEvents = state.events.filter((e) => e.id !== id);
 				setStateField("events", newEvents);
-				await refreshRecommendations(state.userId, newEvents);
+				await refreshRecommendations(state.userId, newEvents, Array.from(state.registered));
 			},
 			onClose: () => setModal((m) => ({ ...m, open: false })),
 		});
@@ -220,7 +220,7 @@ export default function Events({ role, onTabChange }) {
 			const newEvents = [...state.events, data];
 			setStateField("events", newEvents);
 			setStateField("showAddModal", false);
-			await refreshRecommendations(state.userId, newEvents);
+			await refreshRecommendations(state.userId, newEvents, Array.from(state.registered));
 		} else {
 			console.error("Event creation error:", error);
 			setModal({ open: true, title: "Error", message: "Failed to create event.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
@@ -231,7 +231,7 @@ export default function Events({ role, onTabChange }) {
 		if (state.feedbackType === "like" && reasons.length === 0) reasons.push("liked");
 		if (state.userId && state.modalEvent.id) {
 			await saveUserFeedback(state.userId, state.modalEvent.id, state.feedbackType === "like", reasons);
-			await refreshRecommendations(state.userId, state.events);
+			await refreshRecommendations(state.userId, state.events, Array.from(state.registered));
 		}
 		setStateField("modalVisible", false);
 	};
