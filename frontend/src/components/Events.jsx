@@ -77,11 +77,11 @@ export default function Events({ role, onTabChange }) {
 		scope: "https://www.googleapis.com/auth/calendar.events",
 		onSuccess: (tokenResponse) => {
 			setStateField("googleToken", tokenResponse.access_token);
-			setModal({ open: true, title: "Success", message: "Google Calendar Connected!", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
+			setModal({ open: true, title: "Success", message: "Google Calendar Connected! You can now add events to your calendar.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 		onError: (err) => {
 			console.error("Google login failed:", err);
-			setModal({ open: true, title: "Error", message: "Failed to connect to Google Calendar", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
+			setModal({ open: true, title: "Error", message: "Failed to connect to Google Calendar. Please try again.", onConfirm: () => setModal((m) => ({ ...m, open: false })), showCancel: false });
 		},
 	});
 
@@ -337,9 +337,19 @@ export default function Events({ role, onTabChange }) {
 						{isReg ? "Cancel Registration" : "Register"}
 					</button>
 					<button
-						onClick={() => {
-							if (state.googleToken) addEventToGoogleCalendar(state.googleToken, e);
-							else loginWithGoogleCalendar();
+						onClick={async () => {
+							if (state.googleToken) {
+								const result = await addEventToGoogleCalendar(state.googleToken, e);
+								setModal({
+									open: true,
+									title: result.success ? "Success" : "Error",
+									message: result.message,
+									onConfirm: () => setModal((m) => ({ ...m, open: false })),
+									showCancel: false,
+								});
+							} else {
+								loginWithGoogleCalendar();
+							}
 						}}
 						className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
 					>

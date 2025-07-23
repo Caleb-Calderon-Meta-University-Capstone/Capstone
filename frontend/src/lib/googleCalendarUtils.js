@@ -2,7 +2,7 @@ export async function addEventToGoogleCalendar(accessToken, event) {
 	try {
 		const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		const startDate = new Date(event.date);
-		const endDate = new Date(startDate.getTime() + (event.duration || 60) * 60000); 
+		const endDate = new Date(startDate.getTime() + (event.duration || 60) * 60000);
 
 		const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
 			method: "POST",
@@ -29,12 +29,12 @@ export async function addEventToGoogleCalendar(accessToken, event) {
 
 		if (!response.ok) {
 			console.error("Google Calendar Error:", data);
-			alert("Failed to add event to Google Calendar.");
+			return { success: false, message: "Failed to add event to Google Calendar." };
 		} else {
-			alert("Event added to Google Calendar!");
+			return { success: true, message: "Event added to Google Calendar successfully!" };
 		}
 	} catch (err) {
 		console.error("Error adding event:", err);
-		alert("Something went wrong while adding the event.");
+		return { success: false, message: "Something went wrong while adding the event." };
 	}
 }
