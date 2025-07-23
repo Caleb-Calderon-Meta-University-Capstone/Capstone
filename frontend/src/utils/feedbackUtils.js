@@ -231,3 +231,180 @@ export function recommendEventsForUser(userId, feedbackMap, clusterMap, eventVec
 		.slice(0, topN)
 		.map((o) => o.eid);
 }
+
+//generate detailed explanation for why an event was recommended
+export function generateEventRecommendationExplanation(event, userFeedback) {
+	const reasons = [];
+
+	// Get all the reasons the user has liked events, categorized by type
+	const likedReasons = [];
+	const locationReasons = [];
+	const durationReasons = [];
+	const typeReasons = [];
+	const qualityReasons = [];
+
+	Object.values(userFeedback).forEach((feedback) => {
+		if (feedback.liked) {
+			feedback.reasons.forEach((reason) => {
+				const reasonLower = reason.toLowerCase();
+				likedReasons.push(reasonLower);
+
+				// Categorize reasons
+				if (reasonLower.includes("virtual") || reasonLower.includes("online") || reasonLower.includes("zoom") || reasonLower.includes("campus") || reasonLower.includes("academic") || reasonLower.includes("building") || reasonLower.includes("hub") || reasonLower.includes("center")) {
+					locationReasons.push(reasonLower);
+				}
+
+				if (reasonLower.includes("short") || reasonLower.includes("quick") || reasonLower.includes("brief") || reasonLower.includes("long") || reasonLower.includes("in-depth") || reasonLower.includes("detailed")) {
+					durationReasons.push(reasonLower);
+				}
+
+				if (
+					reasonLower.includes("workshop") ||
+					reasonLower.includes("hands-on") ||
+					reasonLower.includes("practical") ||
+					reasonLower.includes("networking") ||
+					reasonLower.includes("connections") ||
+					reasonLower.includes("people") ||
+					reasonLower.includes("career") ||
+					reasonLower.includes("professional") ||
+					reasonLower.includes("job") ||
+					reasonLower.includes("social") ||
+					reasonLower.includes("fun") ||
+					reasonLower.includes("friends") ||
+					reasonLower.includes("tech") ||
+					reasonLower.includes("technical") ||
+					reasonLower.includes("coding") ||
+					reasonLower.includes("programming")
+				) {
+					typeReasons.push(reasonLower);
+				}
+
+				if (reasonLower.includes("popular") || reasonLower.includes("high-rated") || reasonLower.includes("quality") || reasonLower.includes("valuable") || reasonLower.includes("worthwhile")) {
+					qualityReasons.push(reasonLower);
+				}
+			});
+		}
+	});
+
+	// Location-based recommendations with specific details
+	if (event.location) {
+		const location = event.location.toLowerCase();
+		if (location.includes("zoom") || location.includes("virtual") || location.includes("online")) {
+			const virtualMatches = locationReasons.filter((reason) => reason.includes("virtual") || reason.includes("online") || reason.includes("zoom"));
+			if (virtualMatches.length > 0) {
+				const uniqueReasons = [...new Set(virtualMatches)].slice(0, 2);
+				reasons.push(`you <span class="text-blue-600 font-semibold">liked</span> <span class="text-indigo-600 font-semibold">${uniqueReasons.join(" and ")}</span> events`);
+			}
+		} else if (location.includes("thomas") || location.includes("west") || location.includes("east")) {
+			const campusMatches = locationReasons.filter((reason) => reason.includes("campus") || reason.includes("academic") || reason.includes("building"));
+			if (campusMatches.length > 0) {
+				const uniqueReasons = [...new Set(campusMatches)].slice(0, 2);
+				reasons.push(`you <span class="text-blue-600 font-semibold">enjoyed</span> <span class="text-indigo-600 font-semibold">${uniqueReasons.join(" and ")}</span> events`);
+			}
+		} else if (location.includes("hub") || location.includes("center")) {
+			const hubMatches = locationReasons.filter((reason) => reason.includes("hub") || reason.includes("center"));
+			if (hubMatches.length > 0) {
+				reasons.push(`you <span class="text-blue-600 font-semibold">preferred</span> <span class="text-indigo-600 font-semibold">${hubMatches[0]}</span> events`);
+			}
+		}
+	}
+
+	// Duration-based recommendations with specific details
+	if (event.duration) {
+		if (event.duration <= 60) {
+			const shortMatches = durationReasons.filter((reason) => reason.includes("short") || reason.includes("quick") || reason.includes("brief"));
+			if (shortMatches.length > 0) {
+				const uniqueReasons = [...new Set(shortMatches)].slice(0, 2);
+				reasons.push(`you <span class="text-green-600 font-semibold">liked</span> <span class="text-teal-600 font-semibold">${uniqueReasons.join(" and ")}</span> events`);
+			}
+		} else if (event.duration >= 120) {
+			const longMatches = durationReasons.filter((reason) => reason.includes("long") || reason.includes("in-depth") || reason.includes("detailed"));
+			if (longMatches.length > 0) {
+				const uniqueReasons = [...new Set(longMatches)].slice(0, 2);
+				reasons.push(`you <span class="text-green-600 font-semibold">enjoyed</span> <span class="text-teal-600 font-semibold">${uniqueReasons.join(" and ")}</span> sessions`);
+			}
+		}
+	}
+
+	// Event type recommendations with specific details
+	const eventTitle = event.title.toLowerCase();
+	const eventDesc = event.description.toLowerCase();
+
+	if (eventTitle.includes("workshop") || eventDesc.includes("workshop")) {
+		const workshopMatches = typeReasons.filter((reason) => reason.includes("workshop") || reason.includes("hands-on") || reason.includes("practical"));
+		if (workshopMatches.length > 0) {
+			const uniqueReasons = [...new Set(workshopMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-purple-600 font-semibold">enjoyed</span> <span class="text-purple-600 font-semibold">${uniqueReasons.join(" and ")}</span> activities`);
+		}
+	}
+
+	if (eventTitle.includes("networking") || eventDesc.includes("networking")) {
+		const networkingMatches = typeReasons.filter((reason) => reason.includes("networking") || reason.includes("connections") || reason.includes("people"));
+		if (networkingMatches.length > 0) {
+			const uniqueReasons = [...new Set(networkingMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-purple-600 font-semibold">liked</span> <span class="text-purple-600 font-semibold">${uniqueReasons.join(" and ")}</span> opportunities`);
+		}
+	}
+
+	if (eventTitle.includes("career") || eventDesc.includes("career")) {
+		const careerMatches = typeReasons.filter((reason) => reason.includes("career") || reason.includes("professional") || reason.includes("job"));
+		if (careerMatches.length > 0) {
+			const uniqueReasons = [...new Set(careerMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-purple-600 font-semibold">valued</span> <span class="text-purple-600 font-semibold">${uniqueReasons.join(" and ")}</span> development`);
+		}
+	}
+
+	if (eventTitle.includes("social") || eventDesc.includes("social")) {
+		const socialMatches = typeReasons.filter((reason) => reason.includes("social") || reason.includes("fun") || reason.includes("friends"));
+		if (socialMatches.length > 0) {
+			const uniqueReasons = [...new Set(socialMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-purple-600 font-semibold">enjoyed</span> <span class="text-purple-600 font-semibold">${uniqueReasons.join(" and ")}</span> activities`);
+		}
+	}
+
+	if (eventTitle.includes("tech") || eventDesc.includes("tech") || eventTitle.includes("coding") || eventDesc.includes("coding")) {
+		const techMatches = typeReasons.filter((reason) => reason.includes("tech") || reason.includes("technical") || reason.includes("coding") || reason.includes("programming"));
+		if (techMatches.length > 0) {
+			const uniqueReasons = [...new Set(techMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-purple-600 font-semibold">liked</span> <span class="text-purple-600 font-semibold">${uniqueReasons.join(" and ")}</span> events`);
+		}
+	}
+
+	// quality-based recommendations
+	if (event.points >= 50) {
+		const qualityMatches = qualityReasons.filter((reason) => reason.includes("popular") || reason.includes("high-rated") || reason.includes("quality") || reason.includes("valuable") || reason.includes("worthwhile"));
+		if (qualityMatches.length > 0) {
+			const uniqueReasons = [...new Set(qualityMatches)].slice(0, 2);
+			reasons.push(`you <span class="text-orange-600 font-semibold">liked</span> <span class="text-pink-600 font-semibold">${uniqueReasons.join(" and ")}</span> events`);
+		}
+	}
+
+	// Fallback with actual feedback data
+	if (reasons.length === 0) {
+		if (likedReasons.length > 0) {
+			// Show the most common reasons the user liked events
+			const reasonCounts = {};
+			likedReasons.forEach((reason) => {
+				reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+			});
+			const topReasons = Object.entries(reasonCounts)
+				.sort(([, a], [, b]) => b - a)
+				.slice(0, 3)
+				.map(([reason]) => reason);
+
+			reasons.push(`you <span class="text-indigo-600 font-semibold">liked</span> events with attributes such as <span class="text-indigo-600 font-semibold">${topReasons.join(", ")}</span> and more`);
+		} else {
+			return "This event was recommended based on your overall preferences and feedback patterns.";
+		}
+	}
+
+	// Build detailed explanation with multiple reasons
+	if (reasons.length === 1) {
+		return `This event was recommended because ${reasons[0]}.`;
+	} else if (reasons.length === 2) {
+		return `This event was recommended because ${reasons[0]} and ${reasons[1]}.`;
+	} else {
+		const lastReason = reasons.pop();
+		return `This event was recommended because ${reasons.join(", ")}, and ${lastReason}.`;
+	}
+}
