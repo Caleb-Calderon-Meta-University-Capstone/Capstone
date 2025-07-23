@@ -212,7 +212,7 @@ export default function MentorPage() {
 							</div>
 
 							<div className="w-24 h-24 rounded-full overflow-hidden shadow-md border-4 border-blue-200 mb-4">
-								<img src={mentor.profile_picture || "https://picsum.photos/200"} alt={mentor.name} className="object-cover w-full h-full" />
+								<img src={mentor.profile_picture || "/default-avatar.svg"} alt={mentor.name} className="object-cover w-full h-full" />
 							</div>
 
 							<div className="text-xl font-bold flex items-center gap-2 mb-2 text-gray-900">
