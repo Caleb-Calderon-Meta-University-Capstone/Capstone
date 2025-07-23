@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ThumbsUp, ThumbsDown, HelpCircle } from "lucide-react";
+import { ThumbsUp, ThumbsDown, HelpCircle, Download } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -32,6 +32,32 @@ function Modal({ open, title, message, onClose, onConfirm, confirmText = "OK", c
 		</div>
 	);
 }
+
+const generateICSFile = (event) => {
+	const formatDate = (date) => {
+		return new Date(date).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+	};
+
+	const eventDate = new Date(event.date);
+	const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // Default 2 hours duration
+
+	const icsContent = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MICS//Event Calendar//EN", "BEGIN:VEVENT", `UID:${event.id}@mics.colorstack.org`, `DTSTART:${formatDate(eventDate)}`, `DTEND:${formatDate(endDate)}`, `SUMMARY:${event.title}`, `DESCRIPTION:${event.description || "No description available"}`, `LOCATION:${event.location || "No location specified"}`, `ORGANIZER:${event.users?.name || "Unknown"}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+
+	return icsContent;
+};
+
+const downloadICSFile = (event) => {
+	const icsContent = generateICSFile(event);
+	const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = `${event.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.ics`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
+};
 
 export default function Events({ role, onTabChange }) {
 	const navigate = useNavigate();
@@ -431,6 +457,17 @@ export default function Events({ role, onTabChange }) {
 						className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition"
 					>
 						{state.googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
+					</button>
+					<button
+						onClick={(event) => {
+							event.stopPropagation();
+							downloadICSFile(e);
+						}}
+						className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded transition flex items-center gap-2"
+						title="Download .ics file for your calendar"
+					>
+						<Download size={16} />
+						Download
 					</button>
 					<button
 						onClick={(event) => {

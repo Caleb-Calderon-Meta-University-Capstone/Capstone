@@ -381,4 +381,22 @@ describe("Events Component", () => {
 			});
 		});
 	});
+
+	describe("Calendar Integration", () => {
+		it("shows download button for ICS files", async () => {
+			renderEvents();
+			await waitFor(() => {
+				const downloadButtons = screen.getAllByText("Download");
+				expect(downloadButtons.length).toBeGreaterThan(0);
+			});
+		});
+
+		it("shows connect Google Calendar button when not connected", async () => {
+			renderEvents();
+			await waitFor(() => {
+				const googleButtons = screen.getAllByText("Connect Google Calendar");
+				expect(googleButtons.length).toBeGreaterThan(0);
+			});
+		});
+	});
 });
