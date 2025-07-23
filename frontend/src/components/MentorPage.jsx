@@ -172,10 +172,10 @@ export default function MentorPage() {
 				{showWeightModal && (
 					<div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
 						<div className="bg-white p-6 rounded-lg w-96">
-							<h2 className="text-xl mb-4">Feature Weights</h2>
+							<h2 className="text-xl mb-4 text-gray-900">Feature Weights</h2>
 							{Object.entries(weights).map(([key, val]) => (
 								<div key={key} className="mb-3">
-									<label className="block font-medium">{key.replace("_", " ")}</label>
+									<label className="block font-medium text-gray-900">{key.replace("_", " ")}</label>
 									<input
 										type="range"
 										min="0"
@@ -190,11 +190,11 @@ export default function MentorPage() {
 										}
 										className="w-full"
 									/>
-									<div className="text-sm text-right">{(val * 100).toFixed(0)}%</div>
+									<div className="text-sm text-right text-gray-700">{(val * 100).toFixed(0)}%</div>
 								</div>
 							))}
 							<div className="flex justify-end mt-4">
-								<button onClick={() => setShowWeightModal(false)} className="px-4 py-2 bg-gray-200 rounded">
+								<button onClick={() => setShowWeightModal(false)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors">
 									Close
 								</button>
 							</div>
