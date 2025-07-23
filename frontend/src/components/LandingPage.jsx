@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Footer from "./Footer";
 import { features, partners, socialLinks } from "./constants/landingPageData";
+import { ChevronDown } from "lucide-react";
 
 export default function LandingPage() {
 	const { scrollYProgress } = useScroll();
@@ -26,6 +27,26 @@ export default function LandingPage() {
 						<Link to="/signup" className="inline-block bg-white/90 text-indigo-700 font-semibold py-3 px-8 rounded-full shadow-lg backdrop-blur-sm hover:bg-white transition-all">
 							Join the Community ↗
 						</Link>
+					</motion.div>
+
+					<motion.div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5, duration: 0.8 }}>
+						<motion.div
+							className="flex flex-col items-center text-white/70 hover:text-white/90 transition-colors cursor-pointer"
+							onClick={() => {
+								document.querySelector(".snap-start:nth-child(2)").scrollIntoView({
+									behavior: "smooth",
+								});
+							}}
+							animate={{ y: [0, 8, 0] }}
+							transition={{
+								duration: 2,
+								repeat: Infinity,
+								ease: "easeInOut",
+							}}
+						>
+							<span className="text-sm font-medium mb-2">Scroll to explore</span>
+							<ChevronDown className="w-6 h-6" />
+						</motion.div>
 					</motion.div>
 				</motion.section>
 
