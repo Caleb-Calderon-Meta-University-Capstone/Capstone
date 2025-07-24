@@ -6,10 +6,10 @@ A centralized hub for members of the Multicultural Innovators in Computer Scienc
 
 ## Project Info
 
-**Intern:** [Caleb Calderon  ]([url](https://www.linkedin.com/in/caleb-calderon/))
-**Intern Manager:** [Alejandro Gleason ]([url](https://www.linkedin.com/in/alegleason/)) 
-**Intern Director:** [Zahra Surani]([url](https://www.linkedin.com/in/zahrasurani/))  
-**Peers:** [Stella Li]([url](https://www.linkedin.com/in/sijia11/)),[ Weibin Ma ]([url](https://www.linkedin.com/in/weibinma/)) 
+**Intern:** Caleb Calderon  
+**Manager:** Alejandro Gleason  
+**Director:** Zahra Surani  
+**Peers:** Stella Li, Weibin Ma  
 **GitHub Repository:** [https://fburl.com/zfl3d7kc](https://fburl.com/zfl3d7kc)
 
 ---
