@@ -55,14 +55,14 @@ MICS members often feel disconnected and unsure how to get involved. There's lim
 
 - [x] ~~Download `.ics` calendar files for events~~  
 - [x] ~~Admin: Create & delete events~~  
-- [ ] Admin Dashboard for Point Management  
-- [ ] Skill Endorsements  
-- [ ] AI-Generated Bio with AI  
 - [x] ~~Filter/search for members and events~~  
 - [x] ~~LinkedIn field + connect to others’ profiles~~  
 - [x] ~~User-created posts with likes, comments, and filters~~  
 - [x] ~~Event clustering visualization (D3)~~  
-- [x] ~~Explanation text for mentor matches and event recs~~  
+- [x] ~~Explanation text for mentor matches and event recs~~
+- [ ] Admin Dashboard for Point Management  
+- [ ] Skill Endorsements  
+- [ ] AI-Generated Bio with AI  
 
 ---
 
