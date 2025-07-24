@@ -1,8 +1,34 @@
 import React from "react";
-import { X, Calendar, MapPin, User, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
+import { X, Calendar, MapPin, User, ThumbsUp, ThumbsDown, Heart, Download } from "lucide-react";
 import { supabase } from "../supabaseClient";
 import { useGoogleLogin } from "@react-oauth/google";
 import { addEventToGoogleCalendar } from "../lib/googleCalendarUtils";
+
+const generateICSFile = (event) => {
+	const formatDate = (date) => {
+		return new Date(date).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+	};
+
+	const eventDate = new Date(event.date);
+	const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+
+	const icsContent = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MICS//Event Calendar//EN", "BEGIN:VEVENT", `UID:${event.id}@mics.colorstack.org`, `DTSTART:${formatDate(eventDate)}`, `DTEND:${formatDate(endDate)}`, `SUMMARY:${event.title}`, `DESCRIPTION:${event.description || "No description available"}`, `LOCATION:${event.location || "No location specified"}`, `ORGANIZER:${event.users?.name || "Unknown"}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+
+	return icsContent;
+};
+
+const downloadICSFile = (event) => {
+	const icsContent = generateICSFile(event);
+	const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = `${event.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.ics`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
+};
 
 export default function EventDetailModal({ event, isOpen, onClose, onRegister, isRegistered, currentUserId, role }) {
 	const [googleToken, setGoogleToken] = React.useState(null);
@@ -121,9 +147,16 @@ export default function EventDetailModal({ event, isOpen, onClose, onRegister, i
 								{isRegistered ? "Cancel Registration" : "Register for Event"}
 							</button>
 
-							<button onClick={handleAddToCalendar} className="w-full px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
-								{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
-							</button>
+							<div className="grid grid-cols-2 gap-3">
+								<button onClick={handleAddToCalendar} className="px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+									{googleToken ? "Add to Google Calendar" : "Connect Google Calendar"}
+								</button>
+								
+								<button onClick={() => downloadICSFile(event)} className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+									<Download size={20} />
+									Download .ics
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
