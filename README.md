@@ -59,9 +59,8 @@ MICS members often feel disconnected and unsure how to get involved. There's lim
 - [x] ~~LinkedIn field + connect to others’ profiles~~  
 - [x] ~~User-created posts with likes, comments, and filters~~  
 - [x] ~~Event clustering visualization (D3)~~  
-- [x] ~~Explanation text for mentor matches and event recs~~
-- [ ] Admin Dashboard for Point Management  
-- [ ] Skill Endorsements  
+- [x] ~~Explanation text for mentor matches and event recs~~ 
+- [ ] Direct Messaging  
 - [ ] AI-Generated Bio with AI  
 
 ---
