@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function AdvancedFiltersModal({ visible, onClose, filters, onFiltersChange, sortBy, sortOrder, onSortChange }) {
+export default function AdvancedFiltersModal({ visible, onClose, filters, onFiltersChange, sortBy, sortOrder, onSortChange, onApply, onReset }) {
 	if (!visible) return null;
 
 	return (
@@ -19,19 +19,7 @@ export default function AdvancedFiltersModal({ visible, onClose, filters, onFilt
 					<div>
 						<div className="flex items-center justify-between mb-4">
 							<h4 className="text-lg font-semibold text-gray-800">Filters</h4>
-							<button
-								onClick={() =>
-									onFiltersChange({
-										dateRange: { start: null, end: null },
-										pointsRange: { min: null, max: null },
-										location: "",
-										creator: "",
-										registrationStatus: "all",
-										eventType: "all",
-									})
-								}
-								className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-							>
+							<button onClick={onReset} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
 								Clear All
 							</button>
 						</div>
@@ -128,7 +116,7 @@ export default function AdvancedFiltersModal({ visible, onClose, filters, onFilt
 						<button onClick={onClose} className="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
 							Cancel
 						</button>
-						<button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+						<button onClick={onApply} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
 							Apply Filters
 						</button>
 					</div>

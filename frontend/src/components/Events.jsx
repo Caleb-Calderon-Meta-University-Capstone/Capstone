@@ -87,6 +87,14 @@ export default function Events({ role, onTabChange }) {
 			registrationStatus: "all",
 			eventType: "all",
 		},
+		tempFilters: {
+			dateRange: { start: null, end: null },
+			pointsRange: { min: null, max: null },
+			location: "",
+			creator: "",
+			registrationStatus: "all",
+			eventType: "all",
+		},
 		sortBy: "date",
 		sortOrder: "asc",
 		showFilters: false,
@@ -281,6 +289,22 @@ export default function Events({ role, onTabChange }) {
 			...prev,
 			showEventDetailModal: false,
 			selectedEvent: null,
+		}));
+	};
+
+	const applyFilters = () => {
+		setState((prev) => ({
+			...prev,
+			filters: { ...prev.tempFilters },
+			currentPage: 1,
+		}));
+		setStateField("showFilters", false);
+	};
+
+	const resetTempFilters = () => {
+		setState((prev) => ({
+			...prev,
+			tempFilters: { ...prev.filters },
 		}));
 	};
 
@@ -609,7 +633,13 @@ export default function Events({ role, onTabChange }) {
 						View Visualization
 					</button>
 
-					<button onClick={() => setStateField("showFilters", !state.showFilters)} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+					<button
+						onClick={() => {
+							resetTempFilters();
+							setStateField("showFilters", !state.showFilters);
+						}}
+						className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+					>
 						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
 						</svg>
@@ -620,14 +650,16 @@ export default function Events({ role, onTabChange }) {
 				<AdvancedFiltersModal
 					visible={state.showFilters}
 					onClose={() => setStateField("showFilters", false)}
-					filters={state.filters}
-					onFiltersChange={(filters) => setStateField("filters", filters)}
+					filters={state.tempFilters}
+					onFiltersChange={(filters) => setStateField("tempFilters", filters)}
 					sortBy={state.sortBy}
 					sortOrder={state.sortOrder}
 					onSortChange={({ sortBy, sortOrder }) => {
 						setStateField("sortBy", sortBy);
 						setStateField("sortOrder", sortOrder);
 					}}
+					onApply={applyFilters}
+					onReset={resetTempFilters}
 				/>
 
 				{state.showAddModal && <AddEventModal onClose={() => setStateField("showAddModal", false)} onSubmit={handleAddEvent} submitting={state.submitting} />}
